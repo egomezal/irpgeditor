@@ -79,6 +79,7 @@ public class FrameiRPGEditor extends JFrame {
 	PanelToolContainer tabbedpaneLayout = new PanelToolContainer();
 	PanelSQL panelSql = new PanelSQL();
 	PanelSQLPlus panelSqlPlus = new PanelSQLPlus();
+	PanelJobs panelJobs = new PanelJobs();
 	JMenuItem menuAddFileView = new JMenuItem();
 	JMenu menuEdit = new JMenu();
 	JMenuItem jMenuItem5 = new JMenuItem();
@@ -159,7 +160,7 @@ public class FrameiRPGEditor extends JFrame {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		splash.hide();
+		splash.setVisible(false);
 		splash.dispose();
 		splash = null;
 	}
@@ -277,6 +278,7 @@ public class FrameiRPGEditor extends JFrame {
 		tabbedPaneTools.add(panelSearchResults);
 		tabbedPaneTools.add(panelSql);
 		tabbedPaneTools.add(panelSqlPlus);
+		tabbedPaneTools.add(panelJobs);
 		this.getContentPane().add(toolbar, BorderLayout.NORTH);
 		jMenuBar1.add(menuFile);
 		jMenuBar1.add(menuEdit);
@@ -328,6 +330,7 @@ public class FrameiRPGEditor extends JFrame {
 	/**
 	 * associates actions with gui controls.
 	 */
+	@SuppressWarnings("static-access")
 	protected void addActions() {
 		menuAddFileView.addActionListener(actionLayout);
 		menuRpgReference.addActionListener(actionRpgReference);
@@ -426,6 +429,11 @@ public class FrameiRPGEditor extends JFrame {
 	 * gets called when the application exits.
 	 */
 	class ActionExit extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -9220129392250898861L;
+
 		public ActionExit() {
 			super("Exit");
 			setEnabled(true);
@@ -520,6 +528,7 @@ public class FrameiRPGEditor extends JFrame {
 	class HandlerStructure implements OutputStructure {
 		ListenerStructure listener;
 
+		@SuppressWarnings("rawtypes")
 		public void setStructure(TreeModel treeModel, Enumeration expands,
 				ListenerStructure listener) {
 			TreePath path;

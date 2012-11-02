@@ -77,6 +77,8 @@ public class Icons {
   public static ImageIcon iconModule = new ImageIcon(Icons.class.getResource("Module.gif"));
   public static ImageIcon iconServiceProgram = new ImageIcon(Icons.class.getResource("SrvPgm.gif"));
   
+  public static ImageIcon iconRefresh = new ImageIcon(Icons.class.getResource("action_refresh_blue.gif"));
+  
   public static ImageIcon iconSpoolPreview = new ImageIcon(Icons.class.getResource("document-preview.png"));
   public static ImageIcon iconSpooltoText = new ImageIcon(Icons.class.getResource("tab-edit.png"));
   public static ImageIcon iconSpooltoPDF = new ImageIcon(Icons.class.getResource("acrobat.png"));

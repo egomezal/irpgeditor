@@ -37,7 +37,11 @@ import org.tn5250j.framework.common.SessionManager;
  * @author Derek Van Kooten.
  */
 public class FrameTN5250J extends JFrame {
-  SessionGUI sp;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1146630124521323863L;
+SessionGUI sp;
   Session5250 sesion;
   
   protected SessionManager manager;
@@ -80,12 +84,13 @@ public class FrameTN5250J extends JFrame {
 
   public void setSystem(String system) {    
     java.util.Properties sesProps = new java.util.Properties();
-    String propFileName = null;
+    //String propFileName = null;
     String session = system;
     // Start loading properties
     sesProps.put(org.tn5250j.TN5250jConstants.SESSION_HOST,session);
     sesProps.put(org.tn5250j.TN5250jConstants.SESSION_CODE_PAGE, "284");
-    sesProps.put(org.tn5250j.TN5250jConstants.SCREEN_SIZE_27X132,"1");
+    sesProps.put(org.tn5250j.TN5250jConstants.SCREEN_SIZE_27X132_STR,"1");
+    sesProps.put(org.tn5250j.TN5250jConstants.SESSION_SCREEN_SIZE,org.tn5250j.TN5250jConstants.SCREEN_SIZE_27X132_STR);
     try {
 		sesProps.put(org.tn5250j.TN5250jConstants.SESSION_DEVICE_NAME,InetAddress.getLocalHost().getHostName());
 	} catch (UnknownHostException e) {
@@ -93,6 +98,7 @@ public class FrameTN5250J extends JFrame {
 	}
     sesion = manager.openSession(sesProps,"","");
     sp= new SessionGUI(sesion);
+    
     this.getContentPane().add(sp, BorderLayout.CENTER);
   }
 
