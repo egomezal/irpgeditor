@@ -940,7 +940,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
         Toolkit.getDefaultToolkit().beep();
         if ( status ) {
           panelLoading.setText("Saved Source. " + count + " lines saved.");
-          JOptionPane.showMessageDialog(null, errorMessage);
+          //JOptionPane.showMessageDialog(null, errorMessage);
         }
         else {
           JOptionPane.showMessageDialog(null, "Save failed. Error: " + errorMessage);
@@ -1743,6 +1743,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
     public void actionPerformed(ActionEvent evt) {
       Environment.compilerResults.focus();
       try {
+    	save();
         projectMember.compile(editorPaneSource);
       }
       catch (Exception e) {
