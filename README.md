@@ -3,10 +3,10 @@ iRPGEditor is a fork de JSEU Project http://sourceforge.net/projects/jseu/.
 
 iRPGEditor is Editor for IBM i(AS/400) programs and various tools for developers.
 
-Edits Files RPG, SQLRPGLE, DDS, CL
-Execute SQL command
-Spool Viewer
-Tn5250j integration
+    Edits Files RPG, SQLRPGLE, DDS, CL
+    Execute SQL command
+    Spool Viewer
+    Tn5250j integration
 
 What is new in v.1.00b1?
 
