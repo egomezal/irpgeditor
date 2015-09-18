@@ -1,11 +1,14 @@
 # irpgeditor
 RPGEditor is a fork de JSEU Project http://sourceforge.net/projects/jseu/.
 
-Include new options in SQL Panel and Spool Panel.
+iRPGEditor is Editor for IBM i(AS/400) programs and various tools for developers.
 
-iRPGEditor is Editor for IBM i(AS/400) Program and various Tools. Edits Files RPG, SQLRPGLE, DDS, CL
+Edits Files RPG, SQLRPGLE, DDS, CL
+Execute SQL command
+Spool Viewer
+Tn5250j integration
 
-What is new in v.1.00?
+What is new in v.1.00b1?
 
     UI enhanced
     New Option "Open Member from Library"
