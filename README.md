@@ -1,5 +1,5 @@
 # irpgeditor
-RPGEditor is a fork de JSEU Project http://sourceforge.net/projects/jseu/.
+iRPGEditor is a fork de JSEU Project http://sourceforge.net/projects/jseu/.
 
 iRPGEditor is Editor for IBM i(AS/400) programs and various tools for developers.
 
