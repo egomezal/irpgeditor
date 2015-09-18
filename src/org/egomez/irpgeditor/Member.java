@@ -302,7 +302,7 @@ public class Member {
 				stmt.execute(as400system.buildSqlForCmd("QSYS/DLTF FILE(QTEMP/SRCUPLOAD)"));
 			} catch (SQLException e) {
 				// e.printStackTrace();
-				logger.error(e.getMessage());
+				//logger.error(e.getMessage());
 			}
 			stmt.execute(as400system.buildSqlForCmd("QSYS/CRTSRCPF FILE(QTEMP/SRCUPLOAD) RCDLEN(" + lengthFile + ")"));
 			stmt.execute(as400system.buildSqlForCmd("QSYS/ADDPFM FILE(QTEMP/SRCUPLOAD) MBR(SOURCE)"));

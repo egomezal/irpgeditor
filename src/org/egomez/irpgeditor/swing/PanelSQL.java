@@ -254,7 +254,7 @@ public class PanelSQL extends PanelTool implements OutputSQL {
 					textareaSqlResults.setSelectionEnd(0);
 				}
 			});
-		} finally {
+		}/* finally {
 			try {
 				if (!connection.isClosed() && connection != null)
 					connection.close();
@@ -262,7 +262,7 @@ public class PanelSQL extends PanelTool implements OutputSQL {
 				// e.printStackTrace();
 				logger.error(e.getMessage());
 			}
-		}
+		}*/
 		sql = null;
 	}
 
@@ -303,6 +303,7 @@ public class PanelSQL extends PanelTool implements OutputSQL {
 					stmt.close();
 				} catch (Exception e) {
 					// e.printStackTrace();
+					JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
 					logger.error(e.getMessage());
 				}
 				textareaSqlResults.setSelectionStart(0);

@@ -289,7 +289,7 @@ public class DialogMemberOpen extends JDialog {
 				}
 
 				ProjectMember projectMember = project.addMember(member1);
-				Environment.members.open(projectMember);
+				Environment.members.open(projectMember);				
 				Environment.members.select(projectMember);
 
 			} catch (Exception e) {

@@ -699,6 +699,9 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 			synchronized (this) {
 				currentlyLoading = false;
 			}
+			Environment.members.close(projectMember, false);
+			Project project = Environment.projects.getSelected();
+			project.removeMember(projectMember);
 			return;
 		}
 		SwingUtilities.invokeLater(new Runnable() {
