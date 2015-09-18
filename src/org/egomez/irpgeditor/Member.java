@@ -22,9 +22,14 @@ package org.egomez.irpgeditor;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.awt.Color;
+
+import javax.swing.SwingUtilities;
 
 import org.egomez.irpgeditor.env.*;
 import org.egomez.irpgeditor.event.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.ibm.as400.data.*;
 
@@ -33,7 +38,41 @@ import com.ibm.as400.data.*;
  * 
  * @author Derek Van Kooten.
  */
+@SuppressWarnings("unused")
 public class Member {
+
+	class JobMemberCopy implements ListenerSubmitJob, Runnable {
+
+		public void jobCompleted(SubmitJob submitJob) {
+			SwingUtilities.invokeLater(this);
+		}
+
+		public void run() {
+			if (listener == null) {
+				return;
+			} else {
+				listener.memberCreated(new Member(systemTo, libraryTo, fileTo, memberTo));
+				return;
+			}
+		}
+
+		String fileTo;
+		String libraryTo;
+		ListenerMemberCreated listener;
+		String memberTo;
+		AS400System systemTo;
+
+		public JobMemberCopy(AS400System systemTo, String libraryTo, String fileTo, String memberTo,
+				ListenerMemberCreated listener) {
+			super();
+			this.systemTo = systemTo;
+			this.libraryTo = libraryTo;
+			this.fileTo = fileTo;
+			this.memberTo = memberTo;
+			this.listener = listener;
+		}
+	}
+
 	private static int alias = 0;
 	AS400System as400system;
 	String library;
@@ -44,7 +83,9 @@ public class Member {
 	String created;
 	String changed;
 	int copyID;
+	@SuppressWarnings("rawtypes")
 	ArrayList listListeners = new ArrayList();
+	Logger logger = LoggerFactory.getLogger(Member.class);
 
 	public static String SOURCE_TYPE_DSPF = "DSPF";
 	public static String SOURCE_TYPE_RPG = "RPG";
@@ -56,8 +97,7 @@ public class Member {
 	public static String SOURCE_TYPE_PF = "PF";
 	public static String SOURCE_TYPE_LF = "LF";
 
-	public Member(AS400System as400system, String library, String file,
-			String member) {
+	public Member(AS400System as400system, String library, String file, String member) {
 		this.as400system = as400system;
 		this.library = library.trim().toUpperCase();
 		this.file = file.trim().toUpperCase();
@@ -65,9 +105,8 @@ public class Member {
 		getInfo();
 	}
 
-	public Member(AS400System as400system, String library, String file,
-			String member, String sourceType, String description,
-			String created, String changed) {
+	public Member(AS400System as400system, String library, String file, String member, String sourceType,
+			String description, String created, String changed) {
 		this.as400system = as400system;
 		this.library = library.trim().toUpperCase();
 		this.file = file.trim().toUpperCase();
@@ -95,16 +134,11 @@ public class Member {
 	}
 
 	public void convertRPG4() throws Exception {
-		as400system.call("QSYS/RMVM FILE(QGPL/QRPGLESRC) MBR(" + getName()
-				+ ")");
-		as400system.call("QSYS/CVTRPGSRC FROMFILE(" + getLibrary() + "/"
-				+ getFile() + ") FROMMBR(" + getName()
+		as400system.call("QSYS/RMVM FILE(QGPL/QRPGLESRC) MBR(" + getName() + ")");
+		as400system.call("QSYS/CVTRPGSRC FROMFILE(" + getLibrary() + "/" + getFile() + ") FROMMBR(" + getName()
 				+ ") TOFILE(QGPL/QRPGLESRC) TOMBR(" + getName() + ")");
-		as400system
-				.call("CPYF FROMFILE(QGPL/QRPGLESRC) TOFILE(" + getLibrary()
-						+ "/" + getFile() + ") FROMMBR(" + getName()
-						+ ") TOMBR(" + getName()
-						+ ") MBROPT(*REPLACE) CRTFILE(*YES) FMTOPT(*NOCHK)");
+		as400system.call("CPYF FROMFILE(QGPL/QRPGLESRC) TOFILE(" + getLibrary() + "/" + getFile() + ") FROMMBR("
+				+ getName() + ") TOMBR(" + getName() + ") MBROPT(*REPLACE) CRTFILE(*YES) FMTOPT(*NOCHK)");
 		setSourceType("RPGLE");
 	}
 
@@ -118,42 +152,28 @@ public class Member {
 		if (name.equalsIgnoreCase(member)) {
 			return;
 		}
-		as400system.call("RNMM FILE(" + getLibrary() + "/" + getFile()
-				+ ") MBR(" + getName() + ") NEWMBR(" + name.trim() + ")");
+		as400system.call(
+				"RNMM FILE(" + getLibrary() + "/" + getFile() + ") MBR(" + getName() + ") NEWMBR(" + name.trim() + ")");
 		this.member = name;
 		fireChanged();
 	}
 
 	public void delete() throws Exception {
-		as400system.call("RMVM FILE(" + getLibrary() + "/" + getFile()
-				+ ") MBR(" + getName() + ")");
+		Environment.qcmdexec.submitJob(as400system,
+				"RMVM FILE(" + getLibrary() + "/" + getFile() + ") MBR(" + getName() + ")");
 	}
 
 	public void setSourceType(String sourceType) throws Exception {
-		as400system.call("CHGPFM FILE(" + getLibrary() + "/" + getFile()
-				+ ") MBR(" + getName() + ") SRCTYPE(" + sourceType + ")");
+		as400system.call("CHGPFM FILE(" + getLibrary() + "/" + getFile() + ") MBR(" + getName() + ") SRCTYPE("
+				+ sourceType + ")");
 		getInfo();
 		fireChanged();
 	}
 
-	public void copyTo(AS400System systemTo, String libraryTo, String fileTo,
-			String memberTo) throws Exception {
-		// if copying to different system.
-		if (as400system.equals(systemTo) == false) {
-			systemTo.call("CRTDDMF FILE(QTEMP/DDMTEMP) RMTFILE(" + this.library
-					+ "/" + this.file + ") RMTLOCNAME('" + as400system.address
-					+ "' *IP)");
-			systemTo.call("CPYF FROMFILE(QTEMP/DDMTEMP) TOFILE(" + libraryTo
-					+ "/" + fileTo + ") CRTFILE(*YES) FMTOPT(*NOCHK) "
-					+ "FROMMBR(" + this.member + ") TOMBR(" + memberTo
-					+ ") MBROPT(*REPLACE)");
-		} else {
-			as400system.call("CPYF FROMFILE(" + this.library + "/" + this.file
-					+ ") TOFILE(" + libraryTo + "/" + fileTo
-					+ ") CRTFILE(*YES) FMTOPT(*NOCHK) " + "FROMMBR("
-					+ this.member + ") TOMBR(" + memberTo
-					+ ") MBROPT(*REPLACE)");
-		}
+	public void copyTo(AS400System systemTo, String libraryTo, String fileTo, String memberTo,
+			ListenerMemberCreated listener) throws Exception {
+		JobMemberCopy job = new JobMemberCopy(systemTo, libraryTo, fileTo, memberTo, listener);
+		as400system.copyTo(library, file, member, systemTo, libraryTo, fileTo, memberTo, true, job);
 	}
 
 	public String getSourceType() {
@@ -215,19 +235,18 @@ public class Member {
 		}
 		try {
 			pcml = new ProgramCallDocument(as400system.as400, "api");
-			pcml.setValue("qusrmbrd.receiverLength",
-					new Integer(pcml.getOutputsize("qusrmbrd.receiver")));
+			pcml.setValue("qusrmbrd.receiverLength", new Integer(pcml.getOutputsize("qusrmbrd.receiver")));
 			pcml.setValue("qusrmbrd.fileName", "" + buffer);
 			pcml.setValue("qusrmbrd.memberName", member);
 			result = pcml.callProgram("qusrmbrd");
 			if (result == false) {
-				Environment.qcmdexec.append(pcml.getMessageList("qusrmbrd"));
+				Environment.qcmdexec.append(pcml.getMessageList("qusrmbrd"), QcmdexecOutput.colorResult, result);
 			} else {
-				sourceType = pcml.getValue("qusrmbrd.receiver.sourceType")
-						.toString();
+				sourceType = pcml.getValue("qusrmbrd.receiver.sourceType").toString();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			// e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -239,42 +258,54 @@ public class Member {
 		FileOutputStream fos;
 		File file;
 
-		file = new File("./backup.txt");
+		file = new File(
+				System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "backup.txt");
 		fos = new FileOutputStream(file);
-		fos.write(parser.getDocument()
-				.getText(0, parser.getDocument().getLength()).getBytes());
+		fos.write(parser.getDocument().getText(0, parser.getDocument().getLength()).getBytes());
 		fos.close();
 		return file.getAbsolutePath();
 	}
 
-	public void save(SourceParser parser, ListenerSave listener)
-			throws SQLException {
+	public String saveBackupLocal(SourceParser parser, String fileName) throws Exception {
+		FileOutputStream fos;
+		File file;
+
+		file = new File(fileName);
+		fos = new FileOutputStream(file);
+		fos.write(parser.getDocument().getText(0, parser.getDocument().getLength()).getBytes());
+		fos.close();
+		return file.getAbsolutePath();
+	}
+
+	public void save(SourceParser parser, ListenerSave listener) throws SQLException {
 		Connection connection;
 		Statement stmt;
-		StringBuffer buffer;
-		int row, date, today;
-		Calendar cal;
-		SourceLine line;
-		String backup = null;
-		int a;
+		/*
+		 * StringBuffer buffer; int row, date, today; Calendar cal; SourceLine
+		 * line; String backup = null; int a;
+		 */
 
 		connection = as400system.getConnection();
 		stmt = connection.createStatement();
-
+		int lengthFile = as400system.getSourceFileRecordLength(library, file);
 		if (file.equals("QRPGLESRC")) {
-			stmt.execute(as400system
-					.buildSqlForCmd("QSYS/DLTF FILE(QTEMP/SRCUPLOAD)"));
-			stmt.execute(as400system
-					.buildSqlForCmd("QSYS/CRTSRCPF FILE(QTEMP/SRCUPLOAD) RCDLEN(112)"));
-			stmt.execute(as400system
-					.buildSqlForCmd("QSYS/ADDPFM FILE(QTEMP/SRCUPLOAD) MBR(SOURCE)"));
+			try {
+				stmt.execute(as400system.buildSqlForCmd("QSYS/DLTF FILE(QTEMP/SRCUPLOAD)"));
+			} catch (SQLException e) {
+				// e.printStackTrace();
+				logger.error(e.getMessage());
+			}
+			stmt.execute(as400system.buildSqlForCmd("QSYS/CRTSRCPF FILE(QTEMP/SRCUPLOAD) RCDLEN(" + lengthFile + ")"));
+			stmt.execute(as400system.buildSqlForCmd("QSYS/ADDPFM FILE(QTEMP/SRCUPLOAD) MBR(SOURCE)"));
 		} else {
-			stmt.execute(as400system
-					.buildSqlForCmd("QSYS/DLTF FILE(QTEMP/SRCUPLOAD)"));
-			stmt.execute(as400system
-					.buildSqlForCmd("QSYS/CRTSRCPF FILE(QTEMP/SRCUPLOAD)"));
-			stmt.execute(as400system
-					.buildSqlForCmd("QSYS/ADDPFM FILE(QTEMP/SRCUPLOAD) MBR(SOURCE)"));
+			try {
+				stmt.execute(as400system.buildSqlForCmd("QSYS/DLTF FILE(QTEMP/SRCUPLOAD)"));
+			} catch (SQLException e) {
+				// e.printStackTrace();
+				logger.error(e.getMessage());
+			}
+			stmt.execute(as400system.buildSqlForCmd("QSYS/CRTSRCPF FILE(QTEMP/SRCUPLOAD) RCDLEN(" + lengthFile + ")"));
+			stmt.execute(as400system.buildSqlForCmd("QSYS/ADDPFM FILE(QTEMP/SRCUPLOAD) MBR(SOURCE)"));
 		}
 
 		saveBulk(parser, listener);
@@ -287,24 +318,22 @@ public class Member {
 		 * cal.get(Calendar.DAY_OF_MONTH); connection =
 		 * as400system.getConnection(); synchronized (connection) { stmt =
 		 * connection.createStatement(); stmt.execute("create alias qtemp/a" + a
-		 * + " for " + library + "/" + file + "(" + member + ")");
-		 * stmt.execute("delete from qtemp/a" + a); buffer = new StringBuffer();
-		 * line = parser.first; row = 1; while ( line != null ) { format(line,
-		 * buffer); date = line.date; if ( line.changed || line.created ) { date
-		 * = today; } line.changed = false; line.created = false; line.date =
-		 * date; stmt.execute("insert into qtemp/a" + a + " values(" + row +
-		 * ", " + date + ", '" + buffer + "')"); row++; if ( listener != null )
-		 * { listener.lineSaved(row); } line = line.getNext(); }
-		 * stmt.execute("drop alias qtemp/a" + a); stmt.close(); } if ( listener
-		 * != null ) { listener.saveComplete(row, true, backup); }
-		 * setDirty(false); } catch (Exception e) { e.printStackTrace(); if (
-		 * listener != null ) { listener.saveComplete(0, false, e.getMessage() +
-		 * "\n" + backup); } }
+		 * + " for " + library + "/" + file + "(" + member + ")"); stmt.execute(
+		 * "delete from qtemp/a" + a); buffer = new StringBuffer(); line =
+		 * parser.first; row = 1; while ( line != null ) { format(line, buffer);
+		 * date = line.date; if ( line.changed || line.created ) { date = today;
+		 * } line.changed = false; line.created = false; line.date = date;
+		 * stmt.execute("insert into qtemp/a" + a + " values(" + row + ", " +
+		 * date + ", '" + buffer + "')"); row++; if ( listener != null ) {
+		 * listener.lineSaved(row); } line = line.getNext(); } stmt.execute(
+		 * "drop alias qtemp/a" + a); stmt.close(); } if ( listener != null ) {
+		 * listener.saveComplete(row, true, backup); } setDirty(false); } catch
+		 * (Exception e) { e.printStackTrace(); if ( listener != null ) {
+		 * listener.saveComplete(0, false, e.getMessage() + "\n" + backup); } }
 		 */
 	}
 
-	public void saveBulk(SourceParser parser, ListenerSave listener)
-			throws SQLException {
+	public void saveBulk(SourceParser parser, ListenerSave listener) throws SQLException {
 		Connection connection;
 		Statement stmt;
 		int today, date, row;
@@ -312,28 +341,24 @@ public class Member {
 		SourceLine line;
 		StringBuffer buffer = new StringBuffer();
 		String backup = null, append = " ";
-
+		int lengthFile = as400system.getSourceFileRecordLength(library, file);
 		// test length of lines first.
 		row = 1;
 		line = parser.getFirst();
 		while (line != null) {
 			// 81 because the cr/lf is counted.
-			if (file.equals("QRPGLESRC")) {
-				if (line.getText().length() > 100) {
-					if (listener != null) {
-						listener.saveComplete(0, false, "Line number: " + row
-								+ " is over 100 characters.");
-					}
-					return;
+			// if (file.equals("QRPGLESRC")) {
+			if (line.getText().length() > lengthFile) {
+				if (listener != null) {
+					listener.saveComplete(0, false, "Line number: " + row + " is over 120 characters.");
 				}
-			} else {
-				if (line.getText().length() > 81) {
-					if (listener != null) {
-						listener.saveComplete(0, false, "Line number: " + row
-								+ " is over 80 characters.");
-					}
-					return;
-				}
+				return;
+				// }
+				/*
+				 * } else { if (line.getText().length() > 100) { if (listener !=
+				 * null) { listener.saveComplete(0, false, "Line number: " + row
+				 * + " is over 120 characters."); } return; }
+				 */
 			}
 			row++;
 			line = line.getNext();
@@ -372,9 +397,8 @@ public class Member {
 					buffer.append("\n");
 					row++;
 					if (buffer.length() > 32000) {
-						stmt.execute("call qgpl/prcupload('"
-								+ buffer.toString().replaceAll("'", "''")
-								+ "',  '\n', '" + append + "')");
+						stmt.execute("call qgpl/prcupload('" + buffer.toString().replaceAll("'", "''") + "',  '\n', '"
+								+ append + "')");
 						append = "T";
 						buffer = new StringBuffer();
 						if (listener != null) {
@@ -389,23 +413,16 @@ public class Member {
 				if (buffer.length() > 0 || append.equalsIgnoreCase(" ")) {
 					// System.out.println("call qgpl/prcupload('" +
 					// buffer.toString().replaceAll("'", "''") +
-					// "',  X'0D25', '" + append + "')");
-					stmt.execute("call qgpl/prcupload('"
-							+ buffer.toString().replaceAll("'", "''")
-							+ "',  '\n', '" + append + "')");
+					// "', X'0D25', '" + append + "')");
+					stmt.execute("call qgpl/prcupload('" + buffer.toString().replaceAll("'", "''") + "',  '\n', '"
+							+ append + "')");
 				}
 				/*
 				 * try { stmt.execute("drop alias qtemp/srcupload"); } catch
 				 * (Exception e2) { }
 				 */
-				stmt.execute(as400system
-						.buildSqlForCmd("CPYF FROMFILE(QTEMP/SRCUPLOAD) TOFILE("
-								+ library
-								+ "/"
-								+ file
-								+ ") TOMBR("
-								+ member
-								+ ") MBROPT(*REPLACE) FMTOPT(*MAP *DROP)"));
+				stmt.execute(as400system.buildSqlForCmd("CPYF FROMFILE(QTEMP/SRCUPLOAD) TOFILE(" + library + "/" + file
+						+ ") TOMBR(" + member + ") MBROPT(*REPLACE) FMTOPT(*MAP *DROP)"));
 				stmt.close();
 			}
 			if (listener != null) {
@@ -413,17 +430,18 @@ public class Member {
 			}
 			parser.setDirty(false);
 		} catch (Exception e) {
-			System.out.println("buffer: ("
-					+ buffer.toString().replaceAll("'", "''") + ")");
-			e.printStackTrace();
+			// System.out.println("buffer: (" +
+			// buffer.toString().replaceAll("'", "''") + ")");
+			logger.info("buffer: (" + buffer.toString().replaceAll("'", "''") + ")");
+			// e.printStackTrace();
+			logger.error(e.getMessage());
 			if (listener != null) {
 				listener.saveComplete(0, false, e.getMessage() + "\n" + backup);
 			}
 		}
 	}
 
-	public void asaveNew(SourceParser parser, ListenerSave listener)
-			throws Exception {
+	public void asaveNew(SourceParser parser, ListenerSave listener) throws Exception {
 		Connection connection;
 		Statement stmt;
 		StringBuffer buffer;
@@ -447,8 +465,7 @@ public class Member {
 			for (int x = 0; x < parser.listDeleted.size(); x++) {
 				line = (SourceLine) parser.listDeleted.get(x);
 				if (line.created == false) {
-					stmt.execute("delete from qtemp/c" + copyID
-							+ " where srcseq = " + line.number);
+					stmt.execute("delete from qtemp/c" + copyID + " where srcseq = " + line.number);
 				}
 			}
 			line = parser.first;
@@ -460,8 +477,7 @@ public class Member {
 					date = today;
 					// calculate the row for this new line.
 					getRow(line, stmt, today, buffer);
-					stmt.execute("insert into qtemp/c" + copyID
-							+ "(srcseq, srcdat, srcdta) values(" + line.number
+					stmt.execute("insert into qtemp/c" + copyID + "(srcseq, srcdat, srcdta) values(" + line.number
 							+ ", " + date + ", '" + buffer + "')");
 					if (listener != null) {
 						listener.lineSaved(1);
@@ -470,8 +486,7 @@ public class Member {
 				} else if (line.changed) { // changed line.
 					format(line, buffer);
 					date = today;
-					stmt.execute("update qtemp/c" + copyID + " set srcdta = '"
-							+ buffer + "', srcdat = " + date
+					stmt.execute("update qtemp/c" + copyID + " set srcdta = '" + buffer + "', srcdat = " + date
 							+ " where srcseq = " + line.number);
 					if (listener != null) {
 						listener.lineSaved(1);
@@ -488,12 +503,9 @@ public class Member {
 					alias++;
 					a = alias;
 				}
-				stmt.execute("create alias qtemp/a" + a + " for " + library
-						+ "/" + file + "(" + member + ")");
+				stmt.execute("create alias qtemp/a" + a + " for " + library + "/" + file + "(" + member + ")");
 				stmt.execute("delete from qtemp/a" + a);
-				stmt.execute("insert into qtemp/a" + a
-						+ " select * from qtemp/c" + copyID
-						+ " order by srcseq");
+				stmt.execute("insert into qtemp/a" + a + " select * from qtemp/c" + copyID + " order by srcseq");
 				stmt.execute("drop alias qtemp/a" + a);
 			}
 			stmt.close();
@@ -515,8 +527,7 @@ public class Member {
 	 *            Statement
 	 * @throws SQLException
 	 */
-	private void getRow(SourceLine line, Statement stmt, int today,
-			StringBuffer buffer) throws SQLException {
+	private void getRow(SourceLine line, Statement stmt, int today, StringBuffer buffer) throws SQLException {
 		int previousRow, nextRow;
 		float row;
 
@@ -541,8 +552,7 @@ public class Member {
 				getRow(line.next, stmt, today, buffer);
 				format(line.next, buffer);
 				line.next.date = today;
-				stmt.execute("insert into qtemp/c" + copyID
-						+ "(srcseq, srcdat, srcdta) values(" + line.next.number
+				stmt.execute("insert into qtemp/c" + copyID + "(srcseq, srcdat, srcdta) values(" + line.next.number
 						+ ", " + today + ", '" + buffer + "')");
 				line.next.changed = false;
 				line.next.created = false;
@@ -570,13 +580,12 @@ public class Member {
 				if (line.next.changed) {
 					format(line.next, buffer);
 					line.next.date = today;
-					stmt.execute("update qtemp/c" + copyID + " set srcseq = "
-							+ line.next.number + ", srcdta = '" + buffer
-							+ "', srcdat = " + today + " where srcseq = " + row);
+					stmt.execute("update qtemp/c" + copyID + " set srcseq = " + line.next.number + ", srcdta = '"
+							+ buffer + "', srcdat = " + today + " where srcseq = " + row);
 					line.next.changed = false;
 				} else {
-					stmt.execute("update qtemp/c" + copyID + " set srcseq = "
-							+ line.next.number + " where srcseq = " + row);
+					stmt.execute(
+							"update qtemp/c" + copyID + " set srcseq = " + line.next.number + " where srcseq = " + row);
 				}
 			}
 		}
@@ -589,16 +598,17 @@ public class Member {
 		int index;
 
 		try {
-			buffer.replace(
-					0,
-					buffer.length(),
-					line.parser.getText(line.start, line.start + line.length
-							- 1));
+			buffer.replace(0, buffer.length(), line.parser.getText(line.start, line.start + line.length - 1));
 		} catch (StringIndexOutOfBoundsException e) {
-			System.out.println("buffer: " + buffer + ", "
-					+ buffer.toString().length() + ", " + line.start + ", "
-					+ line.length + ", " + line.parser.length());
-			e.printStackTrace();
+			/*
+			 * System.out.println("buffer: " + buffer + ", " +
+			 * buffer.toString().length() + ", " + line.start + ", " +
+			 * line.length + ", " + line.parser.length());
+			 */
+			logger.info("buffer: " + buffer + ", " + buffer.toString().length() + ", " + line.start + ", " + line.length
+					+ ", " + line.parser.length());
+			// e.printStackTrace();
+			logger.error(e.getMessage());
 			throw e;
 		}
 		if (buffer.length() > 80) {
@@ -635,8 +645,7 @@ public class Member {
 			if (member.library.trim().equalsIgnoreCase(library.trim()) == false) {
 				return false;
 			}
-			if (member.as400system.getName().trim()
-					.equalsIgnoreCase(as400system.getName().trim()) == false) {
+			if (member.as400system.getName().trim().equalsIgnoreCase(as400system.getName().trim()) == false) {
 				return false;
 			}
 			return true;
@@ -644,6 +653,7 @@ public class Member {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void addListener(ListenerMember listener) {
 		listListeners.add(listener);
 	}
@@ -652,11 +662,11 @@ public class Member {
 		listListeners.remove(listener);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void fireChanged() {
 		ListenerMember[] temp;
 
-		temp = (ListenerMember[]) listListeners
-				.toArray(new ListenerMember[listListeners.size()]);
+		temp = (ListenerMember[]) listListeners.toArray(new ListenerMember[listListeners.size()]);
 		for (int x = 0; x < temp.length; x++) {
 			temp[x].memberChanged(this);
 		}
@@ -667,11 +677,11 @@ public class Member {
 	 * 
 	 * @return boolean
 	 */
+	@SuppressWarnings("unchecked")
 	public boolean isOkToClose() {
 		ListenerMember[] temp;
 
-		temp = (ListenerMember[]) listListeners
-				.toArray(new ListenerMember[listListeners.size()]);
+		temp = (ListenerMember[]) listListeners.toArray(new ListenerMember[listListeners.size()]);
 		for (int x = 0; x < temp.length; x++) {
 			if (temp[x].isOkToClose(this) == false) {
 				return false;

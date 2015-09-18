@@ -20,6 +20,8 @@ package org.egomez.irpgeditor.refactor;
  */
 
 import org.egomez.irpgeditor.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.text.*;
@@ -31,7 +33,7 @@ import javax.swing.text.*;
  */
 public class RefactorNewSubroutine extends Refactor {
   StringBuffer buffer = new StringBuffer();
-
+  Logger logger = LoggerFactory.getLogger(RefactorNewSubroutine.class);
   public void start() {
     buffer = new StringBuffer();
   }
@@ -78,7 +80,8 @@ public class RefactorNewSubroutine extends Refactor {
       doc.insertString(lineStart.getStart(), "     C                   exsr      " + subName + "\n", null);
     }
     catch (Exception e) {
-      e.printStackTrace();
+    	logger.error(e.getMessage());
+      //e.printStackTrace();
     }
   }
 }

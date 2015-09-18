@@ -30,18 +30,22 @@ import org.egomez.irpgeditor.icons.*;
  * @author Derek Van Kooten.
  */
 public class WindowSplash extends Window {
-  ImageIcon iconFrame = new ImageIcon(Icons.class.getResource("Splash.gif"));
-  
-  public WindowSplash(Frame owner) {
-    super(owner);
-    setSize(iconFrame.getIconWidth(), iconFrame.getIconHeight());
-    Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-    Rectangle winDim = getBounds();
-    setLocation((screenDim.width - winDim.width) / 2, (screenDim.height - winDim.height) / 2);
-    setVisible(true);
-  }
-  
-  public void paint(Graphics g) {
-    g.drawImage(iconFrame.getImage(), 0, 0, this);
-  }
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5649928531370070037L;
+	ImageIcon iconFrame = new ImageIcon(Icons.class.getResource("Splash.gif"));
+
+	public WindowSplash(Frame owner) {
+		super(owner);
+		setSize(iconFrame.getIconWidth(), iconFrame.getIconHeight());
+		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+		Rectangle winDim = getBounds();
+		setLocation((screenDim.width - winDim.width) / 2, (screenDim.height - winDim.height) / 2);
+		setVisible(true);
+	}
+
+	public void paint(Graphics g) {
+		g.drawImage(iconFrame.getImage(), 0, 0, this);
+	}
 }

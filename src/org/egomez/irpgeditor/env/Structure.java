@@ -15,7 +15,8 @@ public class Structure {
     this.output = output;
   }
   
-  public void setStructure(TreeModel model, Enumeration expands, ListenerStructure listener) {
+  @SuppressWarnings("rawtypes")
+	public void setStructure(TreeModel model, Enumeration expands, ListenerStructure listener) {
     output.setStructure(model, expands, listener);
   }
   

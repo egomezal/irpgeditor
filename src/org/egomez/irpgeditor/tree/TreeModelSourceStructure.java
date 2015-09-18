@@ -36,11 +36,14 @@ import org.egomez.irpgeditor.tree.*;
  * 
  * @author Derek Van Kooten.
  */
+@SuppressWarnings("unused")
 public class TreeModelSourceStructure implements TreeModel, ListenerLineParser {
   private ProjectMember projectMember;
   Node nodeRoot = new NodeRoot();
-  ArrayList listListeners = new ArrayList();
-  ArrayList listParsers = new ArrayList();
+  @SuppressWarnings("rawtypes")
+ArrayList listListeners = new ArrayList();
+  @SuppressWarnings("rawtypes")
+ArrayList listParsers = new ArrayList();
   
   public TreeModelSourceStructure() {
   }
@@ -59,7 +62,8 @@ public class TreeModelSourceStructure implements TreeModel, ListenerLineParser {
    * 
    * @param node Node
    */
-  public void addParser(Node node) {
+  @SuppressWarnings("unchecked")
+public void addParser(Node node) {
     listParsers.add(node);
   }
   
@@ -86,7 +90,8 @@ public class TreeModelSourceStructure implements TreeModel, ListenerLineParser {
     fireStructureChanged(new TreeModelEvent(this, new Object[] {nodeRoot}));
   }
 
-  public void fireStructureChanged(final TreeModelEvent evt) {
+  @SuppressWarnings("rawtypes")
+public void fireStructureChanged(final TreeModelEvent evt) {
     final ArrayList temp;
 
     if ( listListeners.size() == 0 ) {
@@ -103,7 +108,8 @@ public class TreeModelSourceStructure implements TreeModel, ListenerLineParser {
     });
   }
 
-  public void fireRemoved(final TreeModelEvent evt) {
+  @SuppressWarnings("rawtypes")
+public void fireRemoved(final TreeModelEvent evt) {
     final ArrayList temp;
 
     if ( listListeners.size() == 0 ) {
@@ -120,7 +126,8 @@ public class TreeModelSourceStructure implements TreeModel, ListenerLineParser {
     });
   }
 
-  public void fireInserted(final TreeModelEvent evt) {
+  @SuppressWarnings("rawtypes")
+public void fireInserted(final TreeModelEvent evt) {
     final ArrayList temp;
 
     if ( listListeners.size() == 0 ) {
@@ -140,7 +147,8 @@ public class TreeModelSourceStructure implements TreeModel, ListenerLineParser {
   /**
    * listens for events to this model.
    */
-  public void addTreeModelListener(TreeModelListener l) {
+  @SuppressWarnings("unchecked")
+public void addTreeModelListener(TreeModelListener l) {
     listListeners.add(l);
   }
   

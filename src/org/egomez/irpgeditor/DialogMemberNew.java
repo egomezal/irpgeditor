@@ -26,6 +26,9 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import org.egomez.irpgeditor.env.*;
+import org.egomez.irpgeditor.event.ListenerMemberCreated;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.borland.jbcl.layout.*;
 import com.ibm.as400.access.*;
@@ -34,321 +37,393 @@ import com.ibm.as400.access.*;
  * 
  * @author Derek Van Kooten.
  */
+
 public class DialogMemberNew extends JDialog {
-  AS400JDBCDriver driver = new AS400JDBCDriver();
-  AS400System as400system;
-  Member member;
-  
-  DefaultComboBoxModel listModelSystems = new DefaultComboBoxModel();
-  DefaultComboBoxModel listModelLibraries = new DefaultComboBoxModel();
-  DefaultComboBoxModel listModelFiles = new DefaultComboBoxModel();
-  
-  ActionOk actionOk = new ActionOk();
-  ActionCancel actionCancel = new ActionCancel();
-  ActionSelectSystem actionSelectSystem = new ActionSelectSystem();
-  ActionSelectLibrary actionSelectLibrary = new ActionSelectLibrary();
-  ActionSelectFile actionSelectFile = new ActionSelectFile();
-  
-  JPanel panel1 = new JPanel();
-  BorderLayout borderLayout1 = new BorderLayout();
-  JButton buttonCancel = new JButton();
-  JButton buttonOk = new JButton();
-  JPanel jPanel15 = new JPanel();
-  FlowLayout flowLayout1 = new FlowLayout();
-  JPanel jPanel4 = new JPanel();
-  JPanel jPanel3 = new JPanel();
-  JPanel jPanel12 = new JPanel();
-  JLabel labelFile = new JLabel();
-  JComboBox comboboxLibrary = new JComboBox(listModelLibraries);
-  JLabel labelLibrary = new JLabel();
-  BorderLayout borderLayout4 = new BorderLayout();
-  BorderLayout borderLayout3 = new BorderLayout();
-  VerticalFlowLayout verticalFlowLayout4 = new VerticalFlowLayout();
-  JComboBox comboboxFile = new JComboBox(listModelFiles);
-  JPanel jPanel5 = new JPanel();
-  JComboBox comboboxSystem = new JComboBox(listModelSystems);
-  JLabel labelSystem = new JLabel();
-  BorderLayout borderLayout5 = new BorderLayout();
-  JLabel labelMember = new JLabel();
-  JPanel jPanel6 = new JPanel();
-  BorderLayout borderLayout6 = new BorderLayout();
-  JTextField textfieldMember = new JTextField();
-  JComboBox comboboxType = new JComboBox(new Object[] {"RPGLE", "RPG", "SQLRPGLE", "PRTF", "DSPF", "PF", "LF", "CLP", "CLLE" });
-  JLabel labelType = new JLabel();
-  BorderLayout borderLayout7 = new BorderLayout();
-  JPanel jPanel7 = new JPanel();
-  
-  public static Member showDialog(Frame frame) {
-    return showDialog(frame, null, null, null, null, null);
-  }
-  
-  public static Member showDialog(Frame frame, AS400System as400, String library, String file, String memberName, String type) {
-    Member member;
-    DialogMemberNew dialog;
-    
-    dialog = new DialogMemberNew(frame);
-    //Center the window
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    Dimension frameSize = dialog.getSize();
-    if (frameSize.height > screenSize.height) {
-      frameSize.height = screenSize.height;
-    }
-    if (frameSize.width > screenSize.width) {
-      frameSize.width = screenSize.width;
-    }
-    dialog.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
-    dialog.set(as400, library, file, memberName, type);
-    dialog.setVisible(true);
-    member = dialog.member;
-    dialog.dispose();
-    
-    return member;
-  }
-  
-  public DialogMemberNew(Frame frame) {
-    super(frame, "New Member", true);
-    enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-    try {
-      jbInit();
-      pack();
-      addActions();
-    }
-    catch(Exception ex) {
-      ex.printStackTrace();
-    }
-  }
-  
-  void jbInit() throws Exception {
-    panel1.setLayout(borderLayout1);
-    this.setTitle("New Member");
-    buttonCancel.setMnemonic('C');
-    buttonCancel.setText("Cancel");
-    buttonOk.setMnemonic('O');
-    buttonOk.setText("Ok");
-    jPanel15.setLayout(flowLayout1);
-    flowLayout1.setAlignment(FlowLayout.RIGHT);
-    flowLayout1.setHgap(2);
-    flowLayout1.setVgap(2);
-    jPanel4.setLayout(borderLayout4);
-    jPanel3.setLayout(borderLayout3);
-    jPanel12.setLayout(verticalFlowLayout4);
-    labelFile.setEnabled(false);
-    labelFile.setText("File: ");
-    comboboxLibrary.setEnabled(false);
-    labelLibrary.setEnabled(false);
-    labelLibrary.setText("Library: ");
-    verticalFlowLayout4.setHgap(2);
-    verticalFlowLayout4.setVgap(2);
-    comboboxFile.setEnabled(false);
-    jPanel5.setLayout(borderLayout5);
-    labelSystem.setText("System: ");
-    labelMember.setText("Member: ");
-    labelMember.setEnabled(false);
-    jPanel6.setLayout(borderLayout6);
-    textfieldMember.setEnabled(false);
-    comboboxType.setEnabled(false);
-    comboboxType.setEditable(true);
-    labelType.setText("Type: ");
-    labelType.setEnabled(false);
-    jPanel7.setLayout(borderLayout7);
-    this.getContentPane().add(panel1, BorderLayout.CENTER);
-    panel1.add(jPanel15, BorderLayout.SOUTH);
-    jPanel15.add(buttonOk, null);
-    jPanel15.add(buttonCancel, null);
-    panel1.add(jPanel12, BorderLayout.CENTER);
-    jPanel7.add(labelType, BorderLayout.WEST);
-    jPanel7.add(comboboxType, BorderLayout.CENTER);
-    jPanel12.add(jPanel5, null);
-    jPanel5.add(labelSystem, BorderLayout.WEST);
-    jPanel5.add(comboboxSystem, BorderLayout.CENTER);
-    jPanel12.add(jPanel4, null);
-    jPanel4.add(labelLibrary, BorderLayout.WEST);
-    jPanel4.add(comboboxLibrary, BorderLayout.CENTER);
-    jPanel12.add(jPanel3, null);
-    jPanel3.add(labelFile, BorderLayout.WEST);
-    jPanel3.add(comboboxFile, BorderLayout.CENTER);
-    jPanel12.add(jPanel6, null);
-    jPanel6.add(labelMember, BorderLayout.WEST);
-    jPanel6.add(textfieldMember, BorderLayout.CENTER);
-    jPanel12.add(jPanel7, null);
-  }
-  
-  /**
-   * Overridden so we can exit when window is closed
-   */
-  protected void processWindowEvent(WindowEvent e) {
-    super.processWindowEvent(e);
-    if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-      actionCancel.actionPerformed(null);
-    }
-  }
-  
-  /**
-   * associates actions with gui controls.
-   */
-  protected void addActions() {
-    ArrayList listSystems;
-    
-    listSystems = Environment.systems.getSystems();
-    for ( int x = 0; x < listSystems.size(); x++ ) {
-      listModelSystems.addElement(listSystems.get(x));
-    }
-    comboboxSystem.setSelectedIndex(-1);
-    
-    comboboxSystem.addActionListener(actionSelectSystem);
-    comboboxLibrary.addActionListener(actionSelectLibrary);
-    comboboxFile.addActionListener(actionSelectFile);
-    buttonOk.addActionListener(actionOk);
-    buttonCancel.addActionListener(actionCancel);
-  }
-  
-  public void set(AS400System system, String library, String file, String memberName, String type) {
-    if ( system != null ) {
-      comboboxSystem.setSelectedItem(system);
-      if ( library != null ) {
-        comboboxLibrary.setSelectedItem(library);
-        if ( file != null ) {
-          comboboxFile.setSelectedItem(file);
-        }
-      }
-    }
-    if ( memberName != null ) {
-      textfieldMember.setText(memberName);
-    }
-    if ( type != null ) {
-      comboboxType.setSelectedItem(type);
-    }
-  }
-  
-  /**
-   * gets called when the application exits.
-   */
-  class ActionCancel implements ActionListener {
-    public void actionPerformed(ActionEvent evt) {
-      hide();
-    }
-  }
-  
-  /**
-   * gets called when a user selects a system.
-   */
-  class ActionSelectSystem implements ActionListener {
-    public void actionPerformed(ActionEvent evt) {
-      AS400System system;
-      ArrayList list;
-      
-      system = (AS400System)listModelSystems.getSelectedItem();
-      if ( system == null ) {
-        return;
-      }
-      try {
-        list = system.getSourceLibraries();
-        while ( list.size() > 0 ) {
-          listModelLibraries.addElement(list.remove(0));
-        }
-        comboboxLibrary.setSelectedIndex(-1);
-        comboboxLibrary.addActionListener(actionSelectLibrary);
-        labelLibrary.setEnabled(true);
-        comboboxLibrary.setEnabled(true);
-      }
-      catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(DialogMemberNew.this, e.getMessage());
-      }
-      labelFile.setEnabled(false);
-      comboboxFile.setEnabled(false);
-      listModelFiles.removeAllElements();
-    }
-  }
-  
-  /**
-   * gets called when a library is selected.
-   */
-  class ActionSelectLibrary implements ActionListener {
-    public void actionPerformed(ActionEvent evt) {
-      AS400System system;
-      ArrayList list;
-      
-      if ( comboboxLibrary.getSelectedIndex() == -1 ) {
-        return;
-      }
-      system = (AS400System)listModelSystems.getSelectedItem();
-      if ( system == null ) {
-        return;
-      }
-      try {
-        comboboxFile.removeActionListener(actionSelectFile);
-        // get a list of libraries.
-        listModelFiles.removeAllElements();
-        list = system.getSourceFiles((String)comboboxLibrary.getSelectedItem());
-        while ( list.size() > 0 ) {
-          listModelFiles.addElement((String)list.remove(0));
-        }
-        comboboxFile.setSelectedIndex(-1);
-        labelFile.setEnabled(true);
-        comboboxFile.setEnabled(true);
-        comboboxFile.addActionListener(actionSelectFile);
-      }
-      catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(DialogMemberNew.this, e.getMessage());
-      }
-    }
-  }
-  
-  /**
-   * gets called when the user selects a file.
-   */
-  class ActionSelectFile implements ActionListener {
-    public void actionPerformed(ActionEvent evt) {
-      textfieldMember.setEnabled(true);
-      labelMember.setEnabled(true);
-      labelType.setEnabled(true);
-      comboboxType.setEnabled(true);
-    }
-  }
-  
-  /**
-   * gets called when the user clicks the ok button.
-   */
-  class ActionOk implements ActionListener {
-    public void actionPerformed(ActionEvent evt) {
-      String cmd;
-      AS400System system;
-      String library, file, member, type;
-      
-      if ( textfieldMember.getText().trim().length() > 10 ) {
-        JOptionPane.showMessageDialog(null, "Name must be no more than 10 characters.");
-        return;
-      }
-      if ( textfieldMember.getText().trim().indexOf(" ") > -1 ) {
-        JOptionPane.showMessageDialog(null, "Name must not contain spaces.");
-        return;
-      }
-      // if all the project settings have not been selected.
-      if ( comboboxSystem.getSelectedIndex() == -1 ||
-           comboboxLibrary.getSelectedIndex() == -1 ||
-           comboboxFile.getSelectedIndex() == -1 ||
-           textfieldMember.getText().trim().length() == 0 ||
-           comboboxType.getSelectedItem() == null ) {
-        return;
-      }
-      system = (AS400System)comboboxSystem.getSelectedItem();
-      library = (String)comboboxLibrary.getSelectedItem();
-      file = (String)comboboxFile.getSelectedItem();
-      member = textfieldMember.getText();
-      type = (String)comboboxType.getSelectedItem();
-      try {
-        DialogMemberNew.this.member = system.createMember(library, file, member, type);
-      }
-      catch (Exception e) {
-        e.printStackTrace();
-      }
-      hide();
-    }
-  }
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8750883042348276901L;
+
+	ActionCancel actionCancel = new ActionCancel();
+
+	ActionOk actionOk = new ActionOk();
+
+	ActionSelectFile actionSelectFile = new ActionSelectFile();
+
+	ActionSelectLibrary actionSelectLibrary = new ActionSelectLibrary();
+
+	ActionSelectSystem actionSelectSystem = new ActionSelectSystem();
+	AS400System as400system;
+
+	BorderLayout borderLayout3 = new BorderLayout();
+
+	BorderLayout borderLayout4 = new BorderLayout();
+
+	BorderLayout borderLayout5 = new BorderLayout();
+
+	BorderLayout borderLayout6 = new BorderLayout();
+
+	BorderLayout borderLayout7 = new BorderLayout();
+
+	JButton buttonCancel = new JButton();
+	JButton buttonOk = new JButton();
+
+	AS400JDBCDriver driver = new AS400JDBCDriver();
+
+	FlowLayout flowLayout1 = new FlowLayout();
+
+	JPanel jPanel12 = new JPanel();
+
+	JPanel jPanel15 = new JPanel();
+
+	JPanel jPanel3 = new JPanel();
+
+	JPanel jPanel4 = new JPanel();
+
+	JPanel jPanel5 = new JPanel();
+
+	JPanel jPanel6 = new JPanel();
+
+	JPanel jPanel7 = new JPanel();
+
+	JLabel labelFile = new JLabel();
+
+	JLabel labelLibrary = new JLabel();
+
+	JLabel labelMember = new JLabel();
+
+	JLabel labelSystem = new JLabel();
+
+	JLabel labelType = new JLabel();
+
+	@SuppressWarnings("rawtypes")
+	DefaultComboBoxModel listModelFiles = new DefaultComboBoxModel();
+
+	@SuppressWarnings("rawtypes")
+	DefaultComboBoxModel listModelLibraries = new DefaultComboBoxModel();
+
+	@SuppressWarnings("rawtypes")
+	DefaultComboBoxModel listModelSystems = new DefaultComboBoxModel();
+	ListenerMemberCreated listener;
+	Member member;
+	JPanel panel1 = new JPanel();
+
+	JTextField textfieldMember = new JTextField();
+
+	VerticalFlowLayout verticalFlowLayout4 = new VerticalFlowLayout();
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	JComboBox comboboxFile = new JComboBox(this.listModelFiles);
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	JComboBox comboboxLibrary = new JComboBox(this.listModelLibraries);
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	JComboBox comboboxSystem = new JComboBox(this.listModelSystems);
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	JComboBox comboboxType = new JComboBox(
+			new Object[] { "RPGLE", "RPG", "SQLRPGLE", "PRTF", "DSPF", "PF", "LF", "CLP", "CLLE", "C" });
+	private final JPanel panel = new JPanel();
+	private final JLabel lblDescription = new JLabel();
+	private final JTextField textField = new JTextField();
+	Logger logger = LoggerFactory.getLogger(DialogMemberNew.class);
+
+	public DialogMemberNew(Frame frame) {
+		super(frame, "New Member", true);
+		setIconImage(Toolkit.getDefaultToolkit()
+				.getImage(DialogMemberNew.class.getResource("/org/egomez/irpgeditor/icons/document-edit.png")));
+		setResizable(false);
+		setSize(301, 211);
+		enableEvents(64L);
+		try {
+			jbInit();
+			// pack();
+			addActions();
+		} catch (Exception ex) {
+			// ex.printStackTrace();
+			logger.error(ex.getMessage());
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void addActions() {
+		ArrayList<AS400System> listSystems = Environment.systems.getSystems();
+		for (int x = 0; x < listSystems.size(); x++) {
+			this.listModelSystems.addElement(listSystems.get(x));
+		}
+		this.comboboxSystem.setSelectedIndex(-1);
+
+		this.comboboxSystem.addActionListener(this.actionSelectSystem);
+		this.comboboxLibrary.addActionListener(this.actionSelectLibrary);
+		this.comboboxFile.addActionListener(this.actionSelectFile);
+		this.buttonOk.addActionListener(this.actionOk);
+		this.buttonCancel.addActionListener(this.actionCancel);
+	}
+
+	void jbInit() throws Exception {
+		setTitle("New Member");
+		this.buttonCancel.setMnemonic('C');
+		this.buttonCancel.setText("Cancel");
+		this.buttonOk.setMnemonic('O');
+		this.buttonOk.setText("Ok");
+		jPanel15.setBounds(10, 156, 234, 27);
+		this.jPanel15.setLayout(this.flowLayout1);
+		this.flowLayout1.setAlignment(2);
+		this.flowLayout1.setHgap(2);
+		this.flowLayout1.setVgap(2);
+		this.jPanel4.setLayout(this.borderLayout4);
+		this.jPanel3.setLayout(this.borderLayout3);
+		jPanel12.setBounds(75, 0, 210, 145);
+		this.jPanel12.setLayout(this.verticalFlowLayout4);
+		this.labelFile.setEnabled(false);
+		this.labelFile.setText("File: ");
+		this.comboboxLibrary.setEnabled(false);
+		this.labelLibrary.setEnabled(false);
+		this.labelLibrary.setText("Library: ");
+		this.verticalFlowLayout4.setHgap(2);
+		this.verticalFlowLayout4.setVgap(2);
+		this.comboboxFile.setEnabled(false);
+		this.jPanel5.setLayout(this.borderLayout5);
+		this.labelSystem.setText("System: ");
+		this.labelMember.setText("Member: ");
+		this.labelMember.setEnabled(false);
+		this.jPanel6.setLayout(this.borderLayout6);
+		this.textfieldMember.setEnabled(false);
+		this.comboboxType.setEnabled(false);
+		this.comboboxType.setEditable(true);
+		this.labelType.setText("Type: ");
+		this.labelType.setEnabled(false);
+		this.jPanel7.setLayout(this.borderLayout7);
+		getContentPane().add(this.panel1, "Center");
+		panel1.setLayout(null);
+		this.panel1.add(this.jPanel15);
+		this.jPanel15.add(this.buttonOk, null);
+		this.jPanel15.add(this.buttonCancel, null);
+		this.panel1.add(this.jPanel12);
+		this.jPanel7.add(this.labelType, "West");
+		this.jPanel7.add(this.comboboxType, "Center");
+		this.jPanel12.add(this.jPanel5, null);
+		this.jPanel5.add(this.labelSystem, "West");
+		this.jPanel5.add(this.comboboxSystem, "Center");
+		this.jPanel12.add(this.jPanel4, null);
+		this.jPanel4.add(this.labelLibrary, "West");
+		this.jPanel4.add(this.comboboxLibrary, "Center");
+		this.jPanel12.add(this.jPanel3, null);
+		this.jPanel3.add(this.labelFile, "West");
+		this.jPanel3.add(this.comboboxFile, "Center");
+		this.jPanel12.add(this.jPanel6, null);
+		this.jPanel6.add(this.labelMember, "West");
+		this.jPanel6.add(this.textfieldMember, "Center");
+		this.jPanel12.add(this.jPanel7, null);
+		this.jPanel12.add(this.panel, null);
+		jPanel12.add(panel);
+		panel.setLayout(new BorderLayout(0, 0));
+		lblDescription.setText("Description:");
+		lblDescription.setEnabled(false);
+
+		panel.add(lblDescription, "West");
+		textField.setEnabled(false);
+
+		panel.add(textField, "Center");
+
+		JLabel lblNewLabel = new JLabel("");
+		lblNewLabel.setIcon(
+				new ImageIcon(DialogMemberNew.class.getResource("/org/egomez/irpgeditor/icons/text-x-generic.png")));
+		lblNewLabel.setBounds(19, 11, 46, 79);
+		panel1.add(lblNewLabel);
+	}
+
+	protected void processWindowEvent(WindowEvent e) {
+		super.processWindowEvent(e);
+		if (e.getID() == 201)
+			this.actionCancel.actionPerformed(null);
+	}
+
+	public void set(AS400System system, String library, String file, String memberName, String type) {
+		if (system != null) {
+			this.comboboxSystem.setSelectedItem(system);
+			if (library != null) {
+				this.comboboxLibrary.setSelectedItem(library);
+				if (file != null) {
+					this.comboboxFile.setSelectedItem(file);
+				}
+			}
+		}
+		if (memberName != null) {
+			this.textfieldMember.setText(memberName);
+		}
+		if (type != null)
+			this.comboboxType.setSelectedItem(type);
+	}
+
+	public static void showDialog(Frame frame, AS400System as400, String library, String file, String memberName,
+			String type, ListenerMemberCreated listener) {
+		DialogMemberNew dialog = new DialogMemberNew(frame);
+		dialog.listener = listener;
+
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension frameSize = dialog.getSize();
+		if (frameSize.height > screenSize.height) {
+			frameSize.height = screenSize.height;
+		}
+		if (frameSize.width > screenSize.width) {
+			frameSize.width = screenSize.width;
+		}
+		dialog.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
+		dialog.set(as400, library, file, memberName, type);
+		dialog.setVisible(true);
+		dialog.dispose();
+	}
+
+	public static void showDialog(Frame frame, ListenerMemberCreated listener) {
+		showDialog(frame, null, null, null, null, null, listener);
+	}
+
+	class ActionOk implements ActionListener {
+		ActionOk() {
+		}
+
+		public void actionPerformed(ActionEvent evt) {
+			if (DialogMemberNew.this.textfieldMember.getText().trim().length() > 10) {
+				JOptionPane.showMessageDialog(KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow(),
+						"Name must be no more than 10 characters.");
+				return;
+			}
+			if (DialogMemberNew.this.textfieldMember.getText().trim().indexOf(" ") > -1) {
+				JOptionPane.showMessageDialog(KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow(),
+						"Name must not contain spaces.");
+				return;
+			}
+
+			if ((DialogMemberNew.this.comboboxSystem.getSelectedIndex() == -1)
+					|| (DialogMemberNew.this.comboboxLibrary.getSelectedIndex() == -1)
+					|| (DialogMemberNew.this.comboboxFile.getSelectedIndex() == -1)
+					|| (DialogMemberNew.this.textfieldMember.getText().trim().length() == 0)
+					|| (DialogMemberNew.this.comboboxType.getSelectedItem() == null)) {
+				return;
+			}
+			AS400System system = (AS400System) DialogMemberNew.this.comboboxSystem.getSelectedItem();
+			String library = (String) DialogMemberNew.this.comboboxLibrary.getSelectedItem();
+			String file = (String) DialogMemberNew.this.comboboxFile.getSelectedItem();
+			String member = DialogMemberNew.this.textfieldMember.getText();
+			String type = (String) DialogMemberNew.this.comboboxType.getSelectedItem();
+			String description = DialogMemberNew.this.textField.getText();
+			Member member1 = null;
+			try {
+				if (DialogMemberNew.this.listener != null) {
+					system.createMember(library, file, member, type, description, DialogMemberNew.this.listener);
+					member1 = new Member(system, library, file, member);
+				} else {
+					member1 = system.createMember(library, file, member, type, description);
+				}
+				if (member1 == null) {
+					return;
+				}
+				Project project = Environment.projects.getSelected();
+				if (project == null) {
+					return;
+				}
+
+				ProjectMember projectMember = project.addMember(member1);
+				Environment.members.open(projectMember);
+				Environment.members.select(projectMember);
+
+			} catch (Exception e) {
+				// e.printStackTrace();
+				logger.error(e.getMessage());
+			}
+			DialogMemberNew.this.setVisible(false);
+			// DialogMemberNew.this.hide();
+		}
+	}
+
+	class ActionSelectFile implements ActionListener {
+		ActionSelectFile() {
+		}
+
+		public void actionPerformed(ActionEvent evt) {
+			DialogMemberNew.this.textfieldMember.setEnabled(true);
+			DialogMemberNew.this.labelMember.setEnabled(true);
+			DialogMemberNew.this.labelType.setEnabled(true);
+			DialogMemberNew.this.comboboxType.setEnabled(true);
+
+		}
+	}
+
+	class ActionSelectLibrary implements ActionListener {
+		ActionSelectLibrary() {
+		}
+
+		@SuppressWarnings("unchecked")
+		public void actionPerformed(ActionEvent evt) {
+			if (DialogMemberNew.this.comboboxLibrary.getSelectedIndex() == -1) {
+				return;
+			}
+			AS400System system = (AS400System) DialogMemberNew.this.listModelSystems.getSelectedItem();
+			if (system == null)
+				return;
+			try {
+				DialogMemberNew.this.comboboxFile.removeActionListener(DialogMemberNew.this.actionSelectFile);
+
+				DialogMemberNew.this.listModelFiles.removeAllElements();
+				ArrayList<String> list = system
+						.getSourceFiles((String) DialogMemberNew.this.comboboxLibrary.getSelectedItem());
+				while (list.size() > 0) {
+					DialogMemberNew.this.listModelFiles.addElement((String) list.remove(0));
+				}
+				DialogMemberNew.this.comboboxFile.setSelectedIndex(-1);
+				DialogMemberNew.this.labelFile.setEnabled(true);
+				DialogMemberNew.this.comboboxFile.setEnabled(true);
+				DialogMemberNew.this.comboboxFile.addActionListener(DialogMemberNew.this.actionSelectFile);
+				DialogMemberNew.this.lblDescription.setEnabled(true);
+				DialogMemberNew.this.textField.setEnabled(true);
+			} catch (SQLException e) {
+				// e.printStackTrace();
+				logger.error(e.getMessage());
+				JOptionPane.showMessageDialog(KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow(),
+						e.getMessage());
+			}
+		}
+	}
+
+	class ActionSelectSystem implements ActionListener {
+		ActionSelectSystem() {
+		}
+
+		@SuppressWarnings("unchecked")
+		public void actionPerformed(ActionEvent evt) {
+			AS400System system = (AS400System) DialogMemberNew.this.listModelSystems.getSelectedItem();
+			if (system == null)
+				return;
+			try {
+				ArrayList<String> list = system.getSourceLibraries();
+				while (list.size() > 0) {
+					DialogMemberNew.this.listModelLibraries.addElement(list.remove(0));
+				}
+				DialogMemberNew.this.comboboxLibrary.setSelectedIndex(-1);
+				DialogMemberNew.this.comboboxLibrary.addActionListener(DialogMemberNew.this.actionSelectLibrary);
+				DialogMemberNew.this.labelLibrary.setEnabled(true);
+				DialogMemberNew.this.comboboxLibrary.setEnabled(true);
+			} catch (Exception e) {
+				// e.printStackTrace();
+				logger.error(e.getMessage());
+				JOptionPane.showMessageDialog(KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow(),
+						e.getMessage());
+			}
+			DialogMemberNew.this.labelFile.setEnabled(false);
+			DialogMemberNew.this.comboboxFile.setEnabled(false);
+			DialogMemberNew.this.listModelFiles.removeAllElements();
+		}
+	}
+
+	class ActionCancel implements ActionListener {
+		ActionCancel() {
+		}
+
+		public void actionPerformed(ActionEvent evt) {
+			DialogMemberNew.this.setVisible(false);
+			// DialogMemberNew.this.hide();
+		}
+	}
 }
-
-
-
-

@@ -97,7 +97,8 @@ public class FCIf extends FCShape {
     }
   }
   
-  public void draw(Graphics graphics, int center, int y) {
+  @SuppressWarnings("unused")
+public void draw(Graphics graphics, int center, int y) {
     int x, w, height, bottom, ifbottom, middle, end, currentx, currenty, 
         currentcenter, truecenter, falsecenter, joiny;
     FontMetrics fm;

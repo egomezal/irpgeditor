@@ -25,6 +25,8 @@ import javax.swing.table.*;
 
 import org.egomez.irpgeditor.*;
 import org.egomez.irpgeditor.env.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.ibm.as400.data.*;
 
@@ -33,141 +35,139 @@ import com.ibm.as400.data.*;
  * @author Derek Van Kooten.
  */
 public class TableModelFileDescription extends AbstractTableModel {
-  String schema, name;
-  AS400System as400;
-  String[] columnNames = new String[] { "Name", "Value" };
-  String[] names = new String[] { "Public Authority", "Description", 
-      "Source Library", "Source File", "Source Member", "Member Count", 
-      "Keyed Fields", "Max Key Length", "Maximum Members", "CCSID", 
-      "Access Path Maintenance" };
-  String[] values = new String[names.length];
-  
-  public TableModelFileDescription() {
-  }
+	/**
+	 * 
+	 */
+	Logger logger = LoggerFactory.getLogger(TableModelFileDescription.class);
+	private static final long serialVersionUID = -5087106156444123173L;
+	String schema, name;
+	AS400System as400;
+	String[] columnNames = new String[] { "Name", "Value" };
+	String[] names = new String[] { "Public Authority", "Description", "Source Library", "Source File", "Source Member",
+			"Member Count", "Keyed Fields", "Max Key Length", "Maximum Members", "CCSID", "Access Path Maintenance" };
+	String[] values = new String[names.length];
 
-  public TableModelFileDescription(String schema, String name, AS400System system) throws SQLException {
-    set(schema, name, system);
-  }
-  
-  public void setSchema(String schema) throws SQLException {
-    this.schema = schema.trim().toUpperCase();
-    getData();
-  }
+	public TableModelFileDescription() {
+	}
 
-  public void set(String schema, String name, AS400System system) throws SQLException {
-    this.name = name.trim().toUpperCase();
-    this.schema = schema.trim().toUpperCase();
-    this.as400 = system;
-    getData();
-  }
+	public TableModelFileDescription(String schema, String name, AS400System system) throws SQLException {
+		set(schema, name, system);
+	}
 
-  protected void getData() throws SQLException {
-    ProgramCallDocument pcml;
-    boolean result;
-    String buffer;
-    
-    values = new String[names.length];
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        fireTableDataChanged();
-      }
-    });
-    buffer = name;
-    while ( buffer.length() < 10 ) {
-      buffer = buffer + " ";
-    }
-    buffer = buffer + schema;
-    while ( buffer.length() < 20 ) {
-      buffer = buffer + " ";
-    }
-    try {
-      pcml = new ProgramCallDocument(Environment.systems.getDefault().getAS400(), "api");
-      pcml.setValue("qdbrtvfd.receiverLength", new Integer(pcml.getOutputsize("qdbrtvfd.receiver")));
-      //pcml.setValue("qdbrtvfd.receiverLength", new Integer(1024 * 10));
-      pcml.setValue("qdbrtvfd.fileName", "" + buffer);
-      result = pcml.callProgram("qdbrtvfd");
-      if ( result == false ) {
-        Environment.qcmdexec.append(pcml.getMessageList("qdbrtvfd"));
-      }
-      else {
-        values[0] = isNull(pcml.getValue("qdbrtvfd.receiver.publicAuthority"));
-        values[1] = isNull(pcml.getValue("qdbrtvfd.receiver.description"));
-        values[2] = isNull(pcml.getValue("qdbrtvfd.receiver.sourceLibrary"));
-        values[3] = isNull(pcml.getValue("qdbrtvfd.receiver.sourceFile"));
-        values[4] = isNull(pcml.getValue("qdbrtvfd.receiver.sourceMember"));
-        values[5] = isNull(pcml.getValue("qdbrtvfd.receiver.memberCount"));
-        values[6] = isNull(pcml.getValue("qdbrtvfd.receiver.keyFields"));
-        values[7] = isNull(pcml.getValue("qdbrtvfd.receiver.maxKeyLength"));
-        values[8] = isNull(pcml.getValue("qdbrtvfd.receiver.maxMembers"));
-        values[9] = isNull(pcml.getValue("qdbrtvfd.receiver.ccsid"));
-        values[10] = isNull(pcml.getValue("qdbrtvfd.receiver.accessMaint"));
-        if ( values[10].equalsIgnoreCase("I") ) {
-          values[10] = "Immediate";
-        }
-        else if ( values[10].equalsIgnoreCase("D") ) {
-          values[10] = "Delayed";
-        }
-        else if ( values[10].equalsIgnoreCase("R") ) {
-          values[10] = "Rebuild";
-        }
-      }
-    }
-    catch (Exception e) {
-      e.printStackTrace();
-    }
-    SwingUtilities.invokeLater(new Runnable() {
-      public void run() {
-        fireTableDataChanged();
-      }
-    });
-  }
-  
-  private String isNull(Object value) {
-    if ( value == null ) {
-      return "";
-    }
-    return value.toString();
-  }
+	public void setSchema(String schema) throws SQLException {
+		this.schema = schema.trim().toUpperCase();
+		getData();
+	}
 
-  public String getName() {
-    return name;
-  }
-  
-  public String getSourceLibrary() {
-    return values[2];
-  }
-  
-  public String getSourceFile() {
-    return values[3];
-  }
-  
-  public String getSourceMember() {
-    return values[4];
-  }
+	public void set(String schema, String name, AS400System system) throws SQLException {
+		this.name = name.trim().toUpperCase();
+		this.schema = schema.trim().toUpperCase();
+		this.as400 = system;
+		getData();
+	}
 
-  public String getSchema() {
-    return schema;
-  }
+	protected void getData() throws SQLException {
+		ProgramCallDocument pcml;
+		boolean result;
+		String buffer;
 
-  public int getRowCount() {
-    return names.length;
-  }
+		values = new String[names.length];
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				fireTableDataChanged();
+			}
+		});
+		buffer = name;
+		while (buffer.length() < 10) {
+			buffer = buffer + " ";
+		}
+		buffer = buffer + schema;
+		while (buffer.length() < 20) {
+			buffer = buffer + " ";
+		}
+		try {
+			pcml = new ProgramCallDocument(Environment.systems.getDefault().getAS400(), "api");
+			pcml.setValue("qdbrtvfd.receiverLength", new Integer(pcml.getOutputsize("qdbrtvfd.receiver")));
+			// pcml.setValue("qdbrtvfd.receiverLength", new Integer(1024 * 10));
+			pcml.setValue("qdbrtvfd.fileName", "" + buffer);
+			result = pcml.callProgram("qdbrtvfd");
+			if (result == false) {
+				Environment.qcmdexec.append(pcml.getMessageList("qdbrtvfd"), QcmdexecOutput.colorResult, result);
+			} else {
+				values[0] = isNull(pcml.getValue("qdbrtvfd.receiver.publicAuthority"));
+				values[1] = isNull(pcml.getValue("qdbrtvfd.receiver.description"));
+				values[2] = isNull(pcml.getValue("qdbrtvfd.receiver.sourceLibrary"));
+				values[3] = isNull(pcml.getValue("qdbrtvfd.receiver.sourceFile"));
+				values[4] = isNull(pcml.getValue("qdbrtvfd.receiver.sourceMember"));
+				values[5] = isNull(pcml.getValue("qdbrtvfd.receiver.memberCount"));
+				values[6] = isNull(pcml.getValue("qdbrtvfd.receiver.keyFields"));
+				values[7] = isNull(pcml.getValue("qdbrtvfd.receiver.maxKeyLength"));
+				values[8] = isNull(pcml.getValue("qdbrtvfd.receiver.maxMembers"));
+				values[9] = isNull(pcml.getValue("qdbrtvfd.receiver.ccsid"));
+				values[10] = isNull(pcml.getValue("qdbrtvfd.receiver.accessMaint"));
+				if (values[10].equalsIgnoreCase("I")) {
+					values[10] = "Immediate";
+				} else if (values[10].equalsIgnoreCase("D")) {
+					values[10] = "Delayed";
+				} else if (values[10].equalsIgnoreCase("R")) {
+					values[10] = "Rebuild";
+				}
+			}
+		} catch (Exception e) {
+			//e.printStackTrace();
+			logger.error(e.getMessage());
+		}
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				fireTableDataChanged();
+			}
+		});
+	}
 
-  public int getColumnCount() {
-    return columnNames.length;
-  }
+	private String isNull(Object value) {
+		if (value == null) {
+			return "";
+		}
+		return value.toString();
+	}
 
-  public String getColumnName(int index) {
-    return columnNames[index];
-  }
+	public String getName() {
+		return name;
+	}
 
-  public Object getValueAt(int row, int column) {
-    if ( column == 0 ) {
-      return names[row];
-    }
-    else {
-      return isNull(values[row]);
-    }
-  }
+	public String getSourceLibrary() {
+		return values[2];
+	}
+
+	public String getSourceFile() {
+		return values[3];
+	}
+
+	public String getSourceMember() {
+		return values[4];
+	}
+
+	public String getSchema() {
+		return schema;
+	}
+
+	public int getRowCount() {
+		return names.length;
+	}
+
+	public int getColumnCount() {
+		return columnNames.length;
+	}
+
+	public String getColumnName(int index) {
+		return columnNames[index];
+	}
+
+	public Object getValueAt(int row, int column) {
+		if (column == 0) {
+			return names[row];
+		} else {
+			return isNull(values[row]);
+		}
+	}
 }
-

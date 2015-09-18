@@ -32,10 +32,12 @@ import org.egomez.irpgeditor.tree.*;
  * 
  * @author Derek Van Kooten.
  */
+@SuppressWarnings("unused")
 abstract public class NodeSourceBlocks extends NodeAbstract implements ListenerParser {
   protected SourceParser parser;
   protected SourceBlock first;
-  protected ArrayList listListeners = new ArrayList();
+  @SuppressWarnings("rawtypes")
+protected ArrayList listListeners = new ArrayList();
   protected boolean changed;
   protected TreeModelSourceStructure treeModel;
 
@@ -48,11 +50,13 @@ abstract public class NodeSourceBlocks extends NodeAbstract implements ListenerP
     parser.addListener(this);
   }
 
-  public void addListener(ListenerLineParser l) {
+  @SuppressWarnings("unchecked")
+public void addListener(ListenerLineParser l) {
     listListeners.add(l);
   }
 
-  protected void fireStructureChanged() {
+  @SuppressWarnings("rawtypes")
+protected void fireStructureChanged() {
     ArrayList temp;
 
     if ( listListeners.size() == 0 ) {
@@ -67,7 +71,8 @@ abstract public class NodeSourceBlocks extends NodeAbstract implements ListenerP
   /**
    * handles events that occur in the source.
    */
-  public void parserEvents(ArrayList listEvents) {
+  @SuppressWarnings("rawtypes")
+public void parserEvents(ArrayList listEvents) {
     SourceParserEvent event;
     SourceBlock blockClone;
 
@@ -149,7 +154,8 @@ abstract public class NodeSourceBlocks extends NodeAbstract implements ListenerP
     return new TreeModelEvent(treeModel, path, new int[] { index }, new Object[] { block });
   }
 
-  protected Object[] buildPath(SourceBlock block, boolean include) {
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+protected Object[] buildPath(SourceBlock block, boolean include) {
     ArrayList list;
     SourceBlock b;
 

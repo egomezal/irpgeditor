@@ -31,7 +31,8 @@ import javax.swing.event.*;
  */
 public class TreeModelNode implements TreeModel {
   Node nodeRoot;
-  ArrayList listListeners = new ArrayList();
+  @SuppressWarnings("rawtypes")
+ArrayList listListeners = new ArrayList();
 
   public TreeModelNode() {
     nodeRoot = new NodeDefault();
@@ -72,7 +73,8 @@ public class TreeModelNode implements TreeModel {
     fireEvent(new TreeModelEvent(this, new Object[] {nodeRoot}));
   }
   
-  public void fireEvent(final TreeModelEvent evt) {
+  @SuppressWarnings("rawtypes")
+public void fireEvent(final TreeModelEvent evt) {
     final ArrayList temp;
 
     if ( listListeners.size() == 0 ) {
@@ -110,7 +112,8 @@ public class TreeModelNode implements TreeModel {
     fireEvent(new TreeModelEvent(this, new Object[] {nodeRoot}));
   }
   
-  public void fireEventChanged(final TreeModelEvent evt) {
+  @SuppressWarnings("rawtypes")
+public void fireEventChanged(final TreeModelEvent evt) {
     final ArrayList temp;
 
     if ( listListeners.size() == 0 ) {
@@ -130,7 +133,8 @@ public class TreeModelNode implements TreeModel {
   /**
    * listens for events to this model.
    */
-  public void addTreeModelListener(TreeModelListener l) {
+  @SuppressWarnings("unchecked")
+public void addTreeModelListener(TreeModelListener l) {
     listListeners.add(l);
   }
 
@@ -182,7 +186,8 @@ public class TreeModelNode implements TreeModel {
   public void valueForPathChanged(TreePath path, Object newValue) {
   }
   
-  public Object[] getPath(Node node) {
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+public Object[] getPath(Node node) {
     ArrayList list;
     
     list = new ArrayList();

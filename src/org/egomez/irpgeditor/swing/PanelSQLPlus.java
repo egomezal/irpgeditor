@@ -53,6 +53,8 @@ import org.egomez.irpgeditor.env.Environment;
 import org.egomez.irpgeditor.event.ListenerAS400Systems;
 import org.egomez.irpgeditor.icons.Icons;
 import org.egomez.irpgeditor.table.ResultSetTableModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PanelSQLPlus extends PanelTool implements ListenerAS400Systems,
 		Runnable {
@@ -71,7 +73,8 @@ public class PanelSQLPlus extends PanelTool implements ListenerAS400Systems,
 	final JTextArea txtSQL = new JTextArea();
 	JTable table = new JTable();
 	JScrollPane scrollPane = new JScrollPane(table);
-
+	Logger logger = LoggerFactory.getLogger(PanelSQLPlus.class);
+	
 	/**
 	 * Create the panel.
 	 */
@@ -119,11 +122,11 @@ public class PanelSQLPlus extends PanelTool implements ListenerAS400Systems,
 						} else {
 							tableModel.setQuery(txtSQL.getText().trim());
 						}
+						table.setVisible(true);
+						scrollPane.setVisible(true);
 					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
-					table.setVisible(true);
-					scrollPane.setVisible(true);
+						JOptionPane.showMessageDialog(null, e1.getMessage(),"Error", JOptionPane.WARNING_MESSAGE);
+					}					
 				}
 			}
 		});
@@ -187,7 +190,7 @@ public class PanelSQLPlus extends PanelTool implements ListenerAS400Systems,
 		});
 		popupMenu.add(mntmExportToText);
 
-		JMenuItem mntmExportToExcel = new JMenuItem("Export to Excel");
+		JMenuItem mntmExportToExcel = new JMenuItem("Export to MS Excel");
 		mntmExportToExcel.setIcon(Icons.iconExporttoExcel);
 		mntmExportToExcel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -196,7 +199,7 @@ public class PanelSQLPlus extends PanelTool implements ListenerAS400Systems,
 				dlgArchivo.setDialogTitle("Save File");
 				dlgArchivo.setDialogType(JFileChooser.SAVE_DIALOG);
 				FileFilter filter1 = new ExtensionFileFilter(
-						"Excel Files (*.xls)", new String[] { "XLS", "xls" });
+						"Microsoft Excel Files (*.xls)", new String[] { "XLS", "xls" });
 				dlgArchivo.setFileFilter(filter1);
 				int retval = dlgArchivo.showDialog(getPanel(), null);
 				if (retval == JFileChooser.APPROVE_OPTION) {
@@ -458,7 +461,8 @@ public class PanelSQLPlus extends PanelTool implements ListenerAS400Systems,
 					} catch (SQLException e) {
 						JOptionPane.showMessageDialog(null, e.getMessage(),
 								"Error", JOptionPane.ERROR_MESSAGE);
-						e.printStackTrace();
+						//e.printStackTrace();
+						logger.error(e.getMessage());
 					} catch (IOException e) {
 						JOptionPane.showMessageDialog(null, e.getMessage(),
 								"Error", JOptionPane.ERROR_MESSAGE);
@@ -478,7 +482,8 @@ public class PanelSQLPlus extends PanelTool implements ListenerAS400Systems,
 									cn.close();
 								}
 							} catch (SQLException e) {
-								e.printStackTrace();
+								//e.printStackTrace();
+								logger.error(e.getMessage());
 							}
 						}
 					}

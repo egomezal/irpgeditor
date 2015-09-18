@@ -15,7 +15,8 @@ import org.egomez.irpgeditor.event.*;
 public class HandlerActions implements ListenerActions {
   JToolBar toolbar;
   JMenuBar menubar;
-  HashMap mapActions = new HashMap();
+  @SuppressWarnings("rawtypes")
+HashMap mapActions = new HashMap();
   
   public HandlerActions(JToolBar toolbar, JMenuBar menubar) {
     this.toolbar = toolbar;
@@ -24,7 +25,8 @@ public class HandlerActions implements ListenerActions {
     actionsAdded(Environment.actions.getActions());
   }
   
-  public void actionsAdded(Action[] actions) {
+  @SuppressWarnings("unchecked")
+public void actionsAdded(Action[] actions) {
     Action action;
     String menuName, name;
     ActionContainer container;
@@ -120,12 +122,15 @@ public class HandlerActions implements ListenerActions {
 }
 
 
+@SuppressWarnings("serial")
 class ActionContainer extends AbstractAction implements PropertyChangeListener {
-  ArrayList listActions = new ArrayList();
+  @SuppressWarnings("rawtypes")
+ArrayList listActions = new ArrayList();
   JButton button = null;
   JMenuItem menuItem;
   
-  public ActionContainer(Action action) {
+  @SuppressWarnings("unchecked")
+public ActionContainer(Action action) {
     listActions.add(action);
     menuItem = new JMenuItem(this);
     if ( action.getValue(Action.SMALL_ICON) != null ) {
@@ -141,7 +146,8 @@ class ActionContainer extends AbstractAction implements PropertyChangeListener {
     ((Action)listActions.get(0)).actionPerformed(evt);
   }
   
-  public void propertyChange(PropertyChangeEvent evt) {
+  @SuppressWarnings("unchecked")
+public void propertyChange(PropertyChangeEvent evt) {
     if ( evt.getSource().equals(listActions.get(0)) == false ) {
       // if the property name is focus, then move this action to the top
       if ( evt.getPropertyName().equals("FOCUS") ) {
@@ -172,7 +178,8 @@ class ActionContainer extends AbstractAction implements PropertyChangeListener {
     ((Action)listActions.get(0)).setEnabled(b);
   }
   
-  public void addAction(Action action) {
+  @SuppressWarnings("unchecked")
+public void addAction(Action action) {
     listActions.add(action);
     action.addPropertyChangeListener(this);
   }

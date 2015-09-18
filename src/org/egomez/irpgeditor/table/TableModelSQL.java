@@ -12,6 +12,8 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 import org.egomez.irpgeditor.AS400System;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TableModelSQL extends DefaultTableModel implements Runnable {
 	private AS400System system;
@@ -20,15 +22,14 @@ public class TableModelSQL extends DefaultTableModel implements Runnable {
 	 * 
 	 */
 	private static final long serialVersionUID = -4760726822150241337L;
-	 private static final String[] titulo= new String[] {
-		    "CODE", "NAME"};
-	 private static final ArrayList<Object[]> registros = new ArrayList<Object[]>();
+	private static final String[] titulo = new String[] { "CODE", "NAME" };
+	private static final ArrayList<Object[]> registros = new ArrayList<Object[]>();
 	public ResultSet rs;
 	public ResultSetMetaData rmd = null;
+	Logger logger = LoggerFactory.getLogger(TableModelSQL.class);
 
-	
 	public int getColumnCount() {
-		if (registros != null && registros.size()!=0) {
+		if (registros != null && registros.size() != 0) {
 			Object[] row = (Object[]) registros.get(0);
 			return row.length;
 		} else {
@@ -62,7 +63,7 @@ public class TableModelSQL extends DefaultTableModel implements Runnable {
 	}
 
 	public void setAS400System(AS400System system) {
-		
+
 		this.system = system;
 	}
 
@@ -72,7 +73,7 @@ public class TableModelSQL extends DefaultTableModel implements Runnable {
 			Thread t1 = new Thread(this);
 			t1.start();
 		}
-		
+
 	}
 
 	@Override
@@ -83,8 +84,7 @@ public class TableModelSQL extends DefaultTableModel implements Runnable {
 		// String sql = txtSQL.getText();
 		Connection cn = system.getConnection();
 		try {
-			st = cn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
-					ResultSet.CONCUR_READ_ONLY);
+			st = cn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			rs = st.executeQuery(sql);
 			rmd = rs.getMetaData();
 			int nReg = 0;
@@ -114,20 +114,18 @@ public class TableModelSQL extends DefaultTableModel implements Runnable {
 
 			// Si no hay registros
 			if (nReg == 0) {
-				JOptionPane.showMessageDialog(null, "Query",
-						"Not records fond", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Query", "Not records fond", JOptionPane.INFORMATION_MESSAGE);
 			}
 			rs.close();
 			cn.close();
-			
+
 		} catch (SQLException e) {
-			JOptionPane.showMessageDialog(null, "Error",
-					"Error: " + e.getMessage(), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Error", "Error: " + e.getMessage(), JOptionPane.ERROR_MESSAGE);
 			cn = null;
 		} catch (Exception e) {
-			e.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Error",
-					"Error: " + e.getMessage(), JOptionPane.ERROR_MESSAGE);
+			// e.printStackTrace();
+			logger.error(e.getMessage());
+			JOptionPane.showMessageDialog(null, "Error", "Error: " + e.getMessage(), JOptionPane.ERROR_MESSAGE);
 			cn = null;
 		}
 

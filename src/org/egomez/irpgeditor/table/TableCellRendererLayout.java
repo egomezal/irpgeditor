@@ -31,8 +31,13 @@ import org.egomez.irpgeditor.table.*;
  * 
  * @author Derek Van Kooten.
  */
+@SuppressWarnings("unused")
 public class TableCellRendererLayout extends DefaultTableCellRenderer {
-  TableModelLayout tableModel;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 5848387114033539281L;
+TableModelLayout tableModel;
   Color blue = new Color(222, 222, 255);
   Color blueSelected = new Color(64, 64, 128);
   Color green = new Color(222, 255, 222);

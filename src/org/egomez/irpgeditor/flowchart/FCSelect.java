@@ -12,7 +12,8 @@ public class FCSelect extends FCShape {
     super(op, previous, container);
   }
 
-  public FCShape appendOp(FCOp op) {
+  @SuppressWarnings("unchecked")
+public FCShape appendOp(FCOp op) {
     FCShape shape;
     
     if ( finished ) {
@@ -26,7 +27,8 @@ public class FCSelect extends FCShape {
     }
   }
   
-  protected FCShape containerProcess(FCOp op) {
+  @SuppressWarnings("unchecked")
+protected FCShape containerProcess(FCOp op) {
     FCShape shape;
     
     if ( op.getOp().equals("WHEN") ) {

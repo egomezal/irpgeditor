@@ -9,14 +9,18 @@ import org.egomez.irpgeditor.event.*;
  * @author Derek Van Kooten.
  */
 public class Actions {
-  ArrayList listListeners = new ArrayList();
-  ArrayList listActions = new ArrayList();
+  @SuppressWarnings("rawtypes")
+ArrayList listListeners = new ArrayList();
+  @SuppressWarnings("rawtypes")
+ArrayList listActions = new ArrayList();
   
-  public Action[] getActions() {
+  @SuppressWarnings("unchecked")
+public Action[] getActions() {
     return (Action[])listActions.toArray(new Action[listActions.size()]);
   }
   
-  public void addListener(ListenerActions l) {
+  @SuppressWarnings("unchecked")
+public void addListener(ListenerActions l) {
     listListeners.add(l);
   }
   
@@ -24,7 +28,8 @@ public class Actions {
     listListeners.remove(l);
   }
   
-  public void addActions(Action[] actions) {
+  @SuppressWarnings("unchecked")
+public void addActions(Action[] actions) {
     for ( int x = 0; x < actions.length; x++ ) {
       listActions.add(actions[x]);
     }

@@ -38,5 +38,6 @@ public interface ListenerParser {
    * 
    * @param listEvents ArrayList contains RPGSourceParserEvent objects.
    */
-  public void parserEvents(ArrayList listEvents);
+  @SuppressWarnings("rawtypes")
+public void parserEvents(ArrayList listEvents);
 }

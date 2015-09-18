@@ -24,6 +24,9 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * watches for specific short cut keys.
  * 
@@ -34,7 +37,8 @@ public class HandlerKeyPressed extends KeyAdapter implements Runnable {
   JTextComponent textarea;
   int direction = 0; // 1 = up, 2 = down.
   Thread thread;
-  
+  Logger logger = LoggerFactory.getLogger(HandlerKeyPressed.class);
+		  
   /**
    * call this AFTER jbInit() so that the parent components of
    * the textarea are already associated.
@@ -87,7 +91,8 @@ public class HandlerKeyPressed extends KeyAdapter implements Runnable {
     }
   }
   
-  public void run() {
+  @SuppressWarnings("static-access")
+public void run() {
     boolean loop = true;
     
     try {
@@ -110,7 +115,7 @@ public class HandlerKeyPressed extends KeyAdapter implements Runnable {
             return;
           }
         }
-        Thread.currentThread().sleep(50);
+				Thread.currentThread().sleep(50);
         synchronized ( this ) {
           if ( direction == 0 ) {
             thread = null;
@@ -120,7 +125,8 @@ public class HandlerKeyPressed extends KeyAdapter implements Runnable {
       }
     }
     catch (Exception e) {
-      e.printStackTrace();
+      //e.printStackTrace();
+    	logger.error(e.getMessage());
     }
     thread = null;
   }

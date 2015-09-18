@@ -22,7 +22,8 @@ public class FCShape {
   public static Color COLOR_BORDER_DARK = new Color(150, 150, 150);
   
   protected FCShape next, container, previous;
-  protected ArrayList listOps = new ArrayList();
+  @SuppressWarnings("rawtypes")
+protected ArrayList listOps = new ArrayList();
   protected int height = 0;
   protected int width = 0;
   protected int center = 0;
@@ -31,13 +32,15 @@ public class FCShape {
   protected int seriesWidth = 0;
   protected int seriesCenter = 0;
   
-  public FCShape(FCOp op, FCShape previous, FCShape container) {
+  @SuppressWarnings("unchecked")
+public FCShape(FCOp op, FCShape previous, FCShape container) {
     this.previous = previous;
     this.container = container;
     listOps.add(op);
   }
   
-  public FCShape appendOp(FCOp op) {
+  @SuppressWarnings("unchecked")
+public FCShape appendOp(FCOp op) {
     if ( op.getOp().equals("IF") ||
          op.getOp().startsWith("DOU") ||
          op.getOp().equals("SELECT") ) {

@@ -30,9 +30,14 @@ import javax.swing.table.*;
  * @author Derek Van Kooten.
  */
 public class TableModelRunConfigurations extends DefaultTableModel  {
-  int selected = 0;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4871468704709343189L;
+int selected = 0;
   Project project;
-  ArrayList listRun;
+  @SuppressWarnings("rawtypes")
+ArrayList listRun;
   String[] columns = new String[] {
     "Current", "Program", "Parameters", "Libraries", "Debug Program", "Update Production Files", ""
   };
@@ -78,7 +83,8 @@ public class TableModelRunConfigurations extends DefaultTableModel  {
     return (RunConfiguration)listRun.get(selected);
   }
 
-  public Class getColumnClass(int col) {
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+public Class getColumnClass(int col) {
     if ( col == 0 ) {
       return Boolean.class;
     }

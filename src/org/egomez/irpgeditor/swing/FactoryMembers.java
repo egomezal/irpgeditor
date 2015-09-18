@@ -1,11 +1,14 @@
 package org.egomez.irpgeditor.swing;
 
 import org.egomez.irpgeditor.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author not attributable
  */
 public class FactoryMembers implements FactoryPanelTool {
+	Logger logger = LoggerFactory.getLogger(FactoryMembers.class);
   public PanelTool construct(Object object) {
     PanelTool panelTool;
     ProjectMember projectMember;
@@ -17,7 +20,8 @@ public class FactoryMembers implements FactoryPanelTool {
       return panelTool;
     }
     catch (Exception e) {
-      e.printStackTrace();
+      //e.printStackTrace();
+    	logger.error(e.getMessage());
       return null;
     }
   }

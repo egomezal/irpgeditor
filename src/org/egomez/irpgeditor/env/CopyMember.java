@@ -19,7 +19,7 @@ public class CopyMember implements CopyRequest {
   }
 
   public void copyTo(AS400System as400, String library, String file) throws Exception {
-    member.copyTo(as400, library, file, member.getName());
+	  this.member.copyTo(as400, library, file, this.member.getName(), null);
   }
 
   public void copyTo(AS400System as400, String library) throws Exception {

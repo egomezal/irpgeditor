@@ -22,6 +22,9 @@ package org.egomez.irpgeditor.refactor;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Converts the fixed format code to free form.
  *  
@@ -31,7 +34,7 @@ public class RefactorCallSubroutine extends Refactor {
   public void start() {
     String subName;
     Document doc;
-
+    final  Logger logger = LoggerFactory.getLogger(RefactorCallSubroutine.class);
     subName = JOptionPane.showInputDialog(null, "Call Subroutine Name?");
     if ( subName == null ) {
       return;
@@ -42,7 +45,8 @@ public class RefactorCallSubroutine extends Refactor {
       doc.insertString(lineStart.getStart(), "     C                   exsr      " + subName + "\n", null);
     }
     catch (Exception e) {
-      e.printStackTrace();
+      //e.printStackTrace();
+    	logger.error(e.getMessage());
     }
   }
 }

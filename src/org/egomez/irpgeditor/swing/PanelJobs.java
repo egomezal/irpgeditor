@@ -10,29 +10,40 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
+//import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Iterator;
+//import java.util.Iterator;
+//import java.util.Iterator;
 
+//import javax.swing.Icon;
+//import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+//import javax.swing.SwingWorker;
 import javax.swing.table.TableModel;
 
 import org.egomez.irpgeditor.AS400System;
+//import org.egomez.irpgeditor.TreeJob;
 import org.egomez.irpgeditor.env.Environment;
 import org.egomez.irpgeditor.event.ListenerAS400Systems;
 import org.egomez.irpgeditor.icons.Icons;
 import org.egomez.parm.ArrayNode;
 import org.egomez.parm.SubsistemaAS400;
 import org.jdesktop.swingx.JXTreeTable;
+//import org.jdesktop.swingx.renderer.DefaultTreeRenderer;
+//import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.ibm.as400.access.AS400Exception;
 import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.Job;
@@ -43,8 +54,7 @@ import com.ibm.as400.access.ObjectDoesNotExistException;
  * @author EDGO
  * 
  */
-public class PanelJobs extends PanelTool implements ListenerAS400Systems,
-		Runnable {
+public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnable {
 	/**
 	 * 
 	 */
@@ -58,6 +68,10 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems,
 	private boolean flg = false;
 	Thread t1;
 	JLabel lblCargandoTrabajosActivos;
+	SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+	Hashtable<String, SubsistemaAS400> listaSubSistemas = null;
+	Logger logger = LoggerFactory.getLogger(PanelJobs.class);
+	Hashtable<String, ArrayNode> listaNodos = null;
 
 	/**
 	 * Create the panel.
@@ -68,16 +82,14 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems,
 		Environment.systems.addListener(this);
 		defaultSytem(Environment.systems.getDefault());
 		ColumnFactory factory = new ColumnFactory() {
-			String[] columnNameKeys = { "JobName", "User", "Type", "%CPU",
-					"Priority", "State", "Date Creation", "Number" };
+			String[] columnNameKeys = { "JobName", "User", "Type", "%CPU", "Priority", "State", "Date Creation",
+					"Number" };
 
 			@Override
-			public void configureTableColumn(TableModel model,
-					TableColumnExt columnExt) {
+			public void configureTableColumn(TableModel model, TableColumnExt columnExt) {
 				super.configureTableColumn(model, columnExt);
 				if (columnExt.getModelIndex() < columnNameKeys.length) {
-					columnExt
-							.setTitle(columnNameKeys[columnExt.getModelIndex()]);
+					columnExt.setTitle(columnNameKeys[columnExt.getModelIndex()]);
 				}
 			}
 
@@ -102,11 +114,9 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems,
 		popupMenu.add(mnuRefresh);
 
 		scrollPane.setBounds(20, 15, 1286, 257);
-		scrollPane
-				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
 		add(scrollPane);
-		lblCargandoTrabajosActivos = new JLabel(
-				"Cargando Trabajos Activos.... Espere un momento");
+		lblCargandoTrabajosActivos = new JLabel("Cargando Trabajos Activos.... Espere un momento");
 		lblCargandoTrabajosActivos.setBounds(91, 15, 476, 41);
 		lblCargandoTrabajosActivos.setVisible(false);
 		add(lblCargandoTrabajosActivos);
@@ -141,13 +151,13 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems,
 
 	@Override
 	public void addedSytem(AS400System system) {
-		// TODO Auto-generated method stub
+		
 
 	}
 
 	@Override
 	public void removedSytem(AS400System system) {
-		// TODO Auto-generated method stub
+		
 
 	}
 
@@ -160,189 +170,145 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems,
 		treeTable.removeAll();
 		lblCargandoTrabajosActivos.setVisible(true);
 		scrollPane.setVisible(false);
-		root = new ArrayNode(new Object[] { as400.getName(), "", "", "", "",
-				"", "", "" });
-		root.setAllowsChildren(true);
-		if (!flg) {
-			flg = true;
-			JobList jobList = new JobList(as400.getAS400());
+		if (as400 != null) {
+			if (as400.isConnected()) {
+				root = new ArrayNode(new Object[] { as400.getName(), "", "", "", "", "", "", "" });
+				root.setAllowsChildren(true);
+				if (!flg) {
+					flg = true;
+					JobList jobList = new JobList(as400.getAS400());
 
-			try {
-				jobList.addJobAttributeToRetrieve(Job.SUBSYSTEM);
-				jobList.addJobAttributeToRetrieve(Job.JOB_NAME);
-				jobList.addJobSelectionCriteria(
-						JobList.SELECTION_PRIMARY_JOB_STATUS_JOBQ, Boolean.TRUE);
-				jobList.addJobSelectionCriteria(
-						JobList.SELECTION_PRIMARY_JOB_STATUS_JOBQ,
-						Boolean.FALSE);
-				jobList.addJobSelectionCriteria(
-						JobList.SELECTION_PRIMARY_JOB_STATUS_OUTQ,
-						Boolean.FALSE);
-				// Subsystem[] subsistemas = Subsystem
-				// .listAllSubsystems(server);
-				@SuppressWarnings("rawtypes")
-				Enumeration list1 = jobList.getJobs();
-				SubsistemaAS400 x = null;
-				Job j = null;
-				Hashtable<String, SubsistemaAS400> listaSubSistemas = new Hashtable<String, SubsistemaAS400>();
-				while (list1.hasMoreElements()) {
-					j = (Job) list1.nextElement();
-					// System.out.println("name1: " + j.getName());
-					// System.out.println("name1: " + j.getSubsystem());
-					if (j.getType().equals(Job.JOB_TYPE_SUBSYSTEM_MONITOR)) {
-						x = new SubsistemaAS400();
-						x.setSubsistema(j);
-						listaSubSistemas.put(j.getName(), x);
-					}
-				}
-				/*
-				 * for (int i = 0; i < subsistemas.length; i++) {
-				 * //subsistemas[i].refresh(); if
-				 * (subsistemas[i].getCurrentActiveJobs() != 0) { x = new
-				 * SubsistemaAS400(); x.setSubsistema(subsistemas[i]);
-				 * listaSubSistemas.put(subsistemas[i].getName(), x); } }
-				 */
-				ArrayList<Job> lista = null;
-				@SuppressWarnings("rawtypes")
-				Enumeration list = jobList.getJobs();
-				// jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_ACTIVE,Boolean.TRUE);
+					try {
+						jobList.clearJobAttributesToRetrieve();
+						jobList.addJobAttributeToRetrieve(Job.SUBSYSTEM);
+						jobList.addJobAttributeToRetrieve(Job.JOB_NAME);
+						// jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_ACTIVE,Boolean.TRUE);
+						// jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_JOBQ,
+						// Boolean.TRUE);
+						// Subsystem[] subsistemas = Subsystem
+						// .listAllSubsystems(server);
 
-				String nombreSub = "";
-				while (list.hasMoreElements()) {
-					// System.out.println("i es " + n++);
-					j = (Job) list.nextElement();
-					// System.out.println("name: " + j.getName());
-					// System.out.println("Subsistema: "+ j.get);
-					if (!j.getType().equals("M")) {
-						if (tipo == LIST_ALL) {
-							if (j.getSubsystem() != null
-									&& !j.getSubsystem().equals("")) {
-								nombreSub = j.getSubsystem().substring(
-										j.getSubsystem().lastIndexOf("/") + 1);
-								nombreSub = nombreSub.substring(0,
-										nombreSub.indexOf("."));
-								// System.out.println("Subsistema1: " +
-								// nombreSub);
-								if (listaSubSistemas.get(nombreSub)
-										.getListaJob() == null) {
-									lista = new ArrayList<Job>();
-									lista.add(j);
-									listaSubSistemas.get(nombreSub)
-											.setListaJob(lista);
-								} else {
-									listaSubSistemas.get(nombreSub)
-											.getListaJob().add(j);
+						@SuppressWarnings("rawtypes")
+						Enumeration list1 = jobList.getJobs();
+						//SubsistemaAS400 x = null;
+						ArrayNode node = null;
+						Job j = null;
+						listaSubSistemas = new Hashtable<String, SubsistemaAS400>();
+
+						listaNodos = new Hashtable<String, ArrayNode>();
+
+						while (list1.hasMoreElements()) {
+							j = (Job) list1.nextElement();
+							if (j.getType().equals(Job.JOB_TYPE_SUBSYSTEM_MONITOR)) {
+
+								/*
+								 * x = new SubsistemaAS400();
+								 * x.setSubsistema(j);
+								 * listaSubSistemas.put(j.getName(), x);
+								 */
+								try {
+									node = new ArrayNode(new Object[] { j.getName(), j.getUser(), j.getType(),
+											j.getCPUUsed() / 1000, "", j.getStatus(), "", "" });
+									node.setAllowsChildren(true);
+
+									listaNodos.put(j.getName(), node);
+								} catch (AS400Exception e) {
+
 								}
-							} else {
-								x = new SubsistemaAS400();
-								x.setSubsistema(j);
-								listaSubSistemas.put(j.getName(), x);
-							}
-						} else {
-							if (j.getUser().toUpperCase().trim()
-									.equals(as400.getUser())) {
-								nombreSub = j.getSubsystem().substring(
-										j.getSubsystem().lastIndexOf("/") + 1);
-								nombreSub = nombreSub.substring(0,
-										nombreSub.indexOf("."));
-								if (listaSubSistemas.get(nombreSub)
-										.getListaJob() == null) {
-									lista = new ArrayList<Job>();
-									lista.add(j);
-									listaSubSistemas.get(nombreSub)
-											.setListaJob(lista);
-								} else {
-									listaSubSistemas.get(nombreSub)
-											.getListaJob().add(j);
-								}
+
 							}
 						}
-						// System.out.println("El nombre del job es "+
-						// j.getName()+" - "+ j.getStatus()+" - "+
-						// j.getType() +
-						// "-"+j.getSubsystem());
+
+						jobList.clearJobAttributesToRetrieve();
+						jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_JOBQ, Boolean.FALSE);
+						jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_OUTQ, Boolean.FALSE);
+						jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_ACTIVE, Boolean.TRUE);
+						@SuppressWarnings("rawtypes")
+						Enumeration list = jobList.getJobs();
+
+						String nombreSub = "";
+						while (list.hasMoreElements()) {
+							j = (Job) list.nextElement();
+
+							if (!j.getType().equals("M")) {
+								if (tipo == LIST_ALL) {
+									try {
+										if (j.getSubsystem() != null && !j.getSubsystem().equals("")) {
+											nombreSub = j.getSubsystem()
+													.substring(j.getSubsystem().lastIndexOf("/") + 1);
+											nombreSub = nombreSub.substring(0, nombreSub.indexOf("."));
+
+											listaNodos.get(nombreSub)
+													.add(new ArrayNode(new Object[] { j.getName(), j.getUser(),
+															j.getType(), j.getCPUUsed() / 1000, j.getRunPriority(),
+															j.getStatus(), sdf.format(j.getJobEnterSystemDate()),
+															j.getNumber() }));
+										} else {
+											node = new ArrayNode(new Object[] { j.getName(), j.getUser(), j.getType(),
+													j.getCPUUsed() / 1000, "", j.getStatus(), "", "" });
+											node.setAllowsChildren(true);
+
+											listaNodos.put(j.getName(), node);
+
+										}
+									} catch (AS400Exception e) {
+										logger.error(e.getMessage());
+										//e.printStackTrace();
+									}
+
+								} else {
+									if (j.getUser().toUpperCase().trim().equals(as400.getUser())) {
+
+										nombreSub = j.getSubsystem().substring(j.getSubsystem().lastIndexOf("/") + 1);
+										nombreSub = nombreSub.substring(0, nombreSub.indexOf("."));
+										listaNodos.get(nombreSub)
+												.add(new ArrayNode(new Object[] { j.getName(), j.getUser(), j.getType(),
+														j.getCPUUsed() / 1000, j.getRunPriority(), j.getStatus(),
+														sdf.format(j.getJobEnterSystemDate()), j.getNumber() }));
+									}
+								}
+
+							}
+						}
+
+
+						for (ArrayNode n : listaNodos.values()) {
+							root.add(n);
+						}
+
+						treeTable.setTreeTableModel(new DefaultTreeTableModel(root));
+						treeTable.expandAll();
+
+					} catch (AS400SecurityException e) {
+						logger.error(e.getMessage());
+						//e.printStackTrace();
+					} catch (ErrorCompletingRequestException e) {
+						//e.printStackTrace();
+						logger.error(e.getMessage());
+					} catch (InterruptedException e) {
+						//e.printStackTrace();
+						logger.error(e.getMessage());
+					} catch (IOException e) {
+						//e.printStackTrace();
+						logger.error(e.getMessage());
+					} catch (ObjectDoesNotExistException e) {
+						//e.printStackTrace();
+						logger.error(e.getMessage());
+					} catch (PropertyVetoException e1) {
+						//e1.printStackTrace();
+						logger.error(e1.getMessage());
+					} catch (Exception e1) {
+						//e1.printStackTrace();
+						logger.error(e1.getMessage());
+					} finally {
+						flg = false;
+						lblCargandoTrabajosActivos.setVisible(false);
+						scrollPane.setVisible(true);
 					}
 				}
-				Enumeration<SubsistemaAS400> e = listaSubSistemas.elements();
-				while (e.hasMoreElements()) {
-					x = e.nextElement();
-					agregarSubsistema(x);
-				}
-				treeTable.setTreeTableModel(new DefaultTreeTableModel(root));
-				treeTable.expandAll();
-			} catch (AS400SecurityException e) {
-				e.printStackTrace();
-			} catch (ErrorCompletingRequestException e) {
-				e.printStackTrace();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (ObjectDoesNotExistException e) {
-				e.printStackTrace();
-			} catch (PropertyVetoException e1) {
-				e1.printStackTrace();
-			} finally {
-				flg = false;
-				lblCargandoTrabajosActivos.setVisible(false);
-				scrollPane.setVisible(true);
 			}
 		}
 	}
-
-	private void agregarSubsistema(SubsistemaAS400 x) {
-		try {
-
-			ArrayNode node = new ArrayNode(new Object[] {
-					x.getSubsistema().getName(), x.getSubsistema().getUser(),
-					x.getSubsistema().getType(),
-					x.getSubsistema().getCPUUsed() / 1000, "",
-					x.getSubsistema().getStatus(), "","" });
-			node.setAllowsChildren(true);
-
-			Job j = null;
-			if (x.getListaJob() != null) {
-				Iterator<Job> listaJob = x.getListaJob().iterator();
-				while (listaJob.hasNext()) {
-					j = listaJob.next();
-					agregarTrabajo(j, node);
-				}
-			}
-			root.add(node);
-		} catch (AS400SecurityException e) {
-			// e.printStackTrace();
-		} catch (ErrorCompletingRequestException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ObjectDoesNotExistException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private void agregarTrabajo(Job j, ArrayNode parent) {
-		// GridItem item2 = new GridItem(parent, SWT.NONE);
-		// TreeItem item2 = new TreeItem(parent, SWT.NONE);
-		try {
-			parent.add(new ArrayNode(new Object[] { j.getName(), j.getUser(),
-					j.getType(), j.getCPUUsed() / 1000, j.getRunPriority(),
-					j.getStatus(), j.getJobEnterSystemDate().toString(),
-					j.getNumber() }));
-		} catch (AS400SecurityException e) {
-			e.printStackTrace();
-		} catch (ErrorCompletingRequestException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ObjectDoesNotExistException e) {
-			e.printStackTrace();
-		}
-	}
-
 	@Override
 	public void run() {
 		listaTrabajos(LIST_ALL);

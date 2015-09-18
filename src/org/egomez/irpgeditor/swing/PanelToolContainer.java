@@ -11,7 +11,12 @@ import org.egomez.irpgeditor.event.*;
  * @author Derek Van Kooten.
  */
 public class PanelToolContainer extends PanelTool implements ListenerPanelTool, ContainerListener, ChangeListener {
-  ArrayList listPanels = new ArrayList();
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -1686155995908340304L;
+@SuppressWarnings("rawtypes")
+ArrayList listPanels = new ArrayList();
   PanelTool panelSelected;
   boolean alwaysTabs = true;
   
@@ -39,7 +44,8 @@ public class PanelToolContainer extends PanelTool implements ListenerPanelTool, 
     return listPanels.indexOf(panel);
   }
   
-  public PanelTool[] getPanels() {
+  @SuppressWarnings("unchecked")
+public PanelTool[] getPanels() {
     return (PanelTool[])listPanels.toArray(new PanelTool[listPanels.size()]);
   }
   
@@ -53,7 +59,8 @@ public class PanelToolContainer extends PanelTool implements ListenerPanelTool, 
     return null;
   }
   
-  public void add(PanelTool panelTool) {
+  @SuppressWarnings("unchecked")
+public void add(PanelTool panelTool) {
     listPanels.add(panelTool);
     tabbedpane.removeContainerListener(this);
     if ( alwaysTabs || listPanels.size() > 2 ) {

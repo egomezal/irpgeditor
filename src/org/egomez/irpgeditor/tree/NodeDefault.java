@@ -30,7 +30,8 @@ public class NodeDefault extends NodeAbstract {
   protected Node parent = null;
   protected String text = "";
   protected Icon icon = null;
-  protected ArrayList list = new ArrayList();
+  @SuppressWarnings("rawtypes")
+protected ArrayList list = new ArrayList();
   
   public NodeDefault() {
   }
@@ -44,7 +45,8 @@ public class NodeDefault extends NodeAbstract {
     this.icon = icon;
   }
   
-  public NodeDefault(ArrayList list) {
+  @SuppressWarnings("rawtypes")
+public NodeDefault(ArrayList list) {
     this.list = list;
   }
   
@@ -68,12 +70,14 @@ public class NodeDefault extends NodeAbstract {
     this.icon = icon;
   }
   
-  public NodeDefault(Node parent, ArrayList list) {
+  @SuppressWarnings("rawtypes")
+public NodeDefault(Node parent, ArrayList list) {
     this.parent = parent;
     this.list = list;
   }
   
-  public void add(Node node) {
+  @SuppressWarnings("unchecked")
+public void add(Node node) {
     list.add(node);
   }
   

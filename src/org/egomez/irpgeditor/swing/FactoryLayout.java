@@ -1,6 +1,8 @@
 package org.egomez.irpgeditor.swing;
 
 import org.egomez.irpgeditor.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * gets called when someone wants to see the layout of a file.
@@ -8,6 +10,7 @@ import org.egomez.irpgeditor.*;
  * @author not attributable
  */
 public class FactoryLayout implements FactoryPanelTool {
+	Logger logger = LoggerFactory.getLogger(FactoryLayout.class);
   public PanelTool construct(Object object) {
     PanelLayout panelLayout;
     LayoutRequest request;
@@ -20,7 +23,8 @@ public class FactoryLayout implements FactoryPanelTool {
       return panelLayout;
     }
     catch (Exception e) {
-      e.printStackTrace();
+      //e.printStackTrace();
+      logger.error(e.getMessage());
       return null;
     }
   }

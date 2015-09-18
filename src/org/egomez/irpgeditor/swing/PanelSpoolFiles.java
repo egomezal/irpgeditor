@@ -45,6 +45,8 @@ import org.egomez.irpgeditor.env.*;
 import org.egomez.irpgeditor.event.*;
 import org.egomez.irpgeditor.icons.Icons;
 import org.egomez.irpgeditor.table.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Works with spool files.
@@ -52,8 +54,7 @@ import org.egomez.irpgeditor.table.*;
  * @author Derek Van Kooten.
  */
 @SuppressWarnings("serial")
-public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
-		ListSelectionListener, Runnable {
+public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems, ListSelectionListener, Runnable {
 	TableModelSpool tableModelSpool = new TableModelSpool();
 	AS400System as400;
 	ActionSpoolRefresh actionSpoolRefresh = new ActionSpoolRefresh();
@@ -81,8 +82,8 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 	FlowLayout flowLayoutSpoolButtons = new FlowLayout();
 	BorderLayout borderLayout1 = new BorderLayout();
 	JButton buttonSelectAll = new JButton();
-
-	private PdfWriter bos;
+	Logger logger = LoggerFactory.getLogger(PanelSpoolFiles.class);
+	// private PdfWriter bos;
 	private Document document;
 
 	int exportType = 0;
@@ -95,8 +96,7 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 		Environment.systems.addListener(this);
 		try {
 			jbInit();
-			super.actions = new Action[] { actionSpoolRefresh,
-					actionSpoolFileView, actionSpoolFileDelete,
+			super.actions = new Action[] { actionSpoolRefresh, actionSpoolFileView, actionSpoolFileDelete,
 					actionSelectAll, actionFocus };
 			Environment.actions.addActions(actions);
 			buttonSpooledFileDelete.addActionListener(actionSpoolFileDelete);
@@ -104,13 +104,12 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 			buttonSpoolRefresh.addActionListener(actionSpoolRefresh);
 			buttonSelectAll.addActionListener(actionSelectAll);
 			buttonSpooledOtherUser.addActionListener(actionSpoolOtherUser);
-			buttonSpooledOtherUserData
-					.addActionListener(actionSpoolOtherUserData);
+			buttonSpooledOtherUserData.addActionListener(actionSpoolOtherUserData);
 
-			defaultSytem(Environment.systems.getDefault());
 			tableSpool.getSelectionModel().addListSelectionListener(this);
 		} catch (Exception e) {
-			e.printStackTrace();
+			// e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 
@@ -132,8 +131,7 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 				}
 
 				for (int x = 0; x < rows.length; x++) {
-					file = (SpooledFile) tableModelSpool
-							.getSpooledFile(rows[x]);
+					file = (SpooledFile) tableModelSpool.getSpooledFile(rows[x]);
 					Environment.spoolFiles.open(file);
 				}
 			}
@@ -149,8 +147,7 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 				dlgArchivo.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 				dlgArchivo.setDialogTitle("Save File");
 				dlgArchivo.setDialogType(JFileChooser.SAVE_DIALOG);
-				FileFilter filter1 = new ExtensionFileFilter(
-						"Text File (*.txt)", new String[] { "TXT", "txt" });
+				FileFilter filter1 = new ExtensionFileFilter("Text File (*.txt)", new String[] { "TXT", "txt" });
 				dlgArchivo.setFileFilter(filter1);
 				int retval = dlgArchivo.showDialog(getPanel(), null);
 				if (retval == JFileChooser.APPROVE_OPTION) {
@@ -158,10 +155,8 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 						dlgArchivo.getSelectedFile().delete();
 					}
 					target = dlgArchivo.getSelectedFile();
-					String name = addFileExtIfNecessary(target.getName(),
-							".txt");
-					if (!name.toUpperCase().equals(
-							target.getName().toUpperCase())) {
+					String name = addFileExtIfNecessary(target.getName(), ".txt");
+					if (!name.toUpperCase().equals(target.getName().toUpperCase())) {
 						target = new File(target.getAbsolutePath() + ".txt");
 					}
 					focus();
@@ -187,8 +182,7 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 				dlgArchivo.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 				dlgArchivo.setDialogTitle("Save File");
 				dlgArchivo.setDialogType(JFileChooser.SAVE_DIALOG);
-				FileFilter filter1 = new ExtensionFileFilter(
-						"PDF Files (*.pdf)", new String[] { "PDF", "pdf" });
+				FileFilter filter1 = new ExtensionFileFilter("PDF Files (*.pdf)", new String[] { "PDF", "pdf" });
 				dlgArchivo.setFileFilter(filter1);
 				int retval = dlgArchivo.showDialog(getPanel(), null);
 				if (retval == JFileChooser.APPROVE_OPTION) {
@@ -196,10 +190,8 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 						dlgArchivo.getSelectedFile().delete();
 					}
 					target = dlgArchivo.getSelectedFile();
-					String name = addFileExtIfNecessary(target.getName(),
-							".pdf");
-					if (!name.toUpperCase().equals(
-							target.getName().toUpperCase())) {
+					String name = addFileExtIfNecessary(target.getName(), ".pdf");
+					if (!name.toUpperCase().equals(target.getName().toUpperCase())) {
 						target = new File(target.getAbsolutePath() + ".pdf");
 					}
 					focus();
@@ -400,6 +392,7 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 			// putValue(Action.MNEMONIC_KEY, new Character('S'));
 		}
 
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public void actionPerformed(ActionEvent evt) {
 			SpooledFile file;
 			int[] rows;
@@ -410,9 +403,8 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 			if (rows == null || rows.length == 0) {
 				return;
 			}
-			if (JOptionPane.showConfirmDialog(null, "Are You Sure?",
-					"Delete Spooled File", JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.QUESTION_MESSAGE) == JOptionPane.CANCEL_OPTION) {
+			if (JOptionPane.showConfirmDialog(null, "Are You Sure?", "Delete Spooled File",
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE) == JOptionPane.CANCEL_OPTION) {
 				return;
 			}
 			list = new ArrayList();
@@ -424,7 +416,8 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 				try {
 					file.delete();
 				} catch (Exception e) {
-					e.printStackTrace();
+					// e.printStackTrace();
+					logger.error(e.getMessage());
 				}
 			}
 			tableModelSpool.reset();
@@ -440,8 +433,7 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 			setEnabled(false);
 			putValue("MENU", "Spool");
 			// F7
-			putValue(Action.ACCELERATOR_KEY,
-					KeyStroke.getKeyStroke(118, 0, false));
+			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(118, 0, false));
 			// putValue(Action.MNEMONIC_KEY, new Character('S'));
 		}
 
@@ -487,12 +479,11 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 	 */
 	class ActionFocus extends AbstractAction {
 		public ActionFocus() {
-			super("Spool Files");
+			super("Spool Files", Icons.iconSpool);
 			setEnabled(true);
 			putValue("MENU", "Tools");
 			// F7 + CTRL
-			putValue(Action.ACCELERATOR_KEY,
-					KeyStroke.getKeyStroke(118, KeyEvent.CTRL_MASK, false));
+			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(118, KeyEvent.CTRL_MASK, false));
 			// putValue(Action.MNEMONIC_KEY, new Character('S'));
 		}
 
@@ -537,8 +528,7 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 				String path = file.getAbsolutePath().toLowerCase();
 				for (int i = 0, n = extensions.length; i < n; i++) {
 					String extension = extensions[i];
-					if ((path.endsWith(extension) && (path.charAt(path.length()
-							- extension.length() - 1)) == '.')) {
+					if ((path.endsWith(extension) && (path.charAt(path.length() - extension.length() - 1)) == '.')) {
 						return true;
 					}
 				}
@@ -565,21 +555,17 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 				}
 
 				PrintParameterList localPrintParameterList = new PrintParameterList();
-				localPrintParameterList.setParameter(
-						PrintObject.ATTR_WORKSTATION_CUST_OBJECT,
+				localPrintParameterList.setParameter(PrintObject.ATTR_WORKSTATION_CUST_OBJECT,
 						"/QSYS.LIB/QWPDEFAULT.WSCST");
-				localPrintParameterList.setParameter(PrintObject.ATTR_MFGTYPE,
-						"*WSCST");
-				localPrintParameterList.setParameter(PrintObject.ATTR_CODEPAGE,
-						284);
+				localPrintParameterList.setParameter(PrintObject.ATTR_MFGTYPE, "*WSCST");
+				localPrintParameterList.setParameter(PrintObject.ATTR_CODEPAGE, 284);
 				PrintObjectTransformedInputStream localPrintObjectTransformedInputStream = file
 						.getTransformedInputStream(localPrintParameterList);
 				byte[] buf = new byte[32767];
 				StringBuffer buffer = new StringBuffer();
 				int bytesRead = 0;
 				do {
-					bytesRead = localPrintObjectTransformedInputStream
-							.read(buf);
+					bytesRead = localPrintObjectTransformedInputStream.read(buf);
 					// System.out.println(bytesRead);
 					if (bytesRead > 0) {
 						buffer.append(new String(buf, 0, bytesRead, "cp437"));
@@ -596,9 +582,8 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 					localPrintStream.close();
 					break;
 				case SPOOL_EXPORT_PDF:
-					Paragraph p = new Paragraph(cadena, FontFactory.getFont(
-							FontFactory.COURIER, 6,
-							com.lowagie.text.Font.NORMAL));
+					Paragraph p = new Paragraph(cadena,
+							FontFactory.getFont(FontFactory.COURIER, 6, com.lowagie.text.Font.NORMAL));
 					// p.setFont(courierFont);
 					if (buffer.length() > 0) {
 						document.add(p);
@@ -609,25 +594,29 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems,
 					break;
 				}
 
-				JOptionPane.showMessageDialog(null,
-						"File " + target.getAbsolutePath() + " was saved.");
+				JOptionPane.showMessageDialog(null, "File " + target.getAbsolutePath() + " was saved.");
 
 			} catch (FileNotFoundException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
+				logger.error(e.getMessage());
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			} catch (AS400Exception e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			} catch (AS400SecurityException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 			} catch (ErrorCompletingRequestException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
+				logger.error(e.getMessage());
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
+				logger.error(e.getMessage());
 			} catch (RequestNotSupportedException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
+				logger.error(e.getMessage());
 			} catch (DocumentException e) {
-				e.printStackTrace();
+				// e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 		}
 	}

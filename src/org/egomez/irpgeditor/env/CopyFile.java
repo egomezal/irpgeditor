@@ -25,6 +25,6 @@ public class CopyFile implements CopyRequest {
   }
 
   public void copyTo(AS400System as400, String library) throws Exception {
-    this.as400.copyTo(this.lib, this.file, as400, library, file);
+	  this.as400.copyTo(this.lib, this.file, as400, library, this.file, true, null);
   }
 }

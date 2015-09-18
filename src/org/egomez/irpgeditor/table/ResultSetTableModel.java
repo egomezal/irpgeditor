@@ -9,6 +9,8 @@ import java.sql.Statement;
 import javax.swing.table.AbstractTableModel;
 
 import org.egomez.irpgeditor.AS400System;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ResultSetTableModel extends AbstractTableModel {
 	/**
@@ -21,7 +23,8 @@ public class ResultSetTableModel extends AbstractTableModel {
 	private ResultSet resultSet;
 	private ResultSetMetaData metaData;
 	private int numberOfRows;
-
+	Logger logger = LoggerFactory.getLogger(ResultSetTableModel.class);
+	
 	// keep track of database connection status
 	private boolean connectedToDatabase = false;
 
@@ -31,7 +34,7 @@ public class ResultSetTableModel extends AbstractTableModel {
 			throws SQLException {
 		// connect to database
 		this.setSystem(system);
-		connection = system.getConnection();
+		connection = system.getConnectionPool();
 
 		// create Statement to query database
 		statement = connection.createStatement(
@@ -58,8 +61,9 @@ public class ResultSetTableModel extends AbstractTableModel {
 			// return Class object that represents className
 			return Class.forName(className);
 		} // end try
-		catch (Exception exception) {
-			exception.printStackTrace();
+		catch (Exception e) {
+			//e.printStackTrace();
+			logger.error(e.getMessage());
 		} // end catch
 
 		return Object.class; // if problems occur above, assume type Object
@@ -76,7 +80,8 @@ public class ResultSetTableModel extends AbstractTableModel {
 			return metaData.getColumnCount();
 		} // end try
 		catch (SQLException sqlException) {
-			sqlException.printStackTrace();
+			//sqlException.printStackTrace();
+			logger.error(sqlException.getMessage());
 		} // end catch
 
 		return 0; // if problems occur above, return 0 for number of columns
@@ -93,7 +98,8 @@ public class ResultSetTableModel extends AbstractTableModel {
 			return metaData.getColumnName(column + 1);
 		} // end try
 		catch (SQLException sqlException) {
-			sqlException.printStackTrace();
+			//sqlException.printStackTrace();
+			logger.error(sqlException.getMessage());
 		} // end catch
 
 		return ""; // if problems, return empty string for column name
@@ -120,7 +126,8 @@ public class ResultSetTableModel extends AbstractTableModel {
 			return resultSet.getObject(column + 1);
 		} // end try
 		catch (SQLException sqlException) {
-			sqlException.printStackTrace();
+			//sqlException.printStackTrace();
+			logger.error(sqlException.getMessage());
 		} // end catch
 
 		return ""; // if problems, return empty string object
@@ -163,7 +170,8 @@ public class ResultSetTableModel extends AbstractTableModel {
 			connection.close();
 		} // end try
 		catch (SQLException sqlException) {
-			sqlException.printStackTrace();
+			//sqlException.printStackTrace();
+			logger.error(sqlException.getMessage());
 		} // end catch
 		finally // update database connection status
 		{

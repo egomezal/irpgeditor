@@ -9,8 +9,14 @@ import org.egomez.irpgeditor.event.*;
 /**
  * @author Derek Van Kooten
  */
+@SuppressWarnings("rawtypes")
 public class ComboBoxModelProjects extends AbstractListModel implements javax.swing.ComboBoxModel, ListenerProjects {
-  public ComboBoxModelProjects() {
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3303495099645947565L;
+
+public ComboBoxModelProjects() {
     Environment.projects.addListener(this);
   }
 

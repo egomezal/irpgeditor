@@ -31,6 +31,7 @@ import org.egomez.irpgeditor.tree.*;
  * 
  * @author Derek Van Kooten.
  */
+@SuppressWarnings("unused")
 public class NodeSourceStructure extends NodeSourceBlocks implements ListenerParser {
   public NodeSourceStructure(TreeModelSourceStructure treeModel) {
     super(treeModel);

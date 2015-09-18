@@ -6,5 +6,6 @@ import java.util.*;
  * @author Derek Van Kooten.
  */
 public interface ListenerStructure {
-  public void saveState(Enumeration expands);
+	@SuppressWarnings("rawtypes")
+	public void saveState(Enumeration expands);
 }

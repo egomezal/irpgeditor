@@ -28,7 +28,11 @@ import javax.swing.tree.*;
  * @author Derek Van Kooten.
  */
 public class TreeCellRendererNode extends DefaultTreeCellRenderer {
-  JPanel panel = new JPanel(new BorderLayout(0, 0));
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4723707844569600842L;
+JPanel panel = new JPanel(new BorderLayout(0, 0));
   JCheckBox checkBox = new JCheckBox();
   JLabel label = new JLabel();
   Color textBackground = UIManager.getColor("Tree.textBackground");

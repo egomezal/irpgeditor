@@ -10,8 +10,13 @@ import org.egomez.irpgeditor.event.*;
  * @author Derek Van Kooten.
  */
 public class PanelTool extends JPanel {
-  PanelToolContainer panelToolContainer;
-  private ArrayList listListeners = new ArrayList();
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -4567933460014597096L;
+PanelToolContainer panelToolContainer;
+  @SuppressWarnings("rawtypes")
+private ArrayList listListeners = new ArrayList();
   protected Action[] actions = new Action[0];
   int i = 0;
   
@@ -25,16 +30,17 @@ public class PanelTool extends JPanel {
     }
     panelToolContainer.add(this);
   }
-  
+  /*
   public PanelToolContainer getContainer() {
     return panelToolContainer;
-  }
+  }*/
   
   public Action[] getActions() {
     return actions;
   }
   
-  public void addListener(ListenerPanelTool l) {
+  @SuppressWarnings("unchecked")
+public void addListener(ListenerPanelTool l) {
     listListeners.add(l);
   }
   

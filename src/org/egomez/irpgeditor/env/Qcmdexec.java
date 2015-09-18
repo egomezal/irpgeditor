@@ -19,43 +19,68 @@ package org.egomez.irpgeditor.env;
  * Boston, MA 02111-1307 USA
  */
 
+import java.awt.Color;
+
+import org.egomez.irpgeditor.AS400System;
+import org.egomez.irpgeditor.event.ListenerSubmitJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.ibm.as400.access.*;
 
 /**
- * All commands issued on a system should show the commands issued here.
- * Another class will handle displaying the messages. 
- *  
+ * All commands issued on a system should show the commands issued here. Another
+ * class will handle displaying the messages.
+ * 
  * @author not attributable
  */
 public class Qcmdexec {
-  QcmdexecOutput output;
-  
-  public void setOutput(QcmdexecOutput o) {
-    output = o;
-  }
-  
-  public void clear() {
-    output.clear();
-    focus();
-  }
-  
-  public void append(String text) {
-    output.append(text);
-    focus();
-  }
-  
-  public void appendLine(String text) {
-    append(text);
-    append("\n");
-  }
-  
-  public void focus() {
-    output.focus();
-  }
-  
-  public void append(AS400Message[] messages) {
-    for ( int m = 0; m < messages.length; m++ ) {
-      appendLine(messages[m].getText());
-    }
-  }
+	QcmdexecOutput output;
+	final  Logger logger = LoggerFactory.getLogger(Qcmdexec.class);
+	public void append(AS400Message[] messages, Color color, boolean result) {
+		for (int m = 0; m < messages.length; m++) {
+			AS400Message message = messages[m];
+			appendLine(message.getText(), color);
+			if (!result)
+				try {
+					message.load();
+					appendLine(message.getHelp(), color);
+				} catch (Exception e) {
+					logger.error(e.getMessage());
+				}
+		}
+	}
+
+	public void append(String text, Color color) {
+		this.output.append(text, color);
+		focus();
+	}
+
+	public void submitJob(AS400System system, String command,
+			ListenerSubmitJob listener) {
+		this.output.submitJob(system, command, listener);
+	}
+
+	public void submitJob(AS400System system, String command) {
+		this.output.submitJob(system, command, null);
+	}
+
+	public void setOutput(QcmdexecOutput o) {
+		output = o;
+	}
+
+	public void clear() {
+		output.clear();
+		focus();
+	}
+
+	public void appendLine(String text, Color color) {
+		append(text, color);
+		append("\n", color);
+	}
+
+	public void focus() {
+		output.focus();
+	}
+
 }

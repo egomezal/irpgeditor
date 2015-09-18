@@ -32,6 +32,7 @@ import org.egomez.irpgeditor.event.*;
  * 
  * @author Derek Van Kooten.
  */
+@SuppressWarnings("unchecked")
 public class RPGSourceHighlighter implements ListenerParser {
   JTextPane textPane;
   StyledDocument styleDocument;
@@ -111,7 +112,8 @@ public class RPGSourceHighlighter implements ListenerParser {
     StyleConstants.setBold(attributesIndicator, true);
   }
   
-  public static HashSet setKeywords = new HashSet();
+  @SuppressWarnings("rawtypes")
+public static HashSet setKeywords = new HashSet();
   static {
     setKeywords.add("adddur");
     setKeywords.add("callp");
@@ -258,7 +260,8 @@ public class RPGSourceHighlighter implements ListenerParser {
   /**
    * handles events that occur in the source.
    */
-  public void parserEvents(ArrayList listEvents) {
+  @SuppressWarnings("rawtypes")
+public void parserEvents(ArrayList listEvents) {
     SourceParserEvent event;
     
     for ( int x = 0; x < listEvents.size(); x++ ) {
@@ -289,7 +292,7 @@ public class RPGSourceHighlighter implements ListenerParser {
   
   public void addStyle(SourceLine line) {
     StringBuffer source;
-    String buffer, keyword;
+    String  keyword; //buffer,
     char c;
     
     source = line.parser.getText();
@@ -400,8 +403,9 @@ public class RPGSourceHighlighter implements ListenerParser {
     }
   }
   
-  private boolean startsWith(StringBuffer string, int start, int end, String compare) {
-    int length2, y;
+  @SuppressWarnings("unused")
+private boolean startsWith(StringBuffer string, int start, int end, String compare) {
+    int length2 = 0, y;
     
     y = 0;
     length2 = compare.length();

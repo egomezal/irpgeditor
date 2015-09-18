@@ -34,7 +34,8 @@ import org.egomez.irpgeditor.event.*;
  */
 public class TreeModelProject implements TreeModel, ListenerProjects, ListenerProject {
   Project project;
-  ArrayList listListeners = new ArrayList();
+  @SuppressWarnings("rawtypes")
+ArrayList listListeners = new ArrayList();
 
   public TreeModelProject() {
     Environment.projects.addListener(this);
@@ -44,7 +45,8 @@ public class TreeModelProject implements TreeModel, ListenerProjects, ListenerPr
   /**
    * gets called when the source line data changes.
    */
-  public void structureChanged() {
+  @SuppressWarnings("rawtypes")
+public void structureChanged() {
     final ArrayList temp;
 
     if ( listListeners.size() == 0 ) {
@@ -101,7 +103,8 @@ public class TreeModelProject implements TreeModel, ListenerProjects, ListenerPr
   /**
    * listens for events to this model.
    */
-  public void addTreeModelListener(TreeModelListener l) {
+  @SuppressWarnings("unchecked")
+public void addTreeModelListener(TreeModelListener l) {
     listListeners.add(l);
   }
 

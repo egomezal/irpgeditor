@@ -1,5 +1,10 @@
 package org.egomez.irpgeditor.env;
 
+import java.awt.Color;
+
+import org.egomez.irpgeditor.AS400System;
+import org.egomez.irpgeditor.event.ListenerSubmitJob;
+
 /*
  * Copyright:    Copyright (c) 2004
  *
@@ -25,7 +30,14 @@ package org.egomez.irpgeditor.env;
  * @author Derek Van Kooten.
  */
 public interface QcmdexecOutput {
-  public void clear();
-  public void append(String text);
-  public void focus();
+	public static final Color colorCall = Color.BLACK;
+	public static final Color colorResult = Color.BLUE;
+
+	public void clear();
+
+	public abstract void append(String paramString, Color paramColor);
+
+	public void focus();
+	
+	 public abstract void submitJob(AS400System paramAS400System, String paramString, ListenerSubmitJob paramListenerSubmitJob);
 }

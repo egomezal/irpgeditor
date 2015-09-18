@@ -2,8 +2,6 @@ package org.egomez.irpgeditor.event;
 
 import javax.swing.*;
 
-import org.egomez.irpgeditor.swing.*;
-
 /**
  * @author Derek Van Kooten
  */

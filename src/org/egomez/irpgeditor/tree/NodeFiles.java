@@ -36,6 +36,7 @@ import org.egomez.irpgeditor.tree.*;
  * 
  * @author Derek Van Kooten.
  */
+@SuppressWarnings("unused")
 public class NodeFiles extends NodeAbstract implements ListenerParser {
   SourceParser parser;
   FileLine first = null;
@@ -54,7 +55,8 @@ public class NodeFiles extends NodeAbstract implements ListenerParser {
   /**
    * handles events that occur in the source.
    */
-  public void parserEvents(ArrayList listEvents) {
+  @SuppressWarnings("rawtypes")
+public void parserEvents(ArrayList listEvents) {
     SourceParserEvent event;
     
     for ( int x = 0; x < listEvents.size(); x++ ) {
@@ -180,7 +182,7 @@ public class NodeFiles extends NodeAbstract implements ListenerParser {
    */
   protected boolean isFileLine(SourceLine line) {
     StringBuffer source;
-    String buffer;
+    //String buffer;
     char c;
     int start;
     
@@ -345,7 +347,8 @@ class FileLine extends NodeAbstract {
    * executes sql that displays what libraries the file exist in.
    */
   class ActionFind implements ActionListener {
-    public void actionPerformed(ActionEvent evt) {
+    @SuppressWarnings("static-access")
+	public void actionPerformed(ActionEvent evt) {
       Environment.sql.executeSQL("select distinct table_schema from syscolumns where table_name = '" + line.get(LinePosition.D_NAME).toUpperCase() + "'");
     }
   }

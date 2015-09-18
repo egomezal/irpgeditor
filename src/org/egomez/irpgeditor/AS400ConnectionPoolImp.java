@@ -11,7 +11,7 @@ import com.ibm.as400.access.ConnectionPoolListener;
 
 public class AS400ConnectionPoolImp implements ConnectionPoolListener {
 	  private AS400JDBCConnectionPool pool = null;
-	    private int nMaxConexiones = 5;
+	    private int nMaxConexiones = 10;
 	    
 	    public AS400ConnectionPoolImp(String systemIP,
             String userName, String password ){

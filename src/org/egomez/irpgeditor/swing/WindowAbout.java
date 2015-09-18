@@ -78,7 +78,7 @@ public class WindowAbout extends JDialog{
 		lbloriginalDavid.setBounds(148, 85, 155, 28);
 		panel.add(lbloriginalDavid);
 		
-		JLabel lblBuildId = new JLabel("Build id: 20121010");
+		JLabel lblBuildId = new JLabel("Build id: 20150910");
 		lblBuildId.setBounds(148, 124, 124, 14);
 		panel.add(lblBuildId);
 		
@@ -99,6 +99,12 @@ public class WindowAbout extends JDialog{
 		button_2.setToolTipText("jGoodies");
 		button_2.setBounds(164, 173, 62, 57);
 		this.getContentPane().add(button_2);
+		
+		JButton button_3 = new JButton("");
+		button_3.setIcon(new ImageIcon(WindowAbout.class.getResource("/org/egomez/irpgeditor/icons/ibm-logo.png")));
+		button_3.setToolTipText("IBM");
+		button_3.setBounds(236, 173, 62, 57);
+		getContentPane().add(button_3);
 	}
 
 	protected void closeWindows() {

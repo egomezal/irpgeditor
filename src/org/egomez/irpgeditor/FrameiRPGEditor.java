@@ -22,6 +22,7 @@ package org.egomez.irpgeditor;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -36,10 +37,12 @@ import org.egomez.irpgeditor.event.*;
 import org.egomez.irpgeditor.icons.*;
 import org.egomez.irpgeditor.swing.*;
 import org.egomez.irpgeditor.tree.*;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  * @author Derek Van Kooten.
+ * 
  */
 public class FrameiRPGEditor extends JFrame {
 	/**
@@ -47,6 +50,8 @@ public class FrameiRPGEditor extends JFrame {
 	 */
 	private static final long serialVersionUID = -4983045774526568372L;
 	static WindowSplash splash;
+	private static WindowsTips dlgTips;
+	private boolean flgExit = true;
 	// tree files.
 	TreeCellRendererNode treeCellRendererNode = new TreeCellRendererNode();
 	DefaultMutableTreeNode nodeFilesRoot = new DefaultMutableTreeNode("");
@@ -126,31 +131,49 @@ public class FrameiRPGEditor extends JFrame {
 	JMenu menuTools = new JMenu();
 	JMenu menuSession = new JMenu();
 	JMenu menuSpool = new JMenu();
+	org.slf4j.Logger logger = LoggerFactory.getLogger(FrameiRPGEditor.class);
 
 	public static void main(String[] args) throws Exception {
 		FrameiRPGEditor frame;
-
 		splash = new WindowSplash(new JFrame());
 
-		Environment.loadSettings();
 		try {
 			String SO = System.getProperty("os.name");
 			if (SO.toUpperCase().indexOf("WINDOWS") == -1) {
 				PlasticXPLookAndFeel.setPlasticTheme(new ExperienceBlue());
 				UIManager.setLookAndFeel(new PlasticXPLookAndFeel());
 			} else {
-				UIManager.setLookAndFeel(UIManager
-						.getSystemLookAndFeelClassName());
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			}
+			// LoggerFactory.getLogger(FrameiRPGEditor.class).info("test");
+			Environment.loadSettings();
 		} catch (Exception e) {
-			e.printStackTrace();
+			// e.printStackTrace();
+			LoggerFactory.getLogger(FrameiRPGEditor.class).error(e.getMessage());
 		}
+
 		// Center the window
 		frame = new FrameiRPGEditor();
 		frame.setVisible(true);
+		dlgTips = new WindowsTips();
+		dlgTips.setVisible(true);
 	}
 
 	public FrameiRPGEditor() {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if (JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?", "iRPGEditor",
+						JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
+					// System.exit(0);
+					flgExit = true;
+				} else {
+					setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+					flgExit = false;
+				}
+
+			}
+		});
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		try {
 			jbInit();
@@ -158,7 +181,8 @@ public class FrameiRPGEditor extends JFrame {
 			loadSettings();
 			Environment.actions.addActions(new Action[] { actionExit });
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error(e.getMessage());
+			// e.printStackTrace();
 		}
 		splash.setVisible(false);
 		splash.dispose();
@@ -166,11 +190,9 @@ public class FrameiRPGEditor extends JFrame {
 	}
 
 	private void jbInit() throws Exception {
-		border1 = new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(
-				148, 145, 140));
+		border1 = new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(148, 145, 140));
 		titledBorder1 = new TitledBorder(border1, "Run");
-		border2 = new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(
-				148, 145, 140));
+		border2 = new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(148, 145, 140));
 		titledBorder2 = new TitledBorder(border2, "Debug");
 		splitpaneMain.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitpaneMain.setLastDividerLocation(600);
@@ -188,48 +210,38 @@ public class FrameiRPGEditor extends JFrame {
 		menuAddFileView.setIcon(Icons.iconFileAdd);
 		menuAddFileView.setMnemonic('A');
 		menuAddFileView.setText("Add File View");
-		menuAddFileView.setAccelerator(javax.swing.KeyStroke.getKeyStroke(116,
-				0, false));
+		menuAddFileView.setAccelerator(javax.swing.KeyStroke.getKeyStroke(116, 0, false));
 		tabbedpaneLayout.setFont(new java.awt.Font("DialogInput", 0, 14));
 		menuEdit.setText("Edit");
 		jMenuItem5.setIcon(Icons.iconUndo);
 		jMenuItem5.setText("Undo");
-		jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(90,
-				java.awt.event.KeyEvent.CTRL_MASK, false));
+		jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(90, java.awt.event.KeyEvent.CTRL_MASK, false));
 		jMenuItem6.setIcon(Icons.iconRedo);
 		jMenuItem6.setText("Redo");
-		jMenuItem6.setAccelerator(javax.swing.KeyStroke.getKeyStroke(89,
-				java.awt.event.KeyEvent.CTRL_MASK, false));
+		jMenuItem6.setAccelerator(javax.swing.KeyStroke.getKeyStroke(89, java.awt.event.KeyEvent.CTRL_MASK, false));
 		jMenuItem8.setIcon(Icons.iconCut);
 		jMenuItem8.setText("Cut");
-		jMenuItem8.setAccelerator(javax.swing.KeyStroke.getKeyStroke(88,
-				java.awt.event.KeyEvent.CTRL_MASK, false));
+		jMenuItem8.setAccelerator(javax.swing.KeyStroke.getKeyStroke(88, java.awt.event.KeyEvent.CTRL_MASK, false));
 		jMenuItem9.setIcon(Icons.iconCopy);
 		jMenuItem9.setText("Copy");
-		jMenuItem9.setAccelerator(javax.swing.KeyStroke.getKeyStroke(67,
-				java.awt.event.KeyEvent.CTRL_MASK, false));
+		jMenuItem9.setAccelerator(javax.swing.KeyStroke.getKeyStroke(67, java.awt.event.KeyEvent.CTRL_MASK, false));
 		jMenuItem10.setIcon(Icons.iconPaste);
 		jMenuItem10.setText("Paste");
-		jMenuItem10.setAccelerator(javax.swing.KeyStroke.getKeyStroke(86,
-				java.awt.event.KeyEvent.CTRL_MASK, false));
+		jMenuItem10.setAccelerator(javax.swing.KeyStroke.getKeyStroke(86, java.awt.event.KeyEvent.CTRL_MASK, false));
 		jMenuItem11.setIcon(Icons.iconDelete);
 		jMenuItem11.setText("Delete");
-		jMenuItem11.setAccelerator(javax.swing.KeyStroke.getKeyStroke(127, 0,
-				false));
+		jMenuItem11.setAccelerator(javax.swing.KeyStroke.getKeyStroke(127, 0, false));
 		jMenuItem12.setText("Select All");
-		jMenuItem12.setAccelerator(javax.swing.KeyStroke.getKeyStroke(65,
-				java.awt.event.KeyEvent.CTRL_MASK, false));
+		jMenuItem12.setAccelerator(javax.swing.KeyStroke.getKeyStroke(65, java.awt.event.KeyEvent.CTRL_MASK, false));
 		jMenuItem13.setText("Unselect");
 		jMenuItem13.setAccelerator(javax.swing.KeyStroke.getKeyStroke(65,
-				java.awt.event.KeyEvent.CTRL_MASK
-						| java.awt.event.KeyEvent.SHIFT_MASK, false));
+				java.awt.event.KeyEvent.CTRL_MASK | java.awt.event.KeyEvent.SHIFT_MASK, false));
 		menuBuild.setText("Build");
 		menuHelp.setMnemonic('H');
 		menuHelp.setText("Help");
 		menuRpgReference.setMnemonic('R');
 		menuRpgReference.setText("Rpg Reference");
-		menuRpgReference.setAccelerator(javax.swing.KeyStroke.getKeyStroke(112,
-				0, false));
+		menuRpgReference.setAccelerator(javax.swing.KeyStroke.getKeyStroke(112, 0, false));
 		jMenuItem1.setMnemonic('A');
 		jMenuItem1.setText("About");
 		jMenuItem1.addActionListener(new ActionListener() {
@@ -265,8 +277,8 @@ public class FrameiRPGEditor extends JFrame {
 		splitpaneRight.add(tabbedpaneFiles, JSplitPane.LEFT);
 		splitpaneRight.add(tabbedpaneLayout, JSplitPane.RIGHT);
 		panelHelp.add(jScrollPane8, BorderLayout.CENTER);
-		jScrollPane8.getViewport().add(editorpaneHelp, null);
-		scrollpaneStructure.getViewport().add(treeStructure, null);
+		jScrollPane8.setViewportView(editorpaneHelp);
+		scrollpaneStructure.setViewportView(treeStructure);
 		splitpaneMain.add(tabbedPaneTools, JSplitPane.BOTTOM);
 		tabbedPaneTools.setTabPlacement(JTabbedPane.LEFT);
 		tabbedPaneTools.add(panelSystems);
@@ -342,22 +354,14 @@ public class FrameiRPGEditor extends JFrame {
 		Environment.searchResults.setOutput(panelSearchResults);
 		Environment.compilerResults.setOutput(panelCompileResults);
 		Environment.sql.setOutput(panelSql);
-		Environment.toolManager.setFactory(ProjectMember.class,
-				new FactoryMembers());
-		Environment.toolManager.setPanelContainer(ProjectMember.class,
-				tabbedpaneFiles);
-		Environment.toolManager.setFactory(SpooledFile.class,
-				new FactorySpoolFiles());
-		Environment.toolManager.setPanelContainer(SpooledFile.class,
-				tabbedpaneLayout);
-		Environment.toolManager.setFactory(LayoutRequest.class,
-				new FactoryLayout());
-		Environment.toolManager.setPanelContainer(LayoutRequest.class,
-				tabbedpaneLayout);
-		Environment.toolManager
-				.setFactory(HelpRequest.class, new FactoryHelp());
-		Environment.toolManager.setPanelContainer(HelpRequest.class,
-				tabbedpaneLayout);
+		Environment.toolManager.setFactory(ProjectMember.class, new FactoryMembers());
+		Environment.toolManager.setPanelContainer(ProjectMember.class, tabbedpaneFiles);
+		Environment.toolManager.setFactory(SpooledFile.class, new FactorySpoolFiles());
+		Environment.toolManager.setPanelContainer(SpooledFile.class, tabbedpaneLayout);
+		Environment.toolManager.setFactory(LayoutRequest.class, new FactoryLayout());
+		Environment.toolManager.setPanelContainer(LayoutRequest.class, tabbedpaneLayout);
+		Environment.toolManager.setFactory(HelpRequest.class, new FactoryHelp());
+		Environment.toolManager.setPanelContainer(HelpRequest.class, tabbedpaneLayout);
 		Environment.structure.setOutput(handlerStructure);
 
 		new HandlerActions(toolbar, getJMenuBar());
@@ -378,8 +382,7 @@ public class FrameiRPGEditor extends JFrame {
 		if (frameSize.width > screenSize.width) {
 			frameSize.width = screenSize.width;
 		}
-		setLocation((screenSize.width - frameSize.width) / 2,
-				(screenSize.height - frameSize.height) / 2);
+		setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
 	}
 
 	/**
@@ -390,18 +393,14 @@ public class FrameiRPGEditor extends JFrame {
 
 		center();
 		settings = Environment.settings;
-		setBounds(Integer.parseInt(settings.getProperty("x")),
-				Integer.parseInt(settings.getProperty("y")),
-				Integer.parseInt(settings.getProperty("width")),
-				Integer.parseInt(settings.getProperty("height")));
-		splitpaneMain.setDividerLocation(Integer.parseInt(settings
-				.getProperty("jSplitPane1.dividerLocation")));
-		splitpaneTop.setDividerLocation(Integer.parseInt(settings
-				.getProperty("jSplitPane2.dividerLocation")));
-		splitpaneLeft.setDividerLocation(Integer.parseInt(settings
-				.getProperty("jSplitPane3.dividerLocation")));
-		splitpaneRight.setDividerLocation(Integer.parseInt(settings
-				.getProperty("jSplitPane4.dividerLocation")));
+		if (settings.getProperty("x") != null) {
+			setBounds(Integer.parseInt(settings.getProperty("x")), Integer.parseInt(settings.getProperty("y")),
+					Integer.parseInt(settings.getProperty("width")), Integer.parseInt(settings.getProperty("height")));
+			splitpaneMain.setDividerLocation(Integer.parseInt(settings.getProperty("jSplitPane1.dividerLocation")));
+			splitpaneTop.setDividerLocation(Integer.parseInt(settings.getProperty("jSplitPane2.dividerLocation")));
+			splitpaneLeft.setDividerLocation(Integer.parseInt(settings.getProperty("jSplitPane3.dividerLocation")));
+			splitpaneRight.setDividerLocation(Integer.parseInt(settings.getProperty("jSplitPane4.dividerLocation")));
+		}
 	}
 
 	/**
@@ -415,14 +414,10 @@ public class FrameiRPGEditor extends JFrame {
 		settings.setProperty("y", Integer.toString(getY()));
 		settings.setProperty("width", Integer.toString(getWidth()));
 		settings.setProperty("height", Integer.toString(getHeight()));
-		settings.setProperty("jSplitPane1.dividerLocation",
-				Integer.toString(splitpaneMain.getDividerLocation()));
-		settings.setProperty("jSplitPane2.dividerLocation",
-				Integer.toString(splitpaneTop.getDividerLocation()));
-		settings.setProperty("jSplitPane3.dividerLocation",
-				Integer.toString(splitpaneLeft.getDividerLocation()));
-		settings.setProperty("jSplitPane4.dividerLocation",
-				Integer.toString(splitpaneRight.getDividerLocation()));
+		settings.setProperty("jSplitPane1.dividerLocation", Integer.toString(splitpaneMain.getDividerLocation()));
+		settings.setProperty("jSplitPane2.dividerLocation", Integer.toString(splitpaneTop.getDividerLocation()));
+		settings.setProperty("jSplitPane3.dividerLocation", Integer.toString(splitpaneLeft.getDividerLocation()));
+		settings.setProperty("jSplitPane4.dividerLocation", Integer.toString(splitpaneRight.getDividerLocation()));
 	}
 
 	/**
@@ -438,6 +433,8 @@ public class FrameiRPGEditor extends JFrame {
 			super("Exit");
 			setEnabled(true);
 			putValue("MENU", "File");
+			putValue(Action.ACCELERATOR_KEY,
+					KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK + ActionEvent.ALT_MASK, false));
 			// F9 + SHIFT
 			// putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(120,
 			// KeyEvent.SHIFT_MASK, false));
@@ -445,9 +442,22 @@ public class FrameiRPGEditor extends JFrame {
 		}
 
 		public void actionPerformed(ActionEvent evt) {
-			saveSettings();
-			Environment.saveSettings();
-			System.exit(0);
+			if (flgExit) {
+				saveSettings();
+				Project project;
+
+				project = (Project) Environment.projects.getSelected();
+				if (project != null) {
+					try {
+						project.save();
+					} catch (IOException e) {
+						// e.printStackTrace();
+						logger.error(e.getMessage());
+					}
+				}
+				Environment.saveSettings();
+				System.exit(0);
+			}
 		}
 	}
 
@@ -460,12 +470,9 @@ public class FrameiRPGEditor extends JFrame {
 			String buffer;
 
 			// is a name highlighted?
-			component = KeyboardFocusManager.getCurrentKeyboardFocusManager()
-					.getFocusOwner();
-			if (component == null
-					|| component instanceof JTextComponent == false) {
-				buffer = JOptionPane.showInputDialog(null, "File Name",
-						"Layout", JOptionPane.QUESTION_MESSAGE);
+			component = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+			if (component == null || component instanceof JTextComponent == false) {
+				buffer = JOptionPane.showInputDialog(null, "File Name", "Layout", JOptionPane.QUESTION_MESSAGE);
 			} else {
 				buffer = ((JTextComponent) component).getSelectedText();
 				if (buffer == null) {
@@ -493,8 +500,7 @@ public class FrameiRPGEditor extends JFrame {
 			String buffer;
 			int index, start, end;
 
-			component = KeyboardFocusManager.getCurrentKeyboardFocusManager()
-					.getFocusOwner();
+			component = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
 			if (component == null) {
 				return;
 			}
@@ -529,14 +535,12 @@ public class FrameiRPGEditor extends JFrame {
 		ListenerStructure listener;
 
 		@SuppressWarnings("rawtypes")
-		public void setStructure(TreeModel treeModel, Enumeration expands,
-				ListenerStructure listener) {
+		public void setStructure(TreeModel treeModel, Enumeration expands, ListenerStructure listener) {
 			TreePath path;
 
 			if (this.listener != null) {
-				this.listener.saveState(treeStructure
-						.getExpandedDescendants(new TreePath(treeStructure
-								.getModel().getRoot())));
+				this.listener.saveState(
+						treeStructure.getExpandedDescendants(new TreePath(treeStructure.getModel().getRoot())));
 			}
 			treeStructure.setModel(treeModel);
 			this.listener = listener;
@@ -552,9 +556,8 @@ public class FrameiRPGEditor extends JFrame {
 		public void removeStructure(TreeModel treeModel) {
 			if (treeStructure.getModel() == treeModel) {
 				if (listener != null) {
-					listener.saveState(treeStructure
-							.getExpandedDescendants(new TreePath(treeStructure
-									.getModel().getRoot())));
+					listener.saveState(
+							treeStructure.getExpandedDescendants(new TreePath(treeStructure.getModel().getRoot())));
 				}
 				treeStructure.setModel(treeModelStructure);
 				listener = null;
