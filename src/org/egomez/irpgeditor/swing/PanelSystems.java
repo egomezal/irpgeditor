@@ -44,6 +44,8 @@ public class PanelSystems extends PanelTool {
 	TableModelSystems tableModelSystems = new TableModelSystems();
 
 	ActionSessionOpen actionSessionOpen = new ActionSessionOpen();
+	ActionAddLibraryF actionAddLibraryF = new ActionAddLibraryF();
+	ActionAddLibraryL  actionAddLibraryL = new ActionAddLibraryL();
 	ActionSystemRemove actionSystemRemove = new ActionSystemRemove();
 	ActionFocus actionFocus = new ActionFocus();
 
@@ -61,7 +63,7 @@ public class PanelSystems extends PanelTool {
 	public PanelSystems() {
 		setName("Systems");
 		try {
-			super.actions = new Action[] { actionSessionOpen, actionFocus };
+			super.actions = new Action[] { actionSessionOpen, actionFocus, actionAddLibraryF, actionAddLibraryL };
 			Environment.actions.addActions(actions);
 			jbInit();
 			buttonSystemsOpen.addActionListener(actionSessionOpen);
@@ -146,7 +148,8 @@ public class PanelSystems extends PanelTool {
 
 			row = tableSystems.getSelectedRow();
 			if (row == -1) {
-				JOptionPane.showMessageDialog(null, "You need to select AS400 Server into System Panel.", "Server", JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(null, "You need to select AS400 Server into System Panel.", "Server",
+						JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
 			system = (AS400System) tableModelSystems.getSystem(row);
@@ -171,6 +174,70 @@ public class PanelSystems extends PanelTool {
 
 				}
 			}.start();
+		}
+	}
+
+	class ActionAddLibraryF extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -8220067555407779059L;
+
+		public ActionAddLibraryF() {
+			super("Add to First of Library List");
+			setEnabled(true);
+			putValue("MENU", "Session");
+			// putValue(Action.MNEMONIC_KEY, new Character('S'));
+		}
+
+		public void actionPerformed(ActionEvent evt) {
+			final AS400System system;
+			int row;
+
+			row = tableSystems.getSelectedRow();
+			system = (AS400System) tableModelSystems.getSystem(row);
+			try {
+				String name = JOptionPane.showInputDialog(null, "Library", "Add to First of Library List",
+						JOptionPane.QUESTION_MESSAGE);
+				if (!name.equals("")) {
+					system.call("ADDLIBLE " + name + " POSITION(*FIRST)");
+				}
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
+				logger.error(e.getMessage());
+			}
+		}
+	}
+
+	class ActionAddLibraryL extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -8220067555407779059L;
+
+		public ActionAddLibraryL() {
+			super("Add to Last of Library List");
+			setEnabled(true);
+			putValue("MENU", "Session");
+			// putValue(Action.MNEMONIC_KEY, new Character('S'));
+		}
+
+		public void actionPerformed(ActionEvent evt) {
+			final AS400System system;
+			int row;
+
+			row = tableSystems.getSelectedRow();
+			system = (AS400System) tableModelSystems.getSystem(row);
+			try {
+				String name = JOptionPane.showInputDialog(null, "Library", "Add to First of Library List",
+						JOptionPane.QUESTION_MESSAGE);
+				if (!name.equals("")) {
+					system.call("ADDLIBLE " + name + " POSITION(*LAST)");
+				}
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
+				logger.error(e.getMessage());
+			}
 		}
 	}
 

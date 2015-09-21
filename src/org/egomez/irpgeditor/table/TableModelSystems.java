@@ -142,11 +142,19 @@ public class TableModelSystems extends DefaultTableModel implements ListenerAS40
 			system.setName((String) value);
 		} else if (col == 2) {
 			system.setAddress((String) value);
+			system.setUser(null);
+			system.setPassword(null);
 		} else if (col == 3) {
 			system.setUser((String) value);
+			system.setPassword(null);
 		} else if (col == 9) {
-			system.setPassword((String) value);
+			if (system.getPassword() == null) {
+				system.setPassword((String) value);
+			}
+		} else if (col == 4) {
+				system.setPassword((String) value);
 		}
+
 		if (add) {
 			Environment.systems.addSystem(system);
 		} else {

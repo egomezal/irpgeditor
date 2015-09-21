@@ -1876,7 +1876,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 			putValue("MENU", "File");
 			// F10 + CTRL
 			putValue(Action.ACCELERATOR_KEY,
-					KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK + ActionEvent.ALT_MASK, false));
+					KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK, false));
 			putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_V));
 		}
 

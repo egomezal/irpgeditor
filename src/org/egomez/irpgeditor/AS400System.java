@@ -283,18 +283,20 @@ public class AS400System extends NodeAbstract {
 	 *             if there is an error connecting to the as400.
 	 */
 	public void connect() throws Exception {
-		disconnect();
+		if (user != null && password != null) {
+			disconnect();
 
-		as400 = new AS400(address, user, password);
-		pool = new AS400ConnectionPoolImp(address, user, password);
-		as400.setGuiAvailable(false);
-		as400.connectService(AS400.FILE);
-		as400.connectService(AS400.DATABASE);
-		connection = driver.connect(as400, getConnectionProperties(), null);
-		commandCall = new CommandCall(as400);
-		createUploadProc("QGPL");
-		connected = true;
-		fireConnected();
+			as400 = new AS400(address, user, password);
+			pool = new AS400ConnectionPoolImp(address, user, password);
+			as400.setGuiAvailable(false);
+			as400.connectService(AS400.FILE);
+			as400.connectService(AS400.DATABASE);
+			connection = driver.connect(as400, getConnectionProperties(), null);
+			commandCall = new CommandCall(as400);
+			createUploadProc("QGPL");
+			connected = true;
+			fireConnected();
+		}
 	}
 
 	public boolean call(String cmd) throws Exception {

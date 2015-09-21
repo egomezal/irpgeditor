@@ -109,7 +109,8 @@ public class PanelProjects extends PanelTool implements ListenerProjects {
 			// F6
 			// putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(117, 0,
 			// false));
-			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_MASK, false));
+			putValue(Action.ACCELERATOR_KEY,
+					KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK + ActionEvent.SHIFT_MASK, false));
 			putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_S));
 		}
 
@@ -122,8 +123,11 @@ public class PanelProjects extends PanelTool implements ListenerProjects {
 			}
 			try {
 				project.save();
+				JOptionPane.showMessageDialog(null, "Project save succesfull", "Project",
+						JOptionPane.INFORMATION_MESSAGE);
 			} catch (IOException e) {
 				// e.printStackTrace();
+				JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
 				logger.error(e.getMessage());
 			}
 		}
