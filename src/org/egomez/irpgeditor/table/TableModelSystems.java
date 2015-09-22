@@ -152,7 +152,9 @@ public class TableModelSystems extends DefaultTableModel implements ListenerAS40
 				system.setPassword((String) value);
 			}
 		} else if (col == 4) {
+			if (!value.equals("********")) {
 				system.setPassword((String) value);
+			}
 		}
 
 		if (add) {

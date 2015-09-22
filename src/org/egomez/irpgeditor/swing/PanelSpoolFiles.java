@@ -94,6 +94,7 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems, 
 	public PanelSpoolFiles() {
 		setName("Spool Files");
 		Environment.systems.addListener(this);
+		as400 = Environment.systems.getDefault();
 		try {
 			jbInit();
 			super.actions = new Action[] { actionSpoolRefresh, actionSpoolFileView, actionSpoolFileDelete,
@@ -105,7 +106,7 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems, 
 			buttonSelectAll.addActionListener(actionSelectAll);
 			buttonSpooledOtherUser.addActionListener(actionSpoolOtherUser);
 			buttonSpooledOtherUserData.addActionListener(actionSpoolOtherUserData);
-
+			tableModelSpool.setAS400System(as400);
 			tableSpool.getSelectionModel().addListSelectionListener(this);
 		} catch (Exception e) {
 			// e.printStackTrace();
