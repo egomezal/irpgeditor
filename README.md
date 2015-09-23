@@ -1,8 +1,10 @@
 # iRPGEditor
 iRPGEditor is a fork de JSEU Project http://sourceforge.net/projects/jseu/.
 
-iRPGEditor is Editor for IBM i(AS/400) programs and various tools for developers.
+iRPGEditor is a Open Source Editor for IBM i(AS/400) programs and various tools for developers written in Java.
+Use various Java libraries: JTOpen, Tn5250j, iText and Other.
 
+You can:
     Edits Files RPG, SQLRPGLE, DDS, CL
     Execute SQL command
     Spool Viewer
@@ -16,7 +18,7 @@ What is new in v.1.00b1?
     Many bugs fixed
     Support Windows 7 or newer, Mac OS y Linux
     New Panel Job (similar to wrkactjob)
-
+	Support Undo and Redo Operations
 
 What is new in v.0.99?
 
