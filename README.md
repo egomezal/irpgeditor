@@ -5,7 +5,8 @@ iRPGEditor is a Open Source Editor for IBM i(AS/400) programs and various tools 
 Use various Java libraries: JTOpen, Tn5250j, iText and Other.
 
 You can:
-	Edits Files RPG, SQLRPGLE, DDS, CL 
+
+    Edits Files RPG, SQLRPGLE, DDS, CL 
     Execute SQL command
     Spool Viewer
     Tn5250j integration
@@ -18,7 +19,7 @@ What is new in v.1.00b1?
     Many bugs fixed
     Support Windows 7 or newer, Mac OS y Linux
     New Panel Job (similar to wrkactjob)
-	Support Undo and Redo Operations
+    Support Undo and Redo Operations
 
 What is new in v.0.99?
 
