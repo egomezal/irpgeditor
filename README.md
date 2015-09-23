@@ -5,8 +5,12 @@ iRPGEditor is a Open Source Editor for IBM i(AS/400) programs and various tools 
 Use various Java libraries: JTOpen, Tn5250j, iText and Other.
 
 You can:
+<<<<<<< HEAD
     
 	Edits Files RPG, SQLRPGLE, DDS, CL 
+=======
+    Edits Files RPG, SQLRPGLE, DDS, CL
+>>>>>>> ef7e6e0365a0a777594aee2ec35325bc2e3b8dcf
     Execute SQL command
     Spool Viewer
     Tn5250j integration
