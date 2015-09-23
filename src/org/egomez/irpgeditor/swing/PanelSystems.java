@@ -45,7 +45,6 @@ public class PanelSystems extends PanelTool {
 
 	ActionSessionOpen actionSessionOpen = new ActionSessionOpen();
 	ActionAddLibraryF actionAddLibraryF = new ActionAddLibraryF();
-	ActionAddLibraryL  actionAddLibraryL = new ActionAddLibraryL();
 	ActionSystemRemove actionSystemRemove = new ActionSystemRemove();
 	ActionFocus actionFocus = new ActionFocus();
 
@@ -63,7 +62,7 @@ public class PanelSystems extends PanelTool {
 	public PanelSystems() {
 		setName("Systems");
 		try {
-			super.actions = new Action[] { actionSessionOpen, actionFocus, actionAddLibraryF, actionAddLibraryL };
+			super.actions = new Action[] { actionSessionOpen, actionFocus, actionAddLibraryF };
 			Environment.actions.addActions(actions);
 			jbInit();
 			buttonSystemsOpen.addActionListener(actionSessionOpen);
@@ -184,24 +183,15 @@ public class PanelSystems extends PanelTool {
 		private static final long serialVersionUID = -8220067555407779059L;
 
 		public ActionAddLibraryF() {
-			super("Add to First of Library List");
+			super("Add to Library List");
 			setEnabled(true);
 			putValue("MENU", "Session");
 			// putValue(Action.MNEMONIC_KEY, new Character('S'));
 		}
 
 		public void actionPerformed(ActionEvent evt) {
-			final AS400System system;
-			int row;
-
-			row = tableSystems.getSelectedRow();
-			system = (AS400System) tableModelSystems.getSystem(row);
 			try {
-				String name = JOptionPane.showInputDialog(null, "Library", "Add to First of Library List",
-						JOptionPane.QUESTION_MESSAGE);
-				if (!name.equals("")) {
-					system.call("ADDLIBLE " + name + " POSITION(*FIRST)");
-				}
+				DialogAddLibrary.showDialog(null);
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
 				logger.error(e.getMessage());
@@ -209,37 +199,6 @@ public class PanelSystems extends PanelTool {
 		}
 	}
 
-	class ActionAddLibraryL extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -8220067555407779059L;
-
-		public ActionAddLibraryL() {
-			super("Add to Last of Library List");
-			setEnabled(true);
-			putValue("MENU", "Session");
-			// putValue(Action.MNEMONIC_KEY, new Character('S'));
-		}
-
-		public void actionPerformed(ActionEvent evt) {
-			final AS400System system;
-			int row;
-
-			row = tableSystems.getSelectedRow();
-			system = (AS400System) tableModelSystems.getSystem(row);
-			try {
-				String name = JOptionPane.showInputDialog(null, "Library", "Add to First of Library List",
-						JOptionPane.QUESTION_MESSAGE);
-				if (!name.equals("")) {
-					system.call("ADDLIBLE " + name + " POSITION(*LAST)");
-				}
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
-				logger.error(e.getMessage());
-			}
-		}
-	}
 
 	/**
 	 * starts a green screen and runs it in debug.

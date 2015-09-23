@@ -62,6 +62,7 @@ public class AS400System extends NodeAbstract {
 	Logger logger = LoggerFactory.getLogger(AS400System.class);
 
 	ArrayList<String> listCallBuffer = new ArrayList<String>();
+	ArrayList<String> listLibraries = new ArrayList<String>();
 
 	/**
 	 * all the connection properties for the system are not known yet.
@@ -95,6 +96,10 @@ public class AS400System extends NodeAbstract {
 			call("ADDLIBLE " + library, background, listener);
 		} else
 			call("ADDLIBLE " + library + " POSITION(" + position + ")", background, listener);
+
+		if (listLibraries == null)
+			listLibraries = new ArrayList<String>();
+		listLibraries.add(library);
 	}
 
 	public ArrayList<String> libraryList() throws Exception {
@@ -329,9 +334,20 @@ public class AS400System extends NodeAbstract {
 	 * @return Properties
 	 */
 	protected Properties getConnectionProperties() {
+		String libraryList = null;
 		Properties p = new Properties();
 		p.setProperty("naming", "system");
 		p.setProperty("translate binary", "true");
+		if (listLibraries != null) {
+			libraryList = "";
+			for (String x : listLibraries) {
+				libraryList = libraryList + x + ",";
+			}
+			if (!libraryList.equals("")) {
+				libraryList = libraryList.substring(0, libraryList.length() - 1);
+				p.setProperty("libraries", libraryList);
+			}
+		}
 		return p;
 	}
 
@@ -341,12 +357,25 @@ public class AS400System extends NodeAbstract {
 	 * same connection for every time thid method is called.
 	 * 
 	 * @return Connection
+	 * @throws SQLException
 	 */
-	public Connection getConnection() {
+	public Connection getConnection() throws SQLException {
+		connection = driver.connect(as400, getConnectionProperties(), null);
 		return connection;
 	}
 
 	public Connection getConnectionPool() throws SQLException {
+		String libraryList = null;
+		if (listLibraries != null) {
+			libraryList = "";
+			for (String x : listLibraries) {
+				libraryList = libraryList + x + ",";
+			}
+			if (!libraryList.equals("")) {
+				libraryList = libraryList.substring(0, libraryList.length() - 1);
+				pool.getDatasource().setLibraries(libraryList);
+			}
+		}
 		return pool.getConnection();
 	}
 
@@ -873,6 +902,14 @@ public class AS400System extends NodeAbstract {
 			stmt.close();
 		}
 		return list;
+	}
+
+	public ArrayList<String> getLibrariesList() {
+		return listLibraries;
+	}
+
+	public void setLibrariesList(ArrayList<String> list) {
+		listLibraries = list;
 	}
 
 	/**

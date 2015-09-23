@@ -88,7 +88,7 @@ public class TableModelSystems extends DefaultTableModel implements ListenerAS40
 	}
 
 	public int getColumnCount() {
-		return 8;
+		return 9;
 	}
 
 	@SuppressWarnings("rawtypes")

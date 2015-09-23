@@ -82,8 +82,9 @@ public class TableModelSQL extends DefaultTableModel implements Runnable {
 		ResultSet rs = null;
 		ResultSetMetaData rmd = null;
 		// String sql = txtSQL.getText();
-		Connection cn = system.getConnection();
+		Connection cn = null;
 		try {
+			cn=system.getConnection();
 			st = cn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			rs = st.executeQuery(sql);
 			rmd = rs.getMetaData();

@@ -31,6 +31,10 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 import javax.swing.text.*;
 import javax.swing.tree.*;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
+import javax.swing.undo.UndoableEdit;
 
 import org.egomez.irpgeditor.env.*;
 import org.egomez.irpgeditor.event.*;
@@ -85,8 +89,13 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 	HandlerMouseDspf handlerMouseDspf = new HandlerMouseDspf();
 	HandlerRightClickSource handlerRightClickSource = new HandlerRightClickSource();
 
+	ActionCutMenu actionCutM = new ActionCutMenu();
+	ActionCopyMenu actionCopyM = new ActionCopyMenu();
+	ActionPasteMenu actionPasteM = new ActionPasteMenu();
+
 	ActionSelectAll actionSelectAll = new ActionSelectAll();
 	ActionCut actionCut = new ActionCut();
+
 	ActionCopy actionCopy = new ActionCopy();
 	ActionPaste actionPaste = new ActionPaste();
 	ActionMemberRemove actionMemberRemove = new ActionMemberRemove();
@@ -107,6 +116,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 			new Integer(KeyEvent.VK_N));
 	ActionRefactor actionRefactorCallSubroutine = new ActionRefactor("Call Subroutine", new RefactorCallSubroutine(),
 			new Integer(KeyEvent.VK_S));
+
 	ActionPrint actionPrint = new ActionPrint();
 	ActionFocus actionFocus;
 	ActionMemberClose actionMemberClose = new ActionMemberClose();
@@ -283,6 +293,13 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 	PanelFlowChart panelFlowChart = new PanelFlowChart();
 	FlowLayout flowLayout6 = new FlowLayout();
 	Logger logger = LoggerFactory.getLogger(PanelMember.class);
+
+	// private Document editorPaneDocument;
+
+	// protected UndoHandler undoHandler = new UndoHandler();
+	protected UndoManager undoManager = new UndoManager();
+	private UndoAction undoAction = new UndoAction();
+	private RedoAction redoAction = new RedoAction();
 
 	public PanelMember(ProjectMember projectMember) throws SQLException, Exception {
 		super();
@@ -718,7 +735,8 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		sourceParser.watch(editorPaneSource.getDocument());
 		projectMember.getMember().addListener(PanelMember.this);
 		if (projectMember.member.sourceType.equals(Member.SOURCE_TYPE_RPGLE)
-				|| projectMember.member.sourceType.equals(Member.SOURCE_TYPE_SQLRPGLE)) {
+				|| projectMember.member.sourceType.equals(Member.SOURCE_TYPE_SQLRPGLE)
+				|| projectMember.member.sourceType.equals(Member.SOURCE_TYPE_RPG)) {
 			panelLines.setParser(sourceParser);
 			editorPaneSource.getDocument().addDocumentListener(panelLines);
 			panelLines.startParse();
@@ -726,7 +744,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		// dont highlight cl programs.
 		if (projectMember.member.sourceType.equals("CLP") == false
 				&& projectMember.member.getSourceType().equals("CLLE") == false
-				&& projectMember.member.getSourceType().equals("RPG") == false) {
+				&& projectMember.member.getSourceType().equals("C") == false) {
 			sourceHighlighter = new RPGSourceHighlighter();
 			sourceParser.addListener(sourceHighlighter);
 			sourceParser.addListener(panelDspf);
@@ -745,6 +763,37 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		jTabbedPane1.setEnabled(true);
 		Environment.members.select(projectMember);
 		Toolkit.getDefaultToolkit().beep();
+		// editorPaneSource.getDocument().addUndoableEditListener(undoManager);
+
+		KeyStroke undoKeystroke = KeyStroke.getKeyStroke(KeyEvent.VK_Z, Event.META_MASK);
+		KeyStroke redoKeystroke = KeyStroke.getKeyStroke(KeyEvent.VK_Y, Event.META_MASK);
+
+		// undoAction = new UndoAction();
+		editorPaneSource.getInputMap().put(undoKeystroke, "undoKeystroke");
+		editorPaneSource.getActionMap().put("undoKeystroke", undoAction);
+
+		// redoAction = new RedoAction();
+		editorPaneSource.getInputMap().put(redoKeystroke, "redoKeystroke");
+		editorPaneSource.getActionMap().put("redoKeystroke", redoAction);
+		editorPaneSource.getDocument().addUndoableEditListener(new UndoableEditListener() {
+
+			@Override
+			public void undoableEditHappened(UndoableEditEvent e) {
+				if (!e.getEdit().getUndoPresentationName().equals("Undo style change")) {
+					UndoableEdit edit = e.getEdit();
+					undoManager.addEdit(edit);
+					undoAction.update();
+					redoAction.update();
+				}
+
+			}
+
+		});
+
+		editorPaneSource.registerKeyboardAction(undoAction, KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_MASK),
+				JComponent.WHEN_FOCUSED);
+		editorPaneSource.registerKeyboardAction(redoAction, KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_MASK),
+				JComponent.WHEN_FOCUSED);
 		synchronized (this) {
 			currentlyLoading = false;
 		}
@@ -839,7 +888,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		super.actions = new Action[] { actionFocus, actionMemberClose, actionPrint, actionRefactorUncomment,
 				actionRefactorComment, actionRefactorFreeForm, actionRefactorComparisons, actionRefactorNewSubroutine,
 				actionRefactorCallSubroutine, actionMemberSave, actionMemberSaveLocal, actionMemberCompile,
-				actionMemberRemove };
+				actionMemberRemove, actionCutM, actionCopyM, actionPasteM, undoAction, redoAction };
 		Environment.actions.addActions(actions);
 		sourceParser.addListenerSelection(this);
 	}
@@ -1128,8 +1177,11 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 				JMenuItem menuUncomment = new JMenuItem();
 
 				menuCut.setText("Cut");
+				menuCut.setIcon(Icons.iconCut);
 				menuCopy.setText("Copy");
+				menuCopy.setIcon(Icons.iconCopy);
 				menuPaste.setText("Paste");
+				menuPaste.setIcon(Icons.iconPaste);
 				menuDelete.setText("Delete");
 				menuSelectAll.setText("Select All");
 				menuComparisons.setText("Comparisons");
@@ -1168,6 +1220,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 				menuCopy.addActionListener(actionCopy);
 				menuPaste.addActionListener(actionPaste);
 				menuSelectAll.addActionListener(actionSelectAll);
+				menuDelete.addActionListener(actionDelete);
 				menuComparisons.addActionListener(actionRefactorComparisons);
 				menuFreeForm.addActionListener(actionRefactorFreeForm);
 				menuNewSubroutine.addActionListener(actionRefactorNewSubroutine);
@@ -1784,6 +1837,80 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		}
 	}
 
+	class ActionCutMenu extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3233693652665950746L;
+
+		public ActionCutMenu() {
+			super("Cut", Icons.iconCut);
+			setEnabled(true);
+			putValue("MENU", "Edit");
+			putValue(Action.ACCELERATOR_KEY,
+					javax.swing.KeyStroke.getKeyStroke(88, java.awt.event.KeyEvent.CTRL_MASK, false));
+		}
+
+		public void actionPerformed(ActionEvent evt) {
+			editorPaneSource.cut();
+		}
+	}
+
+	class ActionCopyMenu extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3233693652665950746L;
+
+		public ActionCopyMenu() {
+			super("Copy", Icons.iconCut);
+			setEnabled(true);
+			putValue("MENU", "Edit");
+			putValue(Action.ACCELERATOR_KEY,
+					javax.swing.KeyStroke.getKeyStroke(67, java.awt.event.KeyEvent.CTRL_MASK, false));
+		}
+
+		public void actionPerformed(ActionEvent evt) {
+			editorPaneSource.copy();
+		}
+	}
+
+	class ActionPasteMenu extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3233693652665950746L;
+
+		public ActionPasteMenu() {
+			super("Paste", Icons.iconPaste);
+			setEnabled(true);
+			putValue("MENU", "Edit");
+			putValue(Action.ACCELERATOR_KEY,
+					javax.swing.KeyStroke.getKeyStroke(86, java.awt.event.KeyEvent.CTRL_MASK, false));
+		}
+
+		public void actionPerformed(ActionEvent evt) {
+			editorPaneSource.paste();
+		}
+	}
+
+	class ActionSelectAllMenu extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 3233693652665950746L;
+
+		public ActionSelectAllMenu() {
+			super("Select All");
+			setEnabled(true);
+			putValue("MENU", "Edit");
+		}
+
+		public void actionPerformed(ActionEvent evt) {
+			editorPaneSource.select(0, editorPaneSource.getText().length());
+		}
+	}
+
 	/**
 	 * gets called when the user clicks the print button. prints the current
 	 * document.
@@ -1875,8 +2002,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 			setEnabled(false);
 			putValue("MENU", "File");
 			// F10 + CTRL
-			putValue(Action.ACCELERATOR_KEY,
-					KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK, false));
+			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK, false));
 			putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_V));
 		}
 
@@ -1961,6 +2087,86 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 			}
 			projectMember.getProject().removeMember(projectMember);
 		}
+	}
+	/*
+	 * class UndoHandler implements UndoableEditListener {
+	 * 
+	 * /** Messaged when the Document has created an edit, the edit is added to
+	 * <code>undoManager</code>, an instance of UndoManager.
+	 *
+	 * public void undoableEditHappened(UndoableEditEvent e) {
+	 * undoManager.addEdit(e.getEdit()); undoAction.update();
+	 * redoAction.update(); } }
+	 */
+
+	class UndoAction extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 807563726057660102L;
+
+		public UndoAction() {
+			super("Undo", Icons.iconUndo);
+			setEnabled(false);
+			putValue("MENU", "Edit");
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			try {
+				undoManager.undo();
+			} catch (CannotUndoException ex) {
+				// TODO deal with this
+				// ex.printStackTrace();
+			}
+			update();
+			redoAction.update();
+		}
+
+		protected void update() {
+			if (undoManager.canUndo()) {
+				setEnabled(true);
+				putValue(Action.NAME, undoManager.getUndoPresentationName());
+			} else {
+				setEnabled(false);
+				putValue(Action.NAME, "Undo");
+			}
+		}
+
+	}
+
+	class RedoAction extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 563043380935256332L;
+
+		public RedoAction() {
+			super("Redo", Icons.iconRedo);
+			setEnabled(false);
+			putValue("MENU", "Edit");
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			try {
+				undoManager.redo();
+			} catch (CannotRedoException ex) {
+				// TODO deal with this
+				ex.printStackTrace();
+			}
+			update();
+			undoAction.update();
+		}
+
+		protected void update() {
+			if (undoManager.canRedo()) {
+				setEnabled(true);
+				putValue(Action.NAME, undoManager.getRedoPresentationName());
+			} else {
+				setEnabled(false);
+				putValue(Action.NAME, "Redo");
+			}
+		}
+
 	}
 
 	public int hashCode() {
