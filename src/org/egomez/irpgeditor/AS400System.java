@@ -360,7 +360,10 @@ public class AS400System extends NodeAbstract {
 	 * @throws SQLException
 	 */
 	public Connection getConnection() throws SQLException {
-		connection = driver.connect(as400, getConnectionProperties(), null);
+		/*
+		 * if (connection == null) { connection = driver.connect(as400,
+		 * getConnectionProperties(), null); }
+		 */
 		return connection;
 	}
 
@@ -910,6 +913,11 @@ public class AS400System extends NodeAbstract {
 
 	public void setLibrariesList(ArrayList<String> list) {
 		listLibraries = list;
+		try {
+			connection = driver.connect(as400, getConnectionProperties(), null);
+		} catch (SQLException e) {
+			logger.error(e.getMessage());
+		}
 	}
 
 	/**
