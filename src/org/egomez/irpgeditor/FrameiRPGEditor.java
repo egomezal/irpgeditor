@@ -327,7 +327,7 @@ public class FrameiRPGEditor extends JFrame {
 		menuDatabase.add(menuAddFileView);
 		// menuEdit.add(jMenuItem5);
 		// menuEdit.add(jMenuItem6);
-		menuEdit.addSeparator();
+		//menuEdit.addSeparator();
 		// menuEdit.add(jMenuItem8);
 		// menuEdit.add(jMenuItem9);
 		// menuEdit.add(jMenuItem10);
@@ -454,6 +454,8 @@ public class FrameiRPGEditor extends JFrame {
 			super("Exit");
 			setEnabled(true);
 			putValue("MENU", "File");
+			putValue("SEPARATOR", "true");
+			putValue("LAST", "true");
 			putValue(Action.ACCELERATOR_KEY,
 					KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK + ActionEvent.ALT_MASK, false));
 			// F9 + SHIFT

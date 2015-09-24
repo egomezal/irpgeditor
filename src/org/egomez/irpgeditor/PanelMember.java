@@ -885,10 +885,11 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		textfieldDestinationLibrary.addActionListener(actionLibrarySelected);
 		checkboxReference.addItemListener(actionReference);
 		actionFocus = new ActionFocus(projectMember);
-		super.actions = new Action[] { actionFocus, actionMemberClose, actionPrint, actionRefactorUncomment,
-				actionRefactorComment, actionRefactorFreeForm, actionRefactorComparisons, actionRefactorNewSubroutine,
-				actionRefactorCallSubroutine, actionMemberSave, actionMemberSaveLocal, actionMemberCompile,
-				actionMemberRemove, actionCutM, actionCopyM, actionPasteM, undoAction, redoAction };
+		super.actions = new Action[] { actionFocus, actionMemberSave, actionMemberSaveLocal, actionMemberClose, actionMemberRemove, 
+				actionPrint, actionRefactorUncomment, actionRefactorComment, actionRefactorFreeForm,
+				actionRefactorComparisons, actionRefactorNewSubroutine, actionRefactorCallSubroutine,
+				actionMemberCompile, undoAction, redoAction, actionCutM, actionCopyM,
+				actionPasteM };
 		Environment.actions.addActions(actions);
 		sourceParser.addListenerSelection(this);
 	}
@@ -1847,6 +1848,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 			super("Cut", Icons.iconCut);
 			setEnabled(true);
 			putValue("MENU", "Edit");
+			putValue("SEPARATOR", "true");
 			putValue(Action.ACCELERATOR_KEY,
 					javax.swing.KeyStroke.getKeyStroke(88, java.awt.event.KeyEvent.CTRL_MASK, false));
 		}
@@ -1925,6 +1927,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 			super("Print Member", Icons.iconPrint);
 			setEnabled(true);
 			putValue("MENU", "File");
+			putValue("SEPARATOR", "true");
 			// F10 + CTRL
 			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_MASK, false));
 			putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_P));
@@ -2001,6 +2004,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 			super("Save Member", Icons.iconMemberSave);
 			setEnabled(false);
 			putValue("MENU", "File");
+			putValue("SEPARATOR", "true");
 			// F10 + CTRL
 			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK, false));
 			putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_V));
@@ -2048,6 +2052,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 			super("Close Member", Icons.iconMemberClose);
 			setEnabled(true);
 			putValue("MENU", "File");
+			putValue("Separator", "true");
 			// F10 + CTRL
 			// putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(121,
 			// KeyEvent.CTRL_MASK, false));
@@ -2109,6 +2114,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 			super("Undo", Icons.iconUndo);
 			setEnabled(false);
 			putValue("MENU", "Edit");
+			putValue("SEPARATOR", "true");
 		}
 
 		public void actionPerformed(ActionEvent e) {

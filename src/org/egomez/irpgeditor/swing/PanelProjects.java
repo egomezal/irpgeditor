@@ -263,6 +263,7 @@ public class PanelProjects extends PanelTool implements ListenerProjects {
 			super("New Member", Icons.iconMemberNewLibrary);
 			setEnabled(false);
 			putValue("MENU", "File");
+			putValue("SEPARATOR", "true");
 			// F6
 			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_M, KeyEvent.CTRL_MASK, false));
 			putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_M));
