@@ -1,7 +1,14 @@
 package org.egomez.irpgeditor.swing;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JRootPane;
+import javax.swing.KeyStroke;
+
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXTipOfTheDay;
 import org.jdesktop.swingx.VerticalLayout;
@@ -13,6 +20,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.util.Random;
 
 import javax.swing.SwingConstants;
@@ -36,6 +44,7 @@ public class WindowsTips extends JDialog {
 		setModal(true);
 		setBounds(100, 100, 450, 254);
 		getContentPane().setLayout(new BorderLayout(0, 0));
+
 		model = createTipOfTheDayModel();
 
 		JXPanel panel = new JXPanel(new VerticalLayout());
@@ -61,6 +70,26 @@ public class WindowsTips extends JDialog {
 		Rectangle winDim = getBounds();
 		setLocation((screenDim.width - winDim.width) / 2, (screenDim.height - winDim.height) / 2);
 
+	}
+
+	protected JRootPane createRootPane() {
+		JRootPane rootPane = new JRootPane();
+		KeyStroke stroke = KeyStroke.getKeyStroke("ESCAPE");
+		Action actionListener = new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 543344866573376659L;
+
+			public void actionPerformed(ActionEvent actionEvent) {
+				setVisible(false);
+			}
+		};
+		InputMap inputMap = rootPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+		inputMap.put(stroke, "ESCAPE");
+		rootPane.getActionMap().put("ESCAPE", actionListener);
+
+		return rootPane;
 	}
 
 	protected TipOfTheDayModel createTipOfTheDayModel() {
