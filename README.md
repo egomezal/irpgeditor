@@ -11,6 +11,10 @@ You can:
     Spool Viewer
     Tn5250j integration
 
+What is new in v.1.00b2?
+
+    Fix bugs to QCMDEXEC Panel
+
 What is new in v.1.00b1?
 
     UI enhanced

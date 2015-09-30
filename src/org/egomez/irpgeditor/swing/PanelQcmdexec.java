@@ -202,9 +202,9 @@ public class PanelQcmdexec extends PanelTool
 		this.panelQueue.setLayout(this.borderLayout3);
 		this.panelResults.add(this.scrollpaneQcmdexec, "Center");
 		this.jSplitPane1.add(this.jScrollPane1, "top");
-		this.jScrollPane1.getViewport().add(this.jList1, null);
+		this.jScrollPane1.setViewportView(this.jList1);
 		add(this.panelQcmdexecPrompt, "North");
-		this.scrollpaneQcmdexec.getViewport().add(this.textareaQcmdexecMessages, null);
+		this.scrollpaneQcmdexec.setViewportView(this.textareaQcmdexecMessages);
 		this.panelQcmdexecPrompt.add(this.textfieldQcmdexec, "Center");
 		this.panelQcmdexecPrompt.add(this.jPanel1, "East");
 		this.jPanel1.add(this.buttonPrompt, "West");
@@ -222,6 +222,21 @@ public class PanelQcmdexec extends PanelTool
 		} else if (evt.getKeyCode() == 27) {
 			this.index = 0;
 			this.textfieldQcmdexec.setText("");
+		} else{
+			if (evt.getKeyCode() == KeyEvent.VK_F4) {
+				String cmd = PanelQcmdexec.this.textfieldQcmdexec.getText().trim();
+				if (cmd.length() == 0) {
+					return;
+				}
+
+				AS400System as400system = Environment.systems.getDefault();
+				CommandPrompter cp = new CommandPrompter(PanelQcmdexec.this.frame, as400system.getAS400(), cmd);
+				if (cp.showDialog() != 0) {
+					return;
+				}
+				PanelQcmdexec.this.textfieldQcmdexec.setText(cp.getCommandString());
+				PanelQcmdexec.this.actionQcmdexec.actionPerformed(null);
+			}
 		}
 	}
 
@@ -239,18 +254,22 @@ public class PanelQcmdexec extends PanelTool
 			try {
 				Thread.currentThread();
 				Thread.sleep(500L);
+				//continue;
+
+				SubmitJob job = (SubmitJob) this.listModel.get(0);
+
+				SwingUtilities.invokeAndWait(new Runnable() {
+					public void run() {
+						PanelQcmdexec.this.listModel.remove(0);
+					}
+				});
+				job.execute();
+
+				if (this.listModel.size() > 0)
+					;
+
 				continue;
-				/*
-				 * SubmitJob job = (SubmitJob) this.listModel.get(0);
-				 * 
-				 * SwingUtilities.invokeAndWait(new Runnable() { public void
-				 * run() { PanelQcmdexec.this.listModel.remove(0); } });
-				 * job.execute();
-				 * 
-				 * if (this.listModel.size() > 0) ;
-				 * 
-				 * continue;
-				 */
+
 			} catch (Exception e) {
 				logger.error(e.getMessage());
 				// e.printStackTrace();

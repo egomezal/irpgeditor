@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("unchecked")
 public class RefactorFreeForm extends Refactor {
 	Logger logger = LoggerFactory.getLogger(RefactorFreeForm.class);
-	
+
 	@SuppressWarnings("rawtypes")
 	ArrayList listIndicators = new ArrayList();
 	StringBuffer bufferTab = new StringBuffer("        ");
@@ -150,8 +150,9 @@ public class RefactorFreeForm extends Refactor {
 			}
 			line.setText(before + text);
 		} else if (op.equalsIgnoreCase("READE") || op.equalsIgnoreCase("READE(N)") || op.equalsIgnoreCase("READ")
-				|| op.equalsIgnoreCase("READ(N)") || op.equalsIgnoreCase("READP") || op.equalsIgnoreCase("READP(N)")
-				|| op.equalsIgnoreCase("READC") || op.equalsIgnoreCase("WRITE")) {
+				|| op.equalsIgnoreCase("READPE") || op.equalsIgnoreCase("READPE(N)") || op.equalsIgnoreCase("READ(N)")
+				|| op.equalsIgnoreCase("READP") || op.equalsIgnoreCase("READP(N)") || op.equalsIgnoreCase("READC")
+				|| op.equalsIgnoreCase("WRITE")) {
 			text = convertIO(line, op);
 			ind = line.getText(74, 2).trim();
 			if (ind.length() > 0) {
@@ -192,7 +193,7 @@ public class RefactorFreeForm extends Refactor {
 				line.setText(before + bufferTab + "for " + result + " = " + factor1 + " to " + factor2 + ";\n");
 			} catch (Exception e2) {
 				logger.error(e2.getMessage());
-				//e2.printStackTrace();
+				// e2.printStackTrace();
 			}
 			bufferTab.append("  ");
 		} else if (op.equalsIgnoreCase("EVAL")) {

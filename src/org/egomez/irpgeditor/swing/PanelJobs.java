@@ -151,13 +151,11 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 
 	@Override
 	public void addedSytem(AS400System system) {
-		
 
 	}
 
 	@Override
 	public void removedSytem(AS400System system) {
-		
 
 	}
 
@@ -182,15 +180,16 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 						jobList.clearJobAttributesToRetrieve();
 						jobList.addJobAttributeToRetrieve(Job.SUBSYSTEM);
 						jobList.addJobAttributeToRetrieve(Job.JOB_NAME);
-						// jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_ACTIVE,Boolean.TRUE);
-						// jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_JOBQ,
-						// Boolean.TRUE);
+						jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_JOBQ, Boolean.FALSE);
+						jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_OUTQ, Boolean.FALSE);
+						jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_ACTIVE, Boolean.TRUE);
+
 						// Subsystem[] subsistemas = Subsystem
 						// .listAllSubsystems(server);
 
 						@SuppressWarnings("rawtypes")
 						Enumeration list1 = jobList.getJobs();
-						//SubsistemaAS400 x = null;
+						// SubsistemaAS400 x = null;
 						ArrayNode node = null;
 						Job j = null;
 						listaSubSistemas = new Hashtable<String, SubsistemaAS400>();
@@ -199,8 +198,10 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 
 						while (list1.hasMoreElements()) {
 							j = (Job) list1.nextElement();
-							if (j.getType().equals(Job.JOB_TYPE_SUBSYSTEM_MONITOR)) {
-
+							if (j.getName().equals("QINTER") || j.getName().startsWith("QBATCH")
+									//|| j.getName().equals("QSYSWRK") 
+									|| j.getName().equals("QUSRWRK")
+									|| j.getName().equals("QMQM")) {
 								/*
 								 * x = new SubsistemaAS400();
 								 * x.setSubsistema(j);
@@ -215,8 +216,8 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 								} catch (AS400Exception e) {
 
 								}
-
 							}
+
 						}
 
 						jobList.clearJobAttributesToRetrieve();
@@ -234,31 +235,44 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 								if (tipo == LIST_ALL) {
 									try {
 										if (j.getSubsystem() != null && !j.getSubsystem().equals("")) {
-											nombreSub = j.getSubsystem()
-													.substring(j.getSubsystem().lastIndexOf("/") + 1);
-											nombreSub = nombreSub.substring(0, nombreSub.indexOf("."));
+											if (j.getSubsystem().equals("/QSYS.LIB/QINTER.SBSD")
+													|| j.getSubsystem().startsWith("/QSYS.LIB/QBATCH")
+													//|| j.getSubsystem().equals("/QSYS.LIB/QSYSWRK.SBSD")
+													|| j.getSubsystem().equals("/QSYS.LIB/QUSRWRK.SBSD")
+													|| j.getSubsystem().equals("/QSYS.LIB/QMQM.SBSD")) {
+												nombreSub = j.getSubsystem()
+														.substring(j.getSubsystem().lastIndexOf("/") + 1);
+												nombreSub = nombreSub.substring(0, nombreSub.indexOf("."));
 
-											listaNodos.get(nombreSub)
-													.add(new ArrayNode(new Object[] { j.getName(), j.getUser(),
-															j.getType(), j.getCPUUsed() / 1000, j.getRunPriority(),
-															j.getStatus(), sdf.format(j.getJobEnterSystemDate()),
-															j.getNumber() }));
-										} else {
-											node = new ArrayNode(new Object[] { j.getName(), j.getUser(), j.getType(),
-													j.getCPUUsed() / 1000, "", j.getStatus(), "", "" });
-											node.setAllowsChildren(true);
-
-											listaNodos.put(j.getName(), node);
-
-										}
+												listaNodos.get(nombreSub)
+														.add(new ArrayNode(new Object[] { j.getName(), j.getUser(),
+																j.getType(), j.getCPUUsed() / 1000, j.getRunPriority(),
+																j.getStatus(), sdf.format(j.getJobEnterSystemDate()),
+																j.getNumber() }));
+											}
+										} /*
+											 * else { if
+											 * (j.getName().equals("QINTER") ||
+											 * j.getName().startsWith("QBATCH")
+											 * || j.getName().equals("QSYSWRK")
+											 * || j.getName().equals("QUSRWRK"))
+											 * { node = new ArrayNode( new
+											 * Object[] { j.getName(),
+											 * j.getUser(), j.getType(),
+											 * j.getCPUUsed() / 1000, "",
+											 * j.getStatus(), "", "" });
+											 * node.setAllowsChildren(true);
+											 * 
+											 * listaNodos.put(j.getName(),
+											 * node); } }
+											 */
 									} catch (AS400Exception e) {
 										logger.error(e.getMessage());
-										//e.printStackTrace();
+										// e.printStackTrace();
 									}
 
 								} else {
 									if (j.getUser().toUpperCase().trim().equals(as400.getUser())) {
-
 										nombreSub = j.getSubsystem().substring(j.getSubsystem().lastIndexOf("/") + 1);
 										nombreSub = nombreSub.substring(0, nombreSub.indexOf("."));
 										listaNodos.get(nombreSub)
@@ -271,7 +285,6 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 							}
 						}
 
-
 						for (ArrayNode n : listaNodos.values()) {
 							root.add(n);
 						}
@@ -281,24 +294,24 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 
 					} catch (AS400SecurityException e) {
 						logger.error(e.getMessage());
-						//e.printStackTrace();
+						// e.printStackTrace();
 					} catch (ErrorCompletingRequestException e) {
-						//e.printStackTrace();
+						// e.printStackTrace();
 						logger.error(e.getMessage());
 					} catch (InterruptedException e) {
-						//e.printStackTrace();
+						// e.printStackTrace();
 						logger.error(e.getMessage());
 					} catch (IOException e) {
-						//e.printStackTrace();
+						// e.printStackTrace();
 						logger.error(e.getMessage());
 					} catch (ObjectDoesNotExistException e) {
-						//e.printStackTrace();
+						// e.printStackTrace();
 						logger.error(e.getMessage());
 					} catch (PropertyVetoException e1) {
-						//e1.printStackTrace();
+						// e1.printStackTrace();
 						logger.error(e1.getMessage());
 					} catch (Exception e1) {
-						//e1.printStackTrace();
+						// e1.printStackTrace();
 						logger.error(e1.getMessage());
 					} finally {
 						flg = false;
@@ -309,6 +322,7 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 			}
 		}
 	}
+
 	@Override
 	public void run() {
 		listaTrabajos(LIST_ALL);

@@ -69,7 +69,7 @@ public class WindowAbout extends JDialog{
 		panel.add(lblNewLabel_1);
 		lblNewLabel_1.setFont(new Font("Calibri", Font.BOLD, 24));
 		
-		JLabel lblVersion = new JLabel("Version 1.00b1");
+		JLabel lblVersion = new JLabel("Version 1.00b2");
 		lblVersion.setBounds(232, 52, 140, 26);
 		panel.add(lblVersion);
 		lblVersion.setFont(new Font("Calibri", Font.BOLD, 20));
@@ -78,7 +78,7 @@ public class WindowAbout extends JDialog{
 		lbloriginalDavid.setBounds(148, 85, 155, 28);
 		panel.add(lbloriginalDavid);
 		
-		JLabel lblBuildId = new JLabel("Build id: 20150924");
+		JLabel lblBuildId = new JLabel("Build id: 20150930");
 		lblBuildId.setBounds(148, 124, 124, 14);
 		panel.add(lblBuildId);
 		
