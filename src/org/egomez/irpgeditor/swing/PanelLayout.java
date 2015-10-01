@@ -90,7 +90,7 @@ public class PanelLayout extends PanelTool implements Runnable, ClosableTab {
 	JTable tableFormats = new JTable(tableModelFormats);
 	JButton buttonLogical = new JButton();
 	Logger logger = LoggerFactory.getLogger(PanelLayout.class);
-	
+
 	public PanelLayout() {
 		try {
 			jbInit();
@@ -108,7 +108,7 @@ public class PanelLayout extends PanelTool implements Runnable, ClosableTab {
 			buttonOpenSource.addActionListener(actionOpenSource);
 			buttonLogical.addActionListener(actionCreateLogical);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			logger.error(e.getMessage());
 		}
 	}
@@ -203,12 +203,36 @@ public class PanelLayout extends PanelTool implements Runnable, ClosableTab {
 		popupTable.add(jMenuItem3);
 		popupTable.add(jMenuItem14);
 		scrollpane = new JScrollPane();
-		table = new JTable(tableModel);
-		table.setDefaultRenderer(Object.class, new TableCellRendererLayout(
-				tableModel));
+		table = new JTable(tableModel) {
+			/**
+			* 
+			*/
+			private static final long serialVersionUID = -837790319558038020L;
+
+			public String getToolTipText(MouseEvent e) {
+				String tip = null;
+				java.awt.Point p = e.getPoint();
+				int rowIndex = rowAtPoint(p);
+				int colIndex = columnAtPoint(p);
+
+				try {
+					// comment row, exclude heading
+					if (rowIndex >= 0) {
+						tip = tableModel.getTips(rowIndex, colIndex);
+					}
+				} catch (RuntimeException e1) {
+					// catch null pointer exception if mouse is over an empty
+					// line
+				}
+				return tip;
+			}
+		};
+		table.setDefaultRenderer(Object.class, new TableCellRendererLayout(tableModel));
+
 		table.getColumnModel().getColumn(0).setPreferredWidth(100);
 		table.getColumnModel().getColumn(1).setPreferredWidth(40);
-		table.getColumnModel().getColumn(2).setPreferredWidth(195);
+		table.getColumnModel().getColumn(2).setPreferredWidth(110);
+		table.getColumnModel().getColumn(3).setPreferredWidth(40);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.setFont(new java.awt.Font("DialogInput", 0, 14));
 		table.addMouseListener(popupListenerSql);
@@ -275,7 +299,7 @@ public class PanelLayout extends PanelTool implements Runnable, ClosableTab {
 		} catch (SQLException e) {
 			labelLoading.setText("Unable to find " + tableName);
 			logger.error(e.getMessage());
-			//e.printStackTrace();
+			// e.printStackTrace();
 		}
 	}
 
@@ -301,18 +325,15 @@ public class PanelLayout extends PanelTool implements Runnable, ClosableTab {
 		public void actionPerformed(ActionEvent evt) {
 			Member member;
 
-			member = new Member(Environment.systems.getDefault(),
-					tableModelInfo.getSourceLibrary(),
-					tableModelInfo.getSourceFile(),
-					tableModelInfo.getSourceMember());
+			member = new Member(Environment.systems.getDefault(), tableModelInfo.getSourceLibrary(),
+					tableModelInfo.getSourceFile(), tableModelInfo.getSourceMember());
 			Environment.members.open(member);
 		}
 	}
 
 	class ActionCreateLogical implements ActionListener {
 		public void actionPerformed(ActionEvent evt) {
-			DialogMemberNew.showDialog(null, as400, null, null, null,
-					"LF", new PanelLayout.JobLogicalCreated());
+			DialogMemberNew.showDialog(null, as400, null, null, null, "LF", new PanelLayout.JobLogicalCreated());
 		}
 	}
 
@@ -324,7 +345,7 @@ public class PanelLayout extends PanelTool implements Runnable, ClosableTab {
 			try {
 				tableModel.setAlpha(buttonAlpha.isSelected());
 			} catch (Exception e) {
-				//e.printStackTrace();
+				// e.printStackTrace();
 				logger.error(e.getMessage());
 			}
 		}
@@ -351,8 +372,7 @@ public class PanelLayout extends PanelTool implements Runnable, ClosableTab {
 			}
 			index = text.indexOf("#TABLE");
 			if (fileName != null && index > -1) {
-				text.replace(index, index + 6,
-						comboboxLibrary.getSelectedItem() + "/" + tableName);
+				text.replace(index, index + 6, comboboxLibrary.getSelectedItem() + "/" + tableName);
 			}
 			// replace all the fields.
 			while (replaceFields(text)) {
@@ -418,7 +438,7 @@ public class PanelLayout extends PanelTool implements Runnable, ClosableTab {
 						tableModelFormats.setSchema(tableSchema);
 						showResults();
 					} catch (Exception e) {
-						//e.printStackTrace();
+						// e.printStackTrace();
 						logger.error(e.getMessage());
 					}
 				}
@@ -442,16 +462,13 @@ public class PanelLayout extends PanelTool implements Runnable, ClosableTab {
 			if (this.member == null) {
 				return;
 			}
-			PanelMember panelMember = (PanelMember) Environment.members
-					.open(this.member);
+			PanelMember panelMember = (PanelMember) Environment.members.open(this.member);
 			if (panelMember == null) {
 				return;
 			}
 			StringBuffer buffer = new StringBuffer(
-					"     A          R                           PFILE("
-							+ PanelLayout.this.tableName + ")\n");
-			SourceLine.formatText(buffer, LinePosition.A_NAME,
-					(String) PanelLayout.this.tableFormats.getValueAt(0, 0));
+					"     A          R                           PFILE(" + PanelLayout.this.tableName + ")\n");
+			SourceLine.formatText(buffer, LinePosition.A_NAME, (String) PanelLayout.this.tableFormats.getValueAt(0, 0));
 			int[] rows = PanelLayout.this.table.getSelectedRows();
 			for (int x = 0; x < rows.length; x++) {
 				int row = rows[x];

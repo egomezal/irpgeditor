@@ -254,15 +254,11 @@ public class PanelSQL extends PanelTool implements OutputSQL {
 					textareaSqlResults.setSelectionEnd(0);
 				}
 			});
-		}/* finally {
-			try {
-				if (!connection.isClosed() && connection != null)
-					connection.close();
-			} catch (SQLException e) {
-				// e.printStackTrace();
-				logger.error(e.getMessage());
-			}
-		}*/
+		} /*
+			 * finally { try { if (!connection.isClosed() && connection != null)
+			 * connection.close(); } catch (SQLException e) { //
+			 * e.printStackTrace(); logger.error(e.getMessage()); } }
+			 */
 		sql = null;
 	}
 
@@ -391,7 +387,7 @@ public class PanelSQL extends PanelTool implements OutputSQL {
 		}
 		document.insertString(document.getLength(), "\n", attributes);
 		row = 1;
-		while (rs.next()) {
+		while (rs.next() && row<=200) {
 			StyleConstants.setForeground(attributes, Color.black);
 			StyleConstants.setBackground(attributes, Color.white);
 			StyleConstants.setForeground(attributes, new Color(0, 0, 0));

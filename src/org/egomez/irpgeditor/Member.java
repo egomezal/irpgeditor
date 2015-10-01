@@ -302,7 +302,7 @@ public class Member {
 				stmt.execute(as400system.buildSqlForCmd("QSYS/DLTF FILE(QTEMP/SRCUPLOAD)"));
 			} catch (SQLException e) {
 				// e.printStackTrace();
-				//logger.error(e.getMessage());
+				// logger.error(e.getMessage());
 			}
 			stmt.execute(as400system.buildSqlForCmd("QSYS/CRTSRCPF FILE(QTEMP/SRCUPLOAD) RCDLEN(" + lengthFile + ")"));
 			stmt.execute(as400system.buildSqlForCmd("QSYS/ADDPFM FILE(QTEMP/SRCUPLOAD) MBR(SOURCE)"));
@@ -340,7 +340,7 @@ public class Member {
 		Calendar cal;
 		SourceLine line;
 		StringBuffer buffer = new StringBuffer();
-		String backup = null, append = " ";
+		String backup = null, append = " ", cadena = "";
 		int lengthFile = as400system.getSourceFileRecordLength(library, file);
 		// test length of lines first.
 		row = 1;
@@ -377,12 +377,6 @@ public class Member {
 				stmt = connection.createStatement();
 				// Para fuentes RPG o SQLRPG
 
-				/*
-				 * try { stmt.execute("drop alias qtemp/srcupload"); } catch
-				 * (Exception e2 ) { }
-				 */
-				// stmt.execute("create alias qtemp/srcupload for " + library +
-				// "/" + file + "(" + member + ")");
 				line = parser.getFirst();
 				while (line != null) {
 					buffer.append(line.getText());
@@ -397,8 +391,9 @@ public class Member {
 					buffer.append("\n");
 					row++;
 					if (buffer.length() > 32000) {
-						stmt.execute("call qgpl/prcupload('" + buffer.toString().replaceAll("'", "''") + "',  '\n', '"
-								+ append + "')");
+						cadena = buffer.toString().replaceAll("'", "''");
+						cadena = cadena.replaceAll("\t", "    ");
+						stmt.execute("call qgpl/prcupload('" + cadena + "',  '\n', '" + append + "')");
 						append = "T";
 						buffer = new StringBuffer();
 						if (listener != null) {
@@ -411,16 +406,12 @@ public class Member {
 				// upload
 				// an empty string at least to delete the previous contents.
 				if (buffer.length() > 0 || append.equalsIgnoreCase(" ")) {
-					// System.out.println("call qgpl/prcupload('" +
-					// buffer.toString().replaceAll("'", "''") +
-					// "', X'0D25', '" + append + "')");
-					stmt.execute("call qgpl/prcupload('" + buffer.toString().replaceAll("'", "''") + "',  '\n', '"
-							+ append + "')");
+					buffer.append("\n");
+					cadena = buffer.toString().replaceAll("'", "''");
+					cadena = cadena.replaceAll("\t", "    ");
+					stmt.execute("call qgpl/prcupload('" + cadena + "',  '\n', '" + append + "')");
 				}
-				/*
-				 * try { stmt.execute("drop alias qtemp/srcupload"); } catch
-				 * (Exception e2) { }
-				 */
+
 				stmt.execute(as400system.buildSqlForCmd("CPYF FROMFILE(QTEMP/SRCUPLOAD) TOFILE(" + library + "/" + file
 						+ ") TOMBR(" + member + ") MBROPT(*REPLACE) FMTOPT(*MAP *DROP)"));
 				stmt.close();
@@ -430,10 +421,7 @@ public class Member {
 			}
 			parser.setDirty(false);
 		} catch (Exception e) {
-			// System.out.println("buffer: (" +
-			// buffer.toString().replaceAll("'", "''") + ")");
 			logger.info("buffer: (" + buffer.toString().replaceAll("'", "''") + ")");
-			// e.printStackTrace();
 			logger.error(e.getMessage());
 			if (listener != null) {
 				listener.saveComplete(0, false, e.getMessage() + "\n" + backup);

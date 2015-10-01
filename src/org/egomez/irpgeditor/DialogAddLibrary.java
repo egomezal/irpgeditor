@@ -208,7 +208,7 @@ public class DialogAddLibrary extends JDialog {
 
 		JLabel lblNewLabel = new JLabel("");
 		lblNewLabel.setIcon(
-				new ImageIcon(DialogAddLibrary.class.getResource("/org/egomez/irpgeditor/icons/text-x-generic.png")));
+				new ImageIcon(DialogAddLibrary.class.getResource("/org/egomez/irpgeditor/icons/go-last-view-page.png")));
 		lblNewLabel.setBounds(19, 11, 46, 79);
 		panel1.add(lblNewLabel);
 	}

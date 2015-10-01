@@ -221,8 +221,10 @@ public class PanelLines extends JPanel implements Runnable, DocumentListener {
 					try {
 						x = fm.stringWidth(text.substring(0, index));
 					} catch (Exception e) {
-						System.out.println(op);
-						System.out.println(text);
+						//System.out.println(op);
+						//System.out.println(text);
+						logger.info(op);
+						logger.info(text);
 						//e.printStackTrace();
 						logger.error(e.getMessage());
 					}

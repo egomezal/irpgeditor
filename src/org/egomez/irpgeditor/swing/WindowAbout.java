@@ -78,7 +78,7 @@ public class WindowAbout extends JDialog{
 		lbloriginalDavid.setBounds(148, 85, 155, 28);
 		panel.add(lbloriginalDavid);
 		
-		JLabel lblBuildId = new JLabel("Build id: 20150930");
+		JLabel lblBuildId = new JLabel("Build id: 20151001");
 		lblBuildId.setBounds(148, 124, 124, 14);
 		panel.add(lblBuildId);
 		

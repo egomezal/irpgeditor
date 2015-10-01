@@ -458,18 +458,18 @@ public class SourceParser implements DocumentListener, SourceLoader {
 		listEvents = new ArrayList();
 		lineStart = getLine(start);
 		if (length < lineStart.length) {
-			System.out.println("a");
+			//System.out.println("a");
 			// changed a line.
 			// removed from current line only.
 			// was the \n removed from the line?
 			if (start + length == lineStart.start + lineStart.length) {
-				System.out.println("b");
+				//System.out.println("b");
 				// the \n was removed from this line.
 				// the next line gets removed, and its content gets appended to
 				// the start line.
 				line = lineStart.getNext();
 				if (line != null) {
-					System.out.println("c");
+					//System.out.println("c");
 					listEvents.add(new SourceParserEvent(SourceParserEvent.REMOVED, line));
 					listDeleted.add(line);
 					line.invalid = true;
@@ -477,35 +477,35 @@ public class SourceParser implements DocumentListener, SourceLoader {
 					line = line.getNext();
 					lineStart.setNext(line);
 					if (line != null) {
-						System.out.println("d");
+						//System.out.println("d");
 						line.parent = lineStart;
 					}
 				}
 			}
-			System.out.println("e");
+			//System.out.println("e");
 			lineStart.length -= length;
 			listEvents.add(new SourceParserEvent(SourceParserEvent.CHANGED, lineStart));
 			lineStart.changed = true;
 		} else if (length > lineStart.length) {
-			System.out.println("f");
+			//System.out.println("f");
 			lineEnd = getLine(start + length);
 			// was the first one removed completely?
 			if (start == lineStart.start) {
-				System.out.println("g");
+				//System.out.println("g");
 				// is all the content to the end removed.
 				if (lineEnd == null) {
-					System.out.println("h");
+					//System.out.println("h");
 					if (lineStart.parent == null) {
-						System.out.println("i");
+						//System.out.println("i");
 						first = null;
 					} else {
-						System.out.println("j");
+						//System.out.println("j");
 						lineStart.parent.setNext(null);
 					}
 					// let the listener know which lines were removed.
 					line = lineStart;
 					while (line != lineEnd) {
-						System.out.println("k");
+						//System.out.println("k");
 						listEvents.add(new SourceParserEvent(SourceParserEvent.REMOVED, line));
 						listDeleted.add(line);
 						line.invalid = true;
@@ -515,14 +515,14 @@ public class SourceParser implements DocumentListener, SourceLoader {
 					// on lines
 					// that dont exist anymore.
 					lineStart = null;
-					System.out.println("l");
+					//System.out.println("l");
 				} else {
-					System.out.println("m");
+					//System.out.println("m");
 					int newlength = (lineEnd.start + lineEnd.length) - (start + length);
 					// let the listener know which lines were removed.
 					line = lineStart;
 					while (line != lineEnd) {
-						System.out.println("n");
+						//System.out.println("n");
 						listEvents.add(new SourceParserEvent(SourceParserEvent.REMOVED, line));
 						listDeleted.add(line);
 						line.invalid = true;
@@ -530,34 +530,34 @@ public class SourceParser implements DocumentListener, SourceLoader {
 					}
 					lineEnd.parent = lineStart.parent;
 					if (lineEnd.parent == null) {
-						System.out.println("o");
+						//System.out.println("o");
 						first = lineEnd;
 						// do this so that the shuffle is correct.
 						first.start = 0;
 						lineStart = lineEnd;
 					} else {
-						System.out.println("p");
+						//System.out.println("p");
 						lineEnd.parent.setNext(lineEnd);
 						// do this so that the shuffle is correct.
 						lineStart = lineEnd.parent;
 					}
 					// set the new size for the end line.
 					if (lineEnd.length != newlength) {
-						System.out.println("q");
+						//System.out.println("q");
 						lineEnd.length = newlength;
 						listEvents.add(new SourceParserEvent(SourceParserEvent.CHANGED, lineEnd));
 						lineEnd.changed = true;
 					}
 				}
 			} else {
-				System.out.println("r");
+				//System.out.println("r");
 				// removed a line plus.
 				// the start line gets appended to always.
 				// the start line gets the rest of the end line.
 				// if all of the end line is removed, then the one
 				// after the end line is used.
 				if (lineEnd == null) {
-					System.out.println("s");
+					//System.out.println("s");
 					line = lineStart.getNext();
 					lineStart.setNext(null);
 					lineStart.length = start - lineStart.start;
@@ -565,21 +565,21 @@ public class SourceParser implements DocumentListener, SourceLoader {
 					lineStart.changed = true;
 					// let the listener know which lines were removed.
 					while (line != null) {
-						System.out.println("t");
+						//System.out.println("t");
 						listEvents.add(new SourceParserEvent(SourceParserEvent.REMOVED, line));
 						listDeleted.add(line);
 						line.invalid = true;
 						line = line.getNext();
 					}
 				} else {
-					System.out.println("u");
+					//System.out.println("u");
 					if (start + length == lineEnd.start + lineEnd.length) {
-						System.out.println("v");
+						//System.out.println("v");
 						// if the end line is all removed, and is the last line
 						// then the start line becomes the end line and is
 						// shorter.
 						if (lineEnd.getNext() == null) {
-							System.out.println("w");
+							//System.out.println("w");
 							lineStart.setNext(null);
 							lineStart.length = start - lineStart.length;
 							listEvents.add(new SourceParserEvent(SourceParserEvent.CHANGED, lineStart));
@@ -591,11 +591,11 @@ public class SourceParser implements DocumentListener, SourceLoader {
 						// previous one was removed.
 						lineEnd = lineEnd.getNext();
 					}
-					System.out.println("x");
+					//System.out.println("x");
 					// let the listener know which lines were removed.
 					line = lineStart.getNext();
 					while (line != lineEnd.getNext()) {
-						System.out.println("y");
+						//System.out.println("y");
 						listEvents.add(new SourceParserEvent(SourceParserEvent.REMOVED, line));
 						listDeleted.add(line);
 						line.invalid = true;
@@ -606,7 +606,7 @@ public class SourceParser implements DocumentListener, SourceLoader {
 					line = lineEnd.getNext();
 					lineStart.setNext(line);
 					if (line != null) {
-						System.out.println("z");
+						//System.out.println("z");
 						line.parent = lineStart;
 					}
 					lineStart.length = (start - lineStart.start)
@@ -616,7 +616,7 @@ public class SourceParser implements DocumentListener, SourceLoader {
 				}
 			}
 		} else {
-			System.out.println("aa");
+			//System.out.println("aa");
 			// removed a line.
 			// removed from current line only.
 			// get the current line.
@@ -625,25 +625,25 @@ public class SourceParser implements DocumentListener, SourceLoader {
 			lineStart.invalid = true;
 			line = lineStart.getNext();
 			if (lineStart.parent == null) {
-				System.out.println("ab");
+				//System.out.println("ab");
 				first = line;
 				if (line != null) {
-					System.out.println("ac");
+					//System.out.println("ac");
 					line.parent = null;
 					line.start = 0;
 				}
 			} else {
-				System.out.println("ad");
+				//System.out.println("ad");
 				lineStart.parent.setNext(line);
 				if (line != null) {
-					System.out.println("ae");
+					//System.out.println("ae");
 					line.parent = lineStart.parent;
 				}
 				lineStart = lineStart.parent;
 			}
 		}
 		if (lineStart != null) {
-			System.out.println("af");
+			//System.out.println("af");
 			lineStart.shuffle();
 		}
 		fireEvents(listEvents);
