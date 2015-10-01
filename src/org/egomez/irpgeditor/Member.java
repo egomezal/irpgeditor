@@ -380,6 +380,9 @@ public class Member {
 				line = parser.getFirst();
 				while (line != null) {
 					buffer.append(line.getText());
+					if (!line.getText().substring(line.getText().length()-1).equals("\n")){
+						buffer.append("\n");
+					}
 					date = line.date;
 					if (line.changed || line.created) {
 						date = today;
@@ -392,7 +395,7 @@ public class Member {
 					row++;
 					if (buffer.length() > 32000) {
 						cadena = buffer.toString().replaceAll("'", "''");
-						cadena = cadena.replaceAll("\t", "    ");
+						cadena = cadena.replaceAll("\t", "      ");
 						stmt.execute("call qgpl/prcupload('" + cadena + "',  '\n', '" + append + "')");
 						append = "T";
 						buffer = new StringBuffer();
@@ -406,7 +409,6 @@ public class Member {
 				// upload
 				// an empty string at least to delete the previous contents.
 				if (buffer.length() > 0 || append.equalsIgnoreCase(" ")) {
-					buffer.append("\n");
 					cadena = buffer.toString().replaceAll("'", "''");
 					cadena = cadena.replaceAll("\t", "    ");
 					stmt.execute("call qgpl/prcupload('" + cadena + "',  '\n', '" + append + "')");
