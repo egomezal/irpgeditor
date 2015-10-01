@@ -92,6 +92,7 @@ public class Icons {
   public static ImageIcon iconSpool = new ImageIcon(Icons.class.getResource("view-list-text-2.png"));
   public static ImageIcon iconDatabase = new ImageIcon(Icons.class.getResource("database-edit.png"));
   public static ImageIcon iconRunConfiguration = new ImageIcon(Icons.class.getResource("system-run-3.png"));
+  public static ImageIcon iconJobs = new ImageIcon(Icons.class.getResource("user-available.png"));
   public static ImageIcon iconCompilePanel = new ImageIcon(Icons.class.getResource("run-rebuild.png"));
   public static ImageIcon iconMemberSaveLocal = new ImageIcon(Icons.class.getResource("book-go.png"));
   //public static ImageIcon iconExporttoExcel = new ImageIcon(Icons.class.getResource("xls-icon.jpg"));

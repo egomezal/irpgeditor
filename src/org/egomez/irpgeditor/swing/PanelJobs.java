@@ -97,7 +97,7 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 		treeTable.setColumnFactory(factory);
 
 		treeTable.setRootVisible(true);
-
+		treeTable.setLeafIcon(Icons.iconJobs);
 		JPopupMenu popupMenu = new JPopupMenu();
 		addPopup(treeTable, popupMenu);
 

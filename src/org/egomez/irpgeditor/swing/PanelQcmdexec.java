@@ -222,7 +222,7 @@ public class PanelQcmdexec extends PanelTool
 		} else if (evt.getKeyCode() == 27) {
 			this.index = 0;
 			this.textfieldQcmdexec.setText("");
-		} else{
+		} else {
 			if (evt.getKeyCode() == KeyEvent.VK_F4) {
 				String cmd = PanelQcmdexec.this.textfieldQcmdexec.getText().trim();
 				if (cmd.length() == 0) {
@@ -254,17 +254,19 @@ public class PanelQcmdexec extends PanelTool
 			try {
 				Thread.currentThread();
 				Thread.sleep(500L);
-				//continue;
+				SubmitJob job = null;
+				// continue;
+				if (PanelQcmdexec.this.listModel.size() > 0) {
+					job = (SubmitJob) this.listModel.get(0);
 
-				SubmitJob job = (SubmitJob) this.listModel.get(0);
-
-				SwingUtilities.invokeAndWait(new Runnable() {
-					public void run() {
-						PanelQcmdexec.this.listModel.remove(0);
-					}
-				});
-				job.execute();
-
+					SwingUtilities.invokeAndWait(new Runnable() {
+						public void run() {
+							if (PanelQcmdexec.this.listModel.size() > 0)
+								PanelQcmdexec.this.listModel.remove(0);
+						}
+					});
+					job.execute();
+				}
 				if (this.listModel.size() > 0)
 					;
 
