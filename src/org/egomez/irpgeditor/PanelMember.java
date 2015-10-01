@@ -1865,7 +1865,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		private static final long serialVersionUID = 3233693652665950746L;
 
 		public ActionCopyMenu() {
-			super("Copy", Icons.iconCut);
+			super("Copy", Icons.iconCopy);
 			setEnabled(true);
 			putValue("MENU", "Edit");
 			putValue(Action.ACCELERATOR_KEY,
