@@ -48,7 +48,9 @@ import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.ErrorCompletingRequestException;
 import com.ibm.as400.access.Job;
 import com.ibm.as400.access.JobList;
+import com.ibm.as400.access.JobLog;
 import com.ibm.as400.access.ObjectDoesNotExistException;
+import com.ibm.as400.access.QueuedMessage;
 
 /**
  * @author EDGO
@@ -100,6 +102,24 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 		treeTable.setLeafIcon(Icons.iconJobs);
 		JPopupMenu popupMenu = new JPopupMenu();
 		addPopup(treeTable, popupMenu);
+
+		JMenuItem mnuJobLog = new JMenuItem("View Job Log");
+		mnuJobLog.setIcon(Icons.iconJobLog);
+		mnuJobLog.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int row = treeTable.getSelectedRow();
+				String name = (String) treeTable.getValueAt(row, 0);
+				String user = (String) treeTable.getValueAt(row, 1);
+				if (name.equalsIgnoreCase("QZDASOINIT") || name.equalsIgnoreCase("QZRCSRVS")) {
+					user = "QUSER";
+				}
+
+				String number = (String) treeTable.getValueAt(row, 7);
+				Job j = new Job(as400.getAS400(), name, user, number);
+				new DlgJobLog("Job " + name + "/" + user + "/" + number, j.getJobLog()).setVisible(true);
+			}
+		});
+		popupMenu.add(mnuJobLog);
 
 		JMenuItem mnuRefresh = new JMenuItem("Refresh");
 		mnuRefresh.setIcon(Icons.iconRefresh);
@@ -199,14 +219,7 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 						while (list1.hasMoreElements()) {
 							j = (Job) list1.nextElement();
 							if (j.getName().equals("QINTER") || j.getName().startsWith("QBATCH")
-									//|| j.getName().equals("QSYSWRK") 
-									|| j.getName().equals("QUSRWRK")
-									|| j.getName().equals("QMQM")) {
-								/*
-								 * x = new SubsistemaAS400();
-								 * x.setSubsistema(j);
-								 * listaSubSistemas.put(j.getName(), x);
-								 */
+									|| j.getName().equals("QUSRWRK") || j.getName().equals("QMQM")) {
 								try {
 									node = new ArrayNode(new Object[] { j.getName(), j.getUser(), j.getType(),
 											j.getCPUUsed() / 1000, "", j.getStatus(), "", "" });
@@ -228,6 +241,11 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 						Enumeration list = jobList.getJobs();
 
 						String nombreSub = "";
+						String user = "";
+						JobLog log = null;
+						QueuedMessage message = null;
+						@SuppressWarnings("rawtypes")
+						Enumeration listMessage = null;
 						while (list.hasMoreElements()) {
 							j = (Job) list.nextElement();
 
@@ -237,38 +255,37 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 										if (j.getSubsystem() != null && !j.getSubsystem().equals("")) {
 											if (j.getSubsystem().equals("/QSYS.LIB/QINTER.SBSD")
 													|| j.getSubsystem().startsWith("/QSYS.LIB/QBATCH")
-													//|| j.getSubsystem().equals("/QSYS.LIB/QSYSWRK.SBSD")
 													|| j.getSubsystem().equals("/QSYS.LIB/QUSRWRK.SBSD")
 													|| j.getSubsystem().equals("/QSYS.LIB/QMQM.SBSD")) {
 												nombreSub = j.getSubsystem()
 														.substring(j.getSubsystem().lastIndexOf("/") + 1);
 												nombreSub = nombreSub.substring(0, nombreSub.indexOf("."));
 
+												user = j.getUser();
+												try {
+													if (j.getName().equalsIgnoreCase("QZDASOINIT")
+															|| j.getName().equalsIgnoreCase("QZRCSRVS")) {
+														log = j.getJobLog();
+														listMessage = log.getMessages();
+														while (listMessage.hasMoreElements()) {
+															message = (QueuedMessage) listMessage.nextElement();
+															if (message.getID().equals("CPIAD02")) {
+																user = message.getText().substring(5, 14);
+															}
+														}
+													}
+												} catch (Exception e) {
+
+												}
 												listaNodos.get(nombreSub)
-														.add(new ArrayNode(new Object[] { j.getName(), j.getUser(),
+														.add(new ArrayNode(new Object[] { j.getName(), user,
 																j.getType(), j.getCPUUsed() / 1000, j.getRunPriority(),
 																j.getStatus(), sdf.format(j.getJobEnterSystemDate()),
 																j.getNumber() }));
 											}
-										} /*
-											 * else { if
-											 * (j.getName().equals("QINTER") ||
-											 * j.getName().startsWith("QBATCH")
-											 * || j.getName().equals("QSYSWRK")
-											 * || j.getName().equals("QUSRWRK"))
-											 * { node = new ArrayNode( new
-											 * Object[] { j.getName(),
-											 * j.getUser(), j.getType(),
-											 * j.getCPUUsed() / 1000, "",
-											 * j.getStatus(), "", "" });
-											 * node.setAllowsChildren(true);
-											 * 
-											 * listaNodos.put(j.getName(),
-											 * node); } }
-											 */
+										}
 									} catch (AS400Exception e) {
 										logger.error(e.getMessage());
-										// e.printStackTrace();
 									}
 
 								} else {
@@ -294,24 +311,17 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 
 					} catch (AS400SecurityException e) {
 						logger.error(e.getMessage());
-						// e.printStackTrace();
 					} catch (ErrorCompletingRequestException e) {
-						// e.printStackTrace();
 						logger.error(e.getMessage());
 					} catch (InterruptedException e) {
-						// e.printStackTrace();
 						logger.error(e.getMessage());
 					} catch (IOException e) {
-						// e.printStackTrace();
 						logger.error(e.getMessage());
 					} catch (ObjectDoesNotExistException e) {
-						// e.printStackTrace();
 						logger.error(e.getMessage());
 					} catch (PropertyVetoException e1) {
-						// e1.printStackTrace();
 						logger.error(e1.getMessage());
 					} catch (Exception e1) {
-						// e1.printStackTrace();
 						logger.error(e1.getMessage());
 					} finally {
 						flg = false;
