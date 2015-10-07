@@ -11,34 +11,29 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-//import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
-//import java.util.Iterator;
-//import java.util.Iterator;
 
-//import javax.swing.Icon;
-//import javax.swing.ImageIcon;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTree;
 import javax.swing.ScrollPaneConstants;
-//import javax.swing.SwingWorker;
 import javax.swing.table.TableModel;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.egomez.irpgeditor.AS400System;
-//import org.egomez.irpgeditor.TreeJob;
 import org.egomez.irpgeditor.env.Environment;
 import org.egomez.irpgeditor.event.ListenerAS400Systems;
 import org.egomez.irpgeditor.icons.Icons;
 import org.egomez.parm.ArrayNode;
 import org.egomez.parm.SubsistemaAS400;
 import org.jdesktop.swingx.JXTreeTable;
-//import org.jdesktop.swingx.renderer.DefaultTreeRenderer;
-//import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
+import org.jdesktop.swingx.tree.DefaultXTreeCellRenderer;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +95,32 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 
 		treeTable.setRootVisible(true);
 		treeTable.setLeafIcon(Icons.iconJobs);
+		/*
+		DefaultTreeCellRenderer render = new DefaultTreeCellRenderer() {
+
+			private static final long serialVersionUID = 3649673676739085879L;
+
+			@Override
+			public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected, boolean expanded,
+					boolean leaf, int row, boolean hasFocus) {
+
+				ArrayNode x = (ArrayNode) value;
+				if (leaf) {
+					if (x.getValueAt(5).equals("MSGW")) {
+						setLeafIcon(Icons.iconJobMsg);
+					}
+					else{
+						setLeafIcon(Icons.iconJobs);
+					}
+				}
+				else{
+					setClosedIcon(closedIcon);
+					setOpenIcon(openIcon);
+				}
+				return this;
+			}
+		};
+		treeTable.setTreeCellRenderer(render);*/
 		JPopupMenu popupMenu = new JPopupMenu();
 		addPopup(treeTable, popupMenu);
 
@@ -237,6 +258,9 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 						jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_JOBQ, Boolean.FALSE);
 						jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_OUTQ, Boolean.FALSE);
 						jobList.addJobSelectionCriteria(JobList.SELECTION_PRIMARY_JOB_STATUS_ACTIVE, Boolean.TRUE);
+
+						jobList.addJobAttributeToRetrieve(Job.ACTIVE_JOB_STATUS);
+						jobList.addJobAttributeToRetrieve(Job.ACTIVE_JOB_STATUS_FOR_JOBS_ENDING);
 						@SuppressWarnings("rawtypes")
 						Enumeration list = jobList.getJobs();
 
@@ -277,10 +301,12 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 												} catch (Exception e) {
 
 												}
+												// j.getValue(Job.ACTIVE_JOB_STATUS);
 												listaNodos.get(nombreSub)
 														.add(new ArrayNode(new Object[] { j.getName(), user,
 																j.getType(), j.getCPUUsed() / 1000, j.getRunPriority(),
-																j.getStatus(), sdf.format(j.getJobEnterSystemDate()),
+																j.getValue(Job.ACTIVE_JOB_STATUS),
+																sdf.format(j.getJobEnterSystemDate()),
 																j.getNumber() }));
 											}
 										}
@@ -294,7 +320,8 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 										nombreSub = nombreSub.substring(0, nombreSub.indexOf("."));
 										listaNodos.get(nombreSub)
 												.add(new ArrayNode(new Object[] { j.getName(), j.getUser(), j.getType(),
-														j.getCPUUsed() / 1000, j.getRunPriority(), j.getStatus(),
+														j.getCPUUsed() / 1000, j.getRunPriority(),
+														j.getValue(Job.ACTIVE_JOB_STATUS),
 														sdf.format(j.getJobEnterSystemDate()), j.getNumber() }));
 									}
 								}
@@ -307,6 +334,7 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 						}
 
 						treeTable.setTreeTableModel(new DefaultTreeTableModel(root));
+
 						treeTable.expandAll();
 
 					} catch (AS400SecurityException e) {
@@ -337,4 +365,15 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 	public void run() {
 		listaTrabajos(LIST_ALL);
 	}
+	/*
+	 * public class BeanIconValue implements IconValue { private static final
+	 * long serialVersionUID = -869519891086205061L;
+	 * 
+	 * public Icon getIcon(Object value) { if (value != null) { //ArrayNode x =
+	 * (ArrayNode) value; Object [] y = (Object[])value; if
+	 * (y[5].equals("MSGW")) { return Icons.iconJobMsg; } else { return
+	 * Icons.iconJobs; }
+	 * 
+	 * } return null; } }
+	 */
 }

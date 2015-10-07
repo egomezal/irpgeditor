@@ -200,7 +200,7 @@ public class PanelProjects extends PanelTool implements ListenerProjects {
 			file = fc.getSelectedFile();
 			Environment.fileOpenDefault = file.getParentFile();
 			try {
-				project = Project.load(file.getAbsolutePath());
+				project = Project.load(file.getName());
 				Environment.projects.add(project);
 				Environment.projects.select(project);
 			} catch (IOException e) {
