@@ -14,15 +14,12 @@ import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTree;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.table.TableModel;
-import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.egomez.irpgeditor.AS400System;
 import org.egomez.irpgeditor.env.Environment;
@@ -33,7 +30,6 @@ import org.egomez.parm.SubsistemaAS400;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
-import org.jdesktop.swingx.tree.DefaultXTreeCellRenderer;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

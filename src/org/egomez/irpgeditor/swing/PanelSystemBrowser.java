@@ -28,12 +28,12 @@ public class PanelSystemBrowser extends JPanel {
 	TreeCellRendererNode treeCellRendererNode = new TreeCellRendererNode();
 	NodeSystems nodeSystems = new NodeSystems(treeModel);
 	Logger logger = LoggerFactory.getLogger(PanelSystemBrowser.class);
-	 
+
 	public PanelSystemBrowser() {
 		try {
 			jbInit();
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			logger.error(e.getMessage());
 		}
 	}
@@ -102,6 +102,7 @@ class NodeAS400 extends NodeDefault implements ListenerAS400System {
 	NodeDefault nodeWait = new NodeDefault(this, "Retrieving libraries...");
 	boolean hasExpanded = false;
 	Logger logger = LoggerFactory.getLogger(NodeAS400.class);
+
 	public NodeAS400(AS400System as400, Node parent, TreeModelNode treeModel) {
 		this.parent = parent;
 		this.as400 = as400;
@@ -148,13 +149,16 @@ class NodeAS400 extends NodeDefault implements ListenerAS400System {
 		ArrayList libs;
 
 		try {
+			if (!as400.isConnected())
+				as400.connect();
+
 			libs = as400.getLibraries();
 			for (int x = 0; x < libs.size(); x++) {
 				add(new NodeLibrary(this, as400, (String) libs.get(x), treeModel));
 			}
 			list.remove(nodeWait);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			logger.error(e.getMessage());
 			nodeWait.setText(e.getMessage());
 		}
@@ -186,6 +190,7 @@ class NodeLibrary extends NodeDefault {
 	boolean isRetrieving = false;
 	NodeDefault nodeWait = new NodeDefault(this, "Retrieving files...");
 	Logger logger = LoggerFactory.getLogger(NodeLibrary.class);
+
 	public NodeLibrary(Node parent, AS400System as400, String library, TreeModelNode treeModel) {
 		super(parent, library);
 		this.as400 = as400;
@@ -200,6 +205,13 @@ class NodeLibrary extends NodeDefault {
 
 	public void expand() {
 		if (hasExpanded == false) {
+			if (!as400.isConnected()) {
+				try {
+					as400.connect();
+				} catch (Exception e) {
+					logger.error(e.getMessage());
+				}
+			}
 			startRetrieveFiles();
 		}
 		hasExpanded = true;
@@ -219,6 +231,9 @@ class NodeLibrary extends NodeDefault {
 
 		isRetrieving = true;
 		try {
+			if (!as400.isConnected())
+				as400.connect();
+
 			files = as400.getFiles(text);
 			for (int x = 0; x < files.size(); x += 3) {
 				add(new NodeFile(this, as400, text, (String) files.get(x), (String) files.get(x + 1),
@@ -226,7 +241,7 @@ class NodeLibrary extends NodeDefault {
 			}
 			list.remove(nodeWait);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			logger.error(e.getMessage());
 			nodeWait.setText(e.getMessage());
 		}
@@ -304,7 +319,7 @@ class NodeLibrary extends NodeDefault {
 				}
 				Environment.copyBuffer.clear();
 			} catch (Exception e) {
-				//e.printStackTrace();
+				// e.printStackTrace();
 				logger.error(e.getMessage());
 			}
 		}
@@ -338,7 +353,7 @@ class NodeLibrary extends NodeDefault {
 			try {
 				as400.call("CRTSRCPF FILE(" + text + "/" + name + ") RCDLEN(120) TEXT('" + description + "')");
 			} catch (Exception e) {
-				//e.printStackTrace();
+				// e.printStackTrace();
 				logger.error(e.getMessage());
 			}
 		}
@@ -379,7 +394,7 @@ class NodeLibrary extends NodeDefault {
 					as400.call("ADDLIBLE " + text + " POSITION(*LAST)");
 				}
 			} catch (Exception e) {
-				//e.printStackTrace();
+				// e.printStackTrace();
 				logger.error(e.getMessage());
 			}
 		}
@@ -395,6 +410,7 @@ class NodeFile extends NodeDefault {
 	boolean isRetrieving = false;
 	NodeDefault nodeWait = new NodeDefault(this, "Retrieving members...");
 	Logger logger = LoggerFactory.getLogger(NodeFile.class);
+
 	public NodeFile(Node parent, AS400System as400, String library, String file, String fileType, String tableType,
 			TreeModelNode treeModel) {
 		super(parent, file);
@@ -450,7 +466,7 @@ class NodeFile extends NodeDefault {
 			}
 			list.remove(nodeWait);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			logger.error(e.getMessage());
 			nodeWait.setText(e.getMessage());
 		}
@@ -527,7 +543,7 @@ class NodeFile extends NodeDefault {
 			try {
 				as400.call("DLTF FILE(" + library + "/" + text + ")");
 			} catch (Exception e) {
-				//e.printStackTrace();
+				// e.printStackTrace();
 				logger.error(e.getMessage());
 			}
 		}
@@ -568,7 +584,7 @@ class NodeFile extends NodeDefault {
 				}
 				Environment.copyBuffer.clear();
 			} catch (Exception e) {
-				//e.printStackTrace();
+				// e.printStackTrace();
 				logger.error(e.getMessage());
 			}
 		}
@@ -598,7 +614,7 @@ class NodeMember extends NodeDefault implements ListenerMember {
 	Member member;
 	TreeModelNode treeModel;
 	Logger logger = LoggerFactory.getLogger(NodeMember.class);
-	
+
 	public NodeMember(Node parent, AS400System as400, Member member, TreeModelNode treeModel) {
 		super(parent, member.getName());
 		this.as400 = as400;
@@ -687,7 +703,7 @@ class NodeMember extends NodeDefault implements ListenerMember {
 			try {
 				member.setName(name);
 			} catch (Exception e) {
-				//e.printStackTrace();
+				// e.printStackTrace();
 				logger.error(e.getMessage());
 			}
 		}
@@ -704,7 +720,7 @@ class NodeMember extends NodeDefault implements ListenerMember {
 			try {
 				member.delete();
 			} catch (Exception e) {
-				//e.printStackTrace();
+				// e.printStackTrace();
 				logger.error(e.getMessage());
 			}
 		}

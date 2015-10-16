@@ -246,6 +246,7 @@ public class AS400System extends NodeAbstract {
 	}
 
 	public boolean isConnected() {
+		connected = as400.isConnected();
 		return connected;
 	}
 
@@ -272,6 +273,9 @@ public class AS400System extends NodeAbstract {
 		try {
 			connect();
 		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null,
+					e.getMessage() + "\nSystem could disable your user. " + "Check if user and password are correct and try again.",
+					name, JOptionPane.ERROR_MESSAGE);
 			errorMessage = e.getMessage();
 			// e.printStackTrace();
 			logger.error(e.getMessage());
