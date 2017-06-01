@@ -1,6 +1,8 @@
 # iRPGEditor
 iRPGEditor is a fork de JSEU Project http://sourceforge.net/projects/jseu/.
 
+Download binaries in https://github.com/egomezal/irpgeditor/releases
+
 iRPGEditor is a Open Source Editor for IBM i(AS/400) programs and various tools for developers written in Java.
 Use various Java libraries: JTOpen, Tn5250j, iText and Other.
 
