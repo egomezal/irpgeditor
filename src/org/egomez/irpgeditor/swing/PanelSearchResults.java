@@ -249,6 +249,9 @@ public class PanelSearchResults extends PanelTool implements SearchResultsOutput
 			if (end == -1) {
 				end = text.length();
 			}
+			if (start == -1){
+				start = 0;
+			}
 			text = text.substring(start, end);
 			// set the attributes for the entire document in order to remove any
 			// previous selections attributes that were set.

@@ -312,7 +312,7 @@ public class Member {
 
 		/*
 		 * synchronized ( as400system ) { alias++; a = alias; } try { backup =
-		 * "Backup file saved to: " + saveBackup(parser); cal =
+		 * "	 file saved to: " + saveBackup(parser); cal =
 		 * Calendar.getInstance(); today = (cal.get(Calendar.YEAR) - 2000) *
 		 * 10000; today += ((cal.get(Calendar.MONTH) + 1) * 100); today +=
 		 * cal.get(Calendar.DAY_OF_MONTH); connection =
@@ -410,8 +410,8 @@ public class Member {
 				// an empty string at least to delete the previous contents.
 				if (buffer.length() > 0 || append.equalsIgnoreCase(" ")) {
 					cadena = buffer.toString().replaceAll("'", "''");
-					cadena = cadena.replaceAll("\t", "    ");
-					stmt.execute("call qgpl/prcupload('" + cadena + "',  '\n', '" + append + "')");
+					cadena = cadena.replaceAll("\t", "  ");
+					stmt.execute("call qgpl/prcupload('\n" + cadena + "',  '\n', '" + append + "')");
 				}
 
 				stmt.execute(as400system.buildSqlForCmd("CPYF FROMFILE(QTEMP/SRCUPLOAD) TOFILE(" + library + "/" + file

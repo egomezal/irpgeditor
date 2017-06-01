@@ -160,7 +160,7 @@ public class PanelSystems extends PanelTool {
 					FrameTN5250J frame;
 
 					frame = new FrameTN5250J();
-					frame.setSystem(system.getAddress());
+					frame.setSystem(system.getAddress(), system.isSsl());
 					frame.determineSize();
 					frame.center();
 					frame.setVisible(true);

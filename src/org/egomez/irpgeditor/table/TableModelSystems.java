@@ -40,7 +40,7 @@ public class TableModelSystems extends DefaultTableModel implements ListenerAS40
 	Logger logger = LoggerFactory.getLogger(TableModelSystems.class);
 	private static final long serialVersionUID = 6453373667511114433L;
 	int selected = 0;
-	String[] columns = new String[] { "Current", "Name", "IP Address", "User", "Password", "Connected", "Message", "",
+	String[] columns = new String[] { "Current", "Name", "IP Address", "User", "Password", "Connected", "Message", "SSL","",
 			"ID" };
 
 	@SuppressWarnings("rawtypes")

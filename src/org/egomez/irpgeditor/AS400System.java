@@ -55,6 +55,7 @@ public class AS400System extends NodeAbstract {
 	String password;
 	String errorMessage = "";
 	boolean connected = false;
+	boolean ssl = false;
 	int alias = 0;
 	boolean tempSrcTableCreated = false;
 	int tempSrcTableLength = 0;
@@ -250,6 +251,14 @@ public class AS400System extends NodeAbstract {
 		return connected;
 	}
 
+	public boolean isSsl() {
+		return ssl;
+	}
+
+	public void setSsl(boolean ssl) {
+		this.ssl = ssl;
+	}
+
 	/**
 	 * checks to see if all the properties are not null and if not then connect.
 	 * if there is an error it records the error in error message.
@@ -273,9 +282,8 @@ public class AS400System extends NodeAbstract {
 		try {
 			connect();
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null,
-					e.getMessage() + "\nSystem could disable your user. " + "Check if user and password are correct and try again.",
-					name, JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, e.getMessage() + "\nSystem could disable your user. "
+					+ "Check if user and password are correct and try again.", name, JOptionPane.ERROR_MESSAGE);
 			errorMessage = e.getMessage();
 			// e.printStackTrace();
 			logger.error(e.getMessage());
@@ -795,17 +803,25 @@ public class AS400System extends NodeAbstract {
 			stmt.execute("CREATE PROCEDURE " + library.toUpperCase() + "/PRCUPLOAD (IN SOURCE VARCHAR(32700), "
 					+ "IN CRLF VARCHAR(2), " + "IN APPEND VARCHAR(1)) LANGUAGE SQL " + "SET OPTION DBGVIEW=*SOURCE "
 					+ "BEGIN " + "DECLARE startt INTEGER DEFAULT 1; " + "DECLARE found INTEGER DEFAULT 0; "
-					+ "DECLARE status INTEGER DEFAULT 0; " + "DECLARE countt INTEGER DEFAULT 0; "
+					+ "DECLARE status INTEGER DEFAULT 0; " + "DECLARE countt INTEGER DEFAULT 0;  DECLARE MAXLENFILE INTEGER DEFAULT 0; "
 					+ "DECLARE ttoday INTEGER DEFAULT 0; " + "DECLARE src VARCHAR(100); " + "DECLARE tmp VARCHAR(255); "
-					+ "DECLARE msg VARCHAR(255); " +
+					+ "DECLARE msg VARCHAR(255); " 
+					+"DECLARE CONTINUE HANDLER FOR "
+					+"SQLSTATE '23502' "
+					+" INSERT INTO QTEMP . SRCUPLOAD ( SRCSEQ , SRCDAT , SRCDTA ) VALUES ( COUNTT , TTODAY , ' ');"
 					// "SET CRLF=X'0D'; "+
-					"IF APPEND = 'T' THEN " + "   SET countt = (SELECT MAX(SRCSEQ) FROM QTEMP/SRCUPLOAD); " + "ELSE "
+					+"IF APPEND = 'T' THEN " + "   SET countt = (SELECT MAX(SRCSEQ) FROM QTEMP/SRCUPLOAD); " + "ELSE "
 					+ "   DELETE FROM QTEMP/SRCUPLOAD; " + "END IF; " + "SET found = LOCATE(CRLF, source, startt); "
 					+ "WHILE found > 0 DO " + "   IF status = 0 THEN " + "      SET countt = countt + 1; "
 					+ "      SET src = SUBSTR(SOURCE, startt, (found - startt)); " + "      SET status = 1; "
 					+ "   ELSE " + "      SET tmp = SUBSTR(SOURCE, startt, (found-startt));"
-					+ "      SET ttoday = INTEGER(tmp); " + "      INSERT INTO QTEMP/SRCUPLOAD(SRCSEQ, SRCDAT, SRCDTA) "
-					+ "      VALUES(countt, ttoday, src); " + "      SET status = 0; " + "   END IF; "
+					+ "      SET ttoday = INTEGER(tmp); " 
+					+" SET MAXLENFILE = (SELECT MAX( LENGTH( SRCDTA)) FROM QTEMP . SRCUPLOAD ) ;"
+					+" IF (LENGTH(SRC)<=MAXLENFILE) THEN "
+					+" INSERT INTO QTEMP . SRCUPLOAD ( SRCSEQ , SRCDAT , SRCDTA ) VALUES ( COUNTT , TTODAY , SRC ) ; "
+					+" ELSE INSERT INTO QTEMP . SRCUPLOAD ( SRCSEQ , SRCDAT , SRCDTA ) VALUES ( COUNTT , TTODAY , SUBSTR (SRC,1,MAXLENFILE )) ; "
+					+" END IF; "
+					+ "      SET status = 0;   END IF; "
 					+ "   SET startt = startt + (found - startt) + LENGTH(CRLF); "
 					+ "   SET found = LOCATE(CRLF, source, startt); " + "END WHILE; " + "END");
 

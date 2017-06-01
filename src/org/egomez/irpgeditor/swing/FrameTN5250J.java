@@ -85,11 +85,14 @@ public class FrameTN5250J extends JFrame {
 		}
 	}
 
-	public void setSystem(String system) {
+	public void setSystem(String system, boolean ssl) {
 		java.util.Properties sesProps = new java.util.Properties();
 		// String propFileName = null;
 		String session = system;
 		// Start loading properties
+		if (ssl){
+			sesProps.put(org.tn5250j.TN5250jConstants.SESSION_HOST_PORT, 992);
+		}
 		sesProps.put(org.tn5250j.TN5250jConstants.SESSION_HOST, session);
 		sesProps.put(org.tn5250j.TN5250jConstants.SESSION_CODE_PAGE, "284");
 		sesProps.put(org.tn5250j.TN5250jConstants.SCREEN_SIZE_27X132_STR, "1");
@@ -149,7 +152,8 @@ public class FrameTN5250J extends JFrame {
 			return;
 		}
 		as400system = Environment.systems.getDefault();
-		setSystem(as400system.getAddress());
+		
+		setSystem(as400system.getAddress(), as400system.isSsl());
 		determineSize();
 		center();
 		setVisible(true);

@@ -79,7 +79,7 @@ public class AS400Systems {
 		Properties props;
 		int systemCount;
 		AS400System system;
-		String defaultName, name, address, user, password;
+		String defaultName, name, address, user, password, ssl;
 		File file;
 
 		String tempPassw = null;
@@ -110,11 +110,15 @@ public class AS400Systems {
 			user = props.getProperty("system." + x + ".user");
 			keyTest = props.getProperty("system." + x + ".properties");
 			tempPassw = props.getProperty("system." + x + ".password");
+			ssl = props.getProperty("system." + x + ".ssl");
 			// desencriptamos el password
 			encryptedBytes = Base64.decode(tempPassw);
 			decrypted = cipher.decrypt(encryptedBytes, Base64.decode(keyTest));
 			password = new String(decrypted.getBytes());
 			system = new AS400System(name, address, user, password);
+			if (ssl != null && ssl.equals("true")) {
+				system.setSsl(true);
+			}
 			system.attemptConnect();
 			if (!system.isConnected()) {
 				JOptionPane.showMessageDialog(null,
@@ -162,6 +166,7 @@ public class AS400Systems {
 			secretBytes = CodecSupport.toBytes(system.getPassword());
 			encrypted = cipher.encrypt(secretBytes, key.getEncoded());
 			props.setProperty("system." + x + ".password", Base64.encodeBytes(encrypted.getBytes()));
+			props.setProperty("system." + x + ".ssl", String.valueOf(system.isSsl()));
 		}
 		// Creamos los directorios
 		File file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "conf"
