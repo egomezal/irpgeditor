@@ -396,7 +396,7 @@ public class Member {
 					if (buffer.length() > 32000) {
 						cadena = buffer.toString().replaceAll("'", "''");
 						cadena = cadena.replaceAll("\t", "      ");
-						stmt.execute("call qgpl/prcupload('\n" + cadena + "',  '\n', '" + append + "')");
+						stmt.execute("call qgpl/prcupload('" + cadena + "',  '\n', '" + append + "')");
 						append = "T";
 						buffer = new StringBuffer();
 						if (listener != null) {
@@ -411,7 +411,7 @@ public class Member {
 				if (buffer.length() > 0 || append.equalsIgnoreCase(" ")) {
 					cadena = buffer.toString().replaceAll("'", "''");
 					cadena = cadena.replaceAll("\t", "  ");
-					stmt.execute("call qgpl/prcupload('\n" + cadena + "',  '\n', '" + append + "')");
+					stmt.execute("call qgpl/prcupload('" + cadena + "',  '\n', '" + append + "')");
 				}
 
 				stmt.execute(as400system.buildSqlForCmd("CPYF FROMFILE(QTEMP/SRCUPLOAD) TOFILE(" + library + "/" + file
