@@ -278,15 +278,30 @@ public class Member {
 	}
 
 	public void save(SourceParser parser, ListenerSave listener) throws SQLException {
-		Connection connection;
-		Statement stmt;
+		Connection connection = null;
+		Statement stmt = null;
 		/*
 		 * StringBuffer buffer; int row, date, today; Calendar cal; SourceLine
 		 * line; String backup = null; int a;
 		 */
 
-		connection = as400system.getConnection();
-		stmt = connection.createStatement();
+		try {
+			connection = as400system.getConnection();
+			stmt = connection.createStatement();
+		} catch (SQLException e) {
+			if (e.getSQLState().equals("08S01")) {
+				as400system.disconnect();
+				try {
+					as400system.connect();
+				} catch (Exception e1) {
+					logger.error(e1.getMessage());
+				}
+				if (!as400system.isConnected()) {
+					connection = as400system.getConnection();
+					stmt = connection.createStatement();
+				}
+			}
+		}
 		int lengthFile = as400system.getSourceFileRecordLength(library, file);
 		if (file.equals("QRPGLESRC")) {
 			try {
@@ -380,7 +395,7 @@ public class Member {
 				line = parser.getFirst();
 				while (line != null) {
 					buffer.append(line.getText());
-					if (!line.getText().substring(line.getText().length()-1).equals("\n")){
+					if (!line.getText().substring(line.getText().length() - 1).equals("\n")) {
 						buffer.append("\n");
 					}
 					date = line.date;
