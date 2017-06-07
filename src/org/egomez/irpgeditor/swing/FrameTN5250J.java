@@ -19,8 +19,6 @@ package org.egomez.irpgeditor.swing;
  * Boston, MA 02111-1307 USA
  */
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.*;
 import java.awt.*;
 import javax.swing.*;
@@ -30,7 +28,9 @@ import org.egomez.irpgeditor.*;
 import org.egomez.irpgeditor.env.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tn5250j.*;
+import org.tn5250j.Session5250;
+import org.tn5250j.SessionPanel;
+import org.tn5250j.TN5250jConstants;
 import org.tn5250j.framework.common.SessionManager;
 
 /**
@@ -42,10 +42,14 @@ public class FrameTN5250J extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1146630124521323863L;
-	SessionGUI sp;
+	SessionPanel sp;
 	Session5250 sesion;
+	String session_Name;
+	boolean SSLFlg = false;
+	java.util.Properties sesProps = new java.util.Properties();
+
 	Logger logger = LoggerFactory.getLogger(FrameTN5250J.class);
-	
+
 	protected SessionManager manager;
 
 	public FrameTN5250J() {
@@ -53,10 +57,22 @@ public class FrameTN5250J extends JFrame {
 		try {
 			jbInit();
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			logger.error(e.getMessage());
 		}
 	}
+	
+	public FrameTN5250J(boolean ssl) {
+		SSLFlg = ssl;
+		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+		try {
+			jbInit();
+		} catch (Exception e) {
+			// e.printStackTrace();
+			logger.error(e.getMessage());
+		}
+	}
+	
 
 	private void jbInit() throws Exception {
 		manager = SessionManager.instance();
@@ -86,32 +102,40 @@ public class FrameTN5250J extends JFrame {
 	}
 
 	public void setSystem(String system, boolean ssl) {
-		java.util.Properties sesProps = new java.util.Properties();
 		// String propFileName = null;
 		String session = system;
 		// Start loading properties
-		if (ssl){
-			sesProps.put(org.tn5250j.TN5250jConstants.SESSION_HOST_PORT, 992);
-		}
+		// if (ssl){
+		// sesProps.put(org.tn5250j.TN5250jConstants.SESSION_HOST_PORT, 992);
+		// }
 		sesProps.put(org.tn5250j.TN5250jConstants.SESSION_HOST, session);
 		sesProps.put(org.tn5250j.TN5250jConstants.SESSION_CODE_PAGE, "284");
-		sesProps.put(org.tn5250j.TN5250jConstants.SCREEN_SIZE_27X132_STR, "1");
+
 		sesProps.put(org.tn5250j.TN5250jConstants.SESSION_SCREEN_SIZE,
 				org.tn5250j.TN5250jConstants.SCREEN_SIZE_27X132_STR);
-		try {
-			sesProps.put(org.tn5250j.TN5250jConstants.SESSION_DEVICE_NAME, InetAddress.getLocalHost().getHostName());
-		} catch (UnknownHostException e) {
-			//e.printStackTrace();
-			logger.error(e.getMessage());
+
+		Random aleatorio = new Random(System.currentTimeMillis());
+		// int intAletorio = aleatorio.nextInt(99987) + 1;
+		session_Name = "VSFP0002";
+
+		this.setTitle("TN5250J - " + session);
+
+		if (SSLFlg) {
+			sesProps.put(org.tn5250j.TN5250jConstants.SSL_TYPE, org.tn5250j.TN5250jConstants.SSL_TYPE_SSLv3);
+			sesProps.put(org.tn5250j.TN5250jConstants.SESSION_HOST_PORT, "992");
+			sesProps.put(org.tn5250j.TN5250jConstants.SESSION_DEVICE_NAME, session_Name);
 		}
 		sesion = manager.openSession(sesProps, "", "");
-		sp = new SessionGUI(sesion);
+		sp = new SessionPanel(sesion);
 
 		this.getContentPane().add(sp, BorderLayout.CENTER);
 	}
 
 	public void connect() {
 		sp.connect();
+		if (!sp.isConnected()) {
+			SSLFlg = true;
+		}
 		sp.grabFocus();
 	}
 
@@ -152,82 +176,95 @@ public class FrameTN5250J extends JFrame {
 			return;
 		}
 		as400system = Environment.systems.getDefault();
-		
+
 		setSystem(as400system.getAddress(), as400system.isSsl());
 		determineSize();
 		center();
 		setVisible(true);
 		try {
 			connect();
-			sendKeys(as400system.getUser() + TN5250jConstants.MNEMONIC_FIELD_EXIT + as400system.getPassword()
-					+ TN5250jConstants.MNEMONIC_ENTER, true);
-			sendKeys(TN5250jConstants.MNEMONIC_ENTER, true);
-			sendKeys(TN5250jConstants.MNEMONIC_ENTER, true);
-			sendKeys(TN5250jConstants.MNEMONIC_ENTER, true);
-			// check for bad password here sometime in future.
-			// add in libraries.
-			if (config.libraries.trim().length() > 0) {
-				tokenizer = new StringTokenizer(config.libraries.trim(), " ;,:");
-				while (tokenizer.hasMoreTokens()) {
-					token = tokenizer.nextToken();
-					if (token.startsWith("*")) {
-						position = token;
-					} else {
-						text = "ADDLIBLE " + token + " POSITION(" + position + ")"
-								+ TN5250jConstants.MNEMONIC_FIELD_PLUS + TN5250jConstants.MNEMONIC_ENTER;
-						sendKeys(text, true);
-					}
-				}
-			}
-			buffer = new StringBuffer();
-			member = project.getMember(config.debug, as400system);
-			if (member != null && config.debug.trim().length() > 0) {
-				if (member.getCompileType().equalsIgnoreCase("CRTRPGPGM")) {
-					buffer.append("STRISDB PGM(");
-				} else {
-					buffer.append("STRDBG PGM(");
-				}
-				buffer.append(config.debug);
-				buffer.append(") UPDPROD(*YES) ");
-				buffer.append(TN5250jConstants.MNEMONIC_ENTER);
-				if (member != null) {
-					breakPoints = member.getBreakPoints();
-					for (int x = 0; x < breakPoints.size(); x++) {
-						buffer.append("BREAK ");
-						if (member.getCompileType().equalsIgnoreCase("CRTRPGPGM")) {
-							buffer.append(Integer.parseInt(breakPoints.get(x).toString()) * 100);
+			if (sp.isConnected()) {
+				sendKeys(as400system.getUser() + TN5250jConstants.MNEMONIC_FIELD_EXIT + as400system.getPassword()
+						+ TN5250jConstants.MNEMONIC_ENTER, true);
+				sendKeys(TN5250jConstants.MNEMONIC_ENTER, true);
+				sendKeys(TN5250jConstants.MNEMONIC_ENTER, true);
+				sendKeys(TN5250jConstants.MNEMONIC_ENTER, true);
+				// check for bad password here sometime in future.
+				// add in libraries.
+				if (config.libraries.trim().length() > 0) {
+					tokenizer = new StringTokenizer(config.libraries.trim(), " ;,:");
+					while (tokenizer.hasMoreTokens()) {
+						token = tokenizer.nextToken();
+						if (token.startsWith("*")) {
+							position = token;
 						} else {
-							buffer.append(breakPoints.get(x));
+							text = "ADDLIBLE " + token + " POSITION(" + position + ")"
+									+ TN5250jConstants.MNEMONIC_FIELD_PLUS + TN5250jConstants.MNEMONIC_ENTER;
+							sendKeys(text, true);
 						}
-						buffer.append(TN5250jConstants.MNEMONIC_ENTER);
 					}
 				}
-				if (member.getCompileType().equalsIgnoreCase("CRTRPGPGM")) {
-					buffer.append(TN5250jConstants.MNEMONIC_PF17);
-					// return because a call isnt needed with this version of
-					// debug.
-					sendKeys(buffer.toString(), true);
-					return;
-				} else {
-					buffer.append(TN5250jConstants.MNEMONIC_PF12);
+				buffer = new StringBuffer();
+				member = project.getMember(config.debug, as400system);
+				if (member != null && config.debug.trim().length() > 0) {
+					if (member.getCompileType().equalsIgnoreCase("CRTRPGPGM")) {
+						buffer.append("STRISDB PGM(");
+					} else {
+						buffer.append("STRDBG PGM(");
+					}
+					buffer.append(config.debug);
+					buffer.append(") UPDPROD(*YES) ");
+					buffer.append(TN5250jConstants.MNEMONIC_ENTER);
+					if (member != null) {
+						breakPoints = member.getBreakPoints();
+						for (int x = 0; x < breakPoints.size(); x++) {
+							buffer.append("BREAK ");
+							if (member.getCompileType().equalsIgnoreCase("CRTRPGPGM")) {
+								buffer.append(Integer.parseInt(breakPoints.get(x).toString()) * 100);
+							} else {
+								buffer.append(breakPoints.get(x));
+							}
+							buffer.append(TN5250jConstants.MNEMONIC_ENTER);
+						}
+					}
+					if (member.getCompileType().equalsIgnoreCase("CRTRPGPGM")) {
+						buffer.append(TN5250jConstants.MNEMONIC_PF17);
+						// return because a call isnt needed with this version
+						// of
+						// debug.
+						sendKeys(buffer.toString(), true);
+						return;
+					} else {
+						buffer.append(TN5250jConstants.MNEMONIC_PF12);
+					}
 				}
+				if (config.program.trim().length() > 0) {
+					buffer.append("CALL ");
+					buffer.append(config.program);
+				}
+				if (config.parms.trim().length() > 0) {
+					buffer.append(" PARM(");
+					buffer.append(config.parms.trim());
+					buffer.append(")");
+				}
+				if (config.program.trim().length() > 0) {
+					buffer.append(TN5250jConstants.MNEMONIC_ENTER);
+				}
+				sendKeys(buffer.toString(), true);
+			} else {
+				SSLFlg = true;
 			}
-			if (config.program.trim().length() > 0) {
-				buffer.append("CALL ");
-				buffer.append(config.program);
-			}
-			if (config.parms.trim().length() > 0) {
-				buffer.append(" PARM(");
-				buffer.append(config.parms.trim());
-				buffer.append(")");
-			}
-			if (config.program.trim().length() > 0) {
-				buffer.append(TN5250jConstants.MNEMONIC_ENTER);
-			}
-			sendKeys(buffer.toString(), true);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			logger.error(e.getMessage());
 		}
+	}
+
+	public boolean isSSLFlg() {
+		return SSLFlg;
+	}
+
+	public void setSSLFlg(boolean sSLFlg) {
+		SSLFlg = sSLFlg;
 	}
 }

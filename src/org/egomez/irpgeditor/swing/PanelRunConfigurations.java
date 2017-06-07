@@ -150,6 +150,12 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
 			}
 			frame = new FrameTN5250J();
 			frame.run(config);
+			if (frame.isSSLFlg()){
+				frame.setVisible(false);
+				frame = null;
+				frame = new FrameTN5250J(true);
+				frame.run(config);
+			}
 		}
 	}
 

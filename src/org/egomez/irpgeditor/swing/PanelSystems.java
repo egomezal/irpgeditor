@@ -166,6 +166,17 @@ public class PanelSystems extends PanelTool {
 					frame.setVisible(true);
 					try {
 						frame.connect();
+						if (frame.isSSLFlg()){
+							frame.setVisible(false);
+							frame =  null;
+							frame = new FrameTN5250J();
+							frame.setSSLFlg(true);
+							frame.setSystem(system.getAddress(), system.isSsl());
+							frame.determineSize();
+							frame.center();
+							frame.setVisible(true);
+							frame.connect();
+						}
 					} catch (Exception e) {
 						// e.printStackTrace();
 						logger.error(e.getMessage());

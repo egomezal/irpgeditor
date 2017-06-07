@@ -40,7 +40,7 @@ public class Icons {
   public static ImageIcon iconPrint = new ImageIcon(Icons.class.getResource("Print.gif"));
   public static ImageIcon iconBrowse = new ImageIcon(Icons.class.getResource("browse.gif"));
   //public static ImageIcon iconFrame = new ImageIcon(Icons.class.getResource("RpgEditor.gif"));
-  public static ImageIcon iconFrame = new ImageIcon(Icons.class.getResource("ibmas400iseries.jpg"));
+  public static ImageIcon iconFrame = new ImageIcon(Icons.class.getResource("iconas400.png"));
   
   public static ImageIcon iconBreakpointToggle = new ImageIcon(Icons.class.getResource("BreakpointToggle.gif"));
   public static ImageIcon iconUndo = new ImageIcon(Icons.class.getResource("Undo.gif"));
