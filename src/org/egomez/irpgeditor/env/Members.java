@@ -43,6 +43,14 @@ public class Members {
     Environment.toolManager.close(projectMember, cache);
   }
   
+  public void close(ProjectMember projectMember) {
+	    if ( Environment.toolManager == null ) {
+	      return;
+	    }
+	    Environment.toolManager.close(projectMember, true);
+	  }
+  
+  
   public void select(ProjectMember projectMember) {
     if ( Environment.toolManager == null ) {
       return;

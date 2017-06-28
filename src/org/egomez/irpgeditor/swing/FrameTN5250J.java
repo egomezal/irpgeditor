@@ -116,14 +116,14 @@ public class FrameTN5250J extends JFrame {
 
 		Random aleatorio = new Random(System.currentTimeMillis());
 		// int intAletorio = aleatorio.nextInt(99987) + 1;
-		session_Name = "VSFP0002";
+		//session_Name = "VSFP0002";
 
 		this.setTitle("TN5250J - " + session);
 
 		if (SSLFlg) {
 			sesProps.put(org.tn5250j.TN5250jConstants.SSL_TYPE, org.tn5250j.TN5250jConstants.SSL_TYPE_SSLv3);
 			sesProps.put(org.tn5250j.TN5250jConstants.SESSION_HOST_PORT, "992");
-			sesProps.put(org.tn5250j.TN5250jConstants.SESSION_DEVICE_NAME, session_Name);
+			//sesProps.put(org.tn5250j.TN5250jConstants.SESSION_DEVICE_NAME, session_Name);
 		}
 		sesion = manager.openSession(sesProps, "", "");
 		sp = new SessionPanel(sesion);
