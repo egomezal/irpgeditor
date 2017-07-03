@@ -1060,6 +1060,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 					JOptionPane.showMessageDialog(null, e.getMessage());
 					// e.printStackTrace();
 					logger.error(e.getMessage());
+					Environment.members.close(projectMember);
 				}
 			}
 		};

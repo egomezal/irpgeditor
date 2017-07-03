@@ -114,7 +114,7 @@ public class FrameTN5250J extends JFrame {
 		sesProps.put(org.tn5250j.TN5250jConstants.SESSION_SCREEN_SIZE,
 				org.tn5250j.TN5250jConstants.SCREEN_SIZE_27X132_STR);
 
-		Random aleatorio = new Random(System.currentTimeMillis());
+		//Random aleatorio = new Random(System.currentTimeMillis());
 		// int intAletorio = aleatorio.nextInt(99987) + 1;
 		//session_Name = "VSFP0002";
 
