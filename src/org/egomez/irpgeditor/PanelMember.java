@@ -708,7 +708,9 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 	public void run() {
 		try {
 			// Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-			projectMember.member.getSource(PanelMember.this);
+			SourceLoader s = PanelMember.this;
+			projectMember.member.getSource(s);
+
 		} catch (Exception e) {
 			// e.printStackTrace();
 			logger.error(e.getMessage());
@@ -796,6 +798,12 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 				JComponent.WHEN_FOCUSED);
 		synchronized (this) {
 			currentlyLoading = false;
+		}
+		
+		try {
+			projectMember.member.saveLocalMember(sourceParser, getProjectMember().getProject().getName());
+		} catch (Exception e1) {
+
 		}
 	}
 
@@ -1101,6 +1109,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		});
 		try {
 			projectMember.member.save(sourceParser, this);
+			projectMember.member.saveBackupLocal(sourceParser, getProjectMember().getProject().getName());
 			currentlySaving = false;
 			if (closeAfterSave) {
 				Environment.members.close(projectMember, false);

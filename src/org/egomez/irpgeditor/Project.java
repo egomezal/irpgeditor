@@ -262,6 +262,13 @@ public class Project extends NodeAbstract {
 		props.load(fis);
 		fis.close();
 		project = new Project(props.getProperty("name"), fileName);
+		// Creamos el directorio
+		File dirName = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
+				+ "projects" + File.separator + project);
+		if (!dirName.exists()) {
+			dirName.mkdirs();
+		}
+
 		if (props.getProperty("member.count") == null) {
 			return project;
 		}
@@ -313,22 +320,27 @@ public class Project extends NodeAbstract {
 		ProjectMember projectMember;
 		Member member;
 		RunConfiguration run;
-		
-		//Creamos los directorios
-		File file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
-				+ "conf" + File.separator + "systems.properties");
+
+		// Creamos los directorios
+		File file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "conf"
+				+ File.separator + "systems.properties");
 		if (file.exists() == false) {
-			file=new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" );
+			file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor");
 			file.mkdir();
-			file=new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
-					+ "conf");
+			file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "conf");
 			file.mkdir();
-			file=new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
-					+ "projects");
+			file = new File(
+					System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "projects");
 			file.mkdir();
 		}
 
-
+		// Creamos el directorio
+		File dirName = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
+				+ "projects" + File.separator + name);
+		if (!dirName.exists()) {
+			dirName.mkdirs();
+		}
+		
 		fos = new FileOutputStream(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
 				+ "projects" + File.separator + fileName);
 		props = new Properties();

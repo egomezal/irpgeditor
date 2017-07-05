@@ -252,6 +252,7 @@ public class Member {
 
 	public void getSource(SourceLoader sourceLoader) throws SQLException {
 		copyID = as400system.getSource(library, file, member, sourceLoader);
+
 	}
 
 	public String saveBackup(SourceParser parser) throws Exception {
@@ -260,6 +261,18 @@ public class Member {
 
 		file = new File(
 				System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "backup.txt");
+		fos = new FileOutputStream(file);
+		fos.write(parser.getDocument().getText(0, parser.getDocument().getLength()).getBytes());
+		fos.close();
+		return file.getAbsolutePath();
+	}
+
+	public String saveLocalMember(SourceParser parser, String projectName) throws Exception {
+		FileOutputStream fos;
+		File file;
+
+		file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "projects"
+				+ File.separator + projectName + File.separator + getName() + "." + sourceType);
 		fos = new FileOutputStream(file);
 		fos.write(parser.getDocument().getText(0, parser.getDocument().getLength()).getBytes());
 		fos.close();
