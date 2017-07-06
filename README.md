@@ -12,6 +12,14 @@ You can:
     Execute SQL command
     Spool Viewer
     Tn5250j integration
+    Git integration
+
+What is new in v.1.00b5?
+
+    JGit integration for control version.
+    Save Member in local directory (in .iRPGEditor in user directory).
+    Many bugs fixed
+    
 
 What is new in v.1.00b3?
 
