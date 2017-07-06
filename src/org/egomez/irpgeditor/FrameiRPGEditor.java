@@ -22,6 +22,7 @@ package org.egomez.irpgeditor;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 
 import javax.swing.*;
@@ -32,6 +33,10 @@ import com.ibm.as400.access.*;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
 import com.jgoodies.looks.plastic.theme.ExperienceBlue;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.egomez.irpgeditor.env.*;
 import org.egomez.irpgeditor.event.*;
 import org.egomez.irpgeditor.icons.*;
@@ -132,6 +137,8 @@ public class FrameiRPGEditor extends JFrame {
 	JMenu menuSession = new JMenu();
 	JMenu menuSpool = new JMenu();
 	org.slf4j.Logger logger = LoggerFactory.getLogger(FrameiRPGEditor.class);
+	@SuppressWarnings("unused")
+	private Git git;
 
 	public static void main(String[] args) throws Exception {
 		FrameiRPGEditor frame;
@@ -179,6 +186,7 @@ public class FrameiRPGEditor extends JFrame {
 			jbInit();
 			addActions();
 			loadSettings();
+			addRepo();
 			Environment.actions.addActions(new Action[] { actionExit });
 		} catch (Exception e) {
 			logger.error(e.getMessage());
@@ -187,6 +195,33 @@ public class FrameiRPGEditor extends JFrame {
 		splash.setVisible(false);
 		splash.dispose();
 		splash = null;
+	}
+
+	private void addRepo() {
+		String workingDirectory = System.getProperty("user.home") + File.separator + ".iRPGEditor";
+		Repository repo;
+		try {
+			repo = FileRepositoryBuilder.create(new File(workingDirectory, ".git"));
+			repo.create();
+			git = new Git(repo);
+		} catch (IOException e) {
+			logger.error(e.getMessage());
+
+		} catch (IllegalStateException e) {
+			// Ya esta creado el repositorio
+			try {
+				repo = new FileRepository(new File(workingDirectory));
+				git = new Git(repo);
+				git.close();
+			} catch (IOException e1) {
+				logger.error(e1.getMessage());
+			} catch (Exception e1) {
+				logger.error(e1.getMessage());
+			}
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+
 	}
 
 	private void jbInit() throws Exception {
@@ -219,9 +254,8 @@ public class FrameiRPGEditor extends JFrame {
 		 * 
 		 * } }); jMenuItem5.setIcon(Icons.iconUndo); jMenuItem5.setText("Undo");
 		 * jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(90,
-		 * java.awt.event.KeyEvent.CTRL_MASK, false));
-		 * jMenuItem6.addActionListener(new ActionListener() { public void
-		 * actionPerformed(ActionEvent e) { } });
+		 * java.awt.event.KeyEvent.CTRL_MASK, false)); jMenuItem6.addActionListener(new
+		 * ActionListener() { public void actionPerformed(ActionEvent e) { } });
 		 * jMenuItem6.setIcon(Icons.iconRedo); jMenuItem6.setText("Redo");
 		 * jMenuItem6.setAccelerator(javax.swing.KeyStroke.getKeyStroke(89,
 		 * java.awt.event.KeyEvent.CTRL_MASK, false));
@@ -254,8 +288,8 @@ public class FrameiRPGEditor extends JFrame {
 		/*
 		 * jMenuItem13.setText("Unselect");
 		 * jMenuItem13.setAccelerator(javax.swing.KeyStroke.getKeyStroke(65,
-		 * java.awt.event.KeyEvent.CTRL_MASK |
-		 * java.awt.event.KeyEvent.SHIFT_MASK, false));
+		 * java.awt.event.KeyEvent.CTRL_MASK | java.awt.event.KeyEvent.SHIFT_MASK,
+		 * false));
 		 */
 		menuBuild.setText("Build");
 		menuHelp.setMnemonic('H');
@@ -327,7 +361,7 @@ public class FrameiRPGEditor extends JFrame {
 		menuDatabase.add(menuAddFileView);
 		// menuEdit.add(jMenuItem5);
 		// menuEdit.add(jMenuItem6);
-		//menuEdit.addSeparator();
+		// menuEdit.addSeparator();
 		// menuEdit.add(jMenuItem8);
 		// menuEdit.add(jMenuItem9);
 		// menuEdit.add(jMenuItem10);

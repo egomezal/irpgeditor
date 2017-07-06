@@ -24,6 +24,7 @@ import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -36,6 +37,12 @@ import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.InitCommand;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.egomez.irpgeditor.env.*;
 import org.egomez.irpgeditor.event.*;
 import org.egomez.irpgeditor.flowchart.*;
@@ -799,12 +806,39 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		synchronized (this) {
 			currentlyLoading = false;
 		}
-		
+
 		try {
 			projectMember.member.saveLocalMember(sourceParser, getProjectMember().getProject().getName());
+			addRepo();
 		} catch (Exception e1) {
-
+			logger.error(e1.getMessage());
 		}
+	}
+
+	private void addRepo() {
+		String workingDirectory = System.getProperty("user.home") + File.separator + ".iRPGEditor";
+		String name = "projects" + "/" + projectMember.getProject().getName() + "/" + projectMember.member.getName()
+				+ "." + projectMember.member.sourceType;
+		Repository repo;
+		try {
+			FileRepositoryBuilder builder = new FileRepositoryBuilder();
+			repo = builder.readEnvironment().findGitDir(new File(workingDirectory)).build();
+			Git git = new Git(repo);
+
+			git.add().addFilepattern(name).call();
+			@SuppressWarnings("unused")
+			RevCommit rev = git.commit()
+					.setAuthor(projectMember.member.as400system.getUser(), projectMember.member.as400system.getUser())
+					.setMessage("Open "
+							+ new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()))
+					.call();
+			git.close();
+		} catch (IOException e1) {
+			logger.error(e1.getMessage());
+		} catch (Exception e1) {
+			logger.error(e1.getMessage());
+		}
+
 	}
 
 	@SuppressWarnings("static-access")
@@ -860,8 +894,8 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 	}
 
 	/**
-	 * gets called when then user clicks on the x icon. so, clicking on the x
-	 * doesnt remove it from the tabbedpane.
+	 * gets called when then user clicks on the x icon. so, clicking on the x doesnt
+	 * remove it from the tabbedpane.
 	 */
 	public void closeTab() {
 		Environment.members.close(projectMember, false);
@@ -893,11 +927,10 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		textfieldDestinationLibrary.addActionListener(actionLibrarySelected);
 		checkboxReference.addItemListener(actionReference);
 		actionFocus = new ActionFocus(projectMember);
-		super.actions = new Action[] { actionFocus, actionMemberSave, actionMemberSaveLocal, actionMemberClose, actionMemberRemove, 
-				actionPrint, actionRefactorUncomment, actionRefactorComment, actionRefactorFreeForm,
+		super.actions = new Action[] { actionFocus, actionMemberSave, actionMemberSaveLocal, actionMemberClose,
+				actionMemberRemove, actionPrint, actionRefactorUncomment, actionRefactorComment, actionRefactorFreeForm,
 				actionRefactorComparisons, actionRefactorNewSubroutine, actionRefactorCallSubroutine,
-				actionMemberCompile, undoAction, redoAction, actionCutM, actionCopyM,
-				actionPasteM };
+				actionMemberCompile, undoAction, redoAction, actionCutM, actionCopyM, actionPasteM };
 		Environment.actions.addActions(actions);
 		sourceParser.addListenerSelection(this);
 	}
@@ -939,9 +972,9 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 	 * public void select(int rowStart, int colStart, int rowEnd, int colEnd) {
 	 * SourceLine lineStart, lineEnd;
 	 * 
-	 * lineStart = sourceParser.getLineForRow(rowStart); if ( lineStart == null
-	 * ) { return; } editorPaneSource.setSelectionStart(lineStart.start +
-	 * colStart - 1); lineEnd = sourceParser.getLineForRow(rowEnd);
+	 * lineStart = sourceParser.getLineForRow(rowStart); if ( lineStart == null ) {
+	 * return; } editorPaneSource.setSelectionStart(lineStart.start + colStart - 1);
+	 * lineEnd = sourceParser.getLineForRow(rowEnd);
 	 * editorPaneSource.setSelectionEnd(lineEnd.start + colEnd);
 	 * jTabbedPane1.setSelectedIndex(0); editorPaneSource.grabFocus(); }
 	 */
@@ -990,8 +1023,8 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 	}
 
 	/**
-	 * gets called when a line is loaded from the as400. the source file is
-	 * being loaded one line at a time.
+	 * gets called when a line is loaded from the as400. the source file is being
+	 * loaded one line at a time.
 	 */
 	public void lineLoaded(float number, int date, String line) {
 		final int count;
@@ -1048,8 +1081,35 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 				// the source.
 				// if the save failed, then the state is still dirty.
 				actionMemberSave.setEnabled(sourceParser.isDirty());
+				saveRepo();
 			}
 		});
+	}
+
+	protected void saveRepo() {
+		String workingDirectory = System.getProperty("user.home") + File.separator + ".iRPGEditor";
+		String name = "projects" + "/" + projectMember.getProject().getName() + "/" + projectMember.member.getName()
+				+ "." + projectMember.member.sourceType;
+		Repository repo;
+		try {
+			FileRepositoryBuilder builder = new FileRepositoryBuilder();
+			repo = builder.readEnvironment().findGitDir(new File(workingDirectory)).build();
+			Git git = new Git(repo);
+
+			git.add().addFilepattern(name).call();
+			@SuppressWarnings("unused")
+			RevCommit rev = git.commit()
+					.setAuthor(projectMember.member.as400system.getUser(), projectMember.member.as400system.getUser())
+					.setMessage("Open "
+							+ new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()))
+					.call();
+			git.close();
+		} catch (IOException e1) {
+			logger.error(e1.getMessage());
+		} catch (Exception e1) {
+			logger.error(e1.getMessage());
+		}
+		
 	}
 
 	public TreeModel getTreeModel() {
@@ -1146,8 +1206,8 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		}
 	}
 	/*
-	 * public String getSelectedText() { return
-	 * editorPaneSource.getSelectedText(); }
+	 * public String getSelectedText() { return editorPaneSource.getSelectedText();
+	 * }
 	 */
 
 	/**
@@ -1296,8 +1356,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 	}
 
 	/**
-	 * when a user clicks a item in the list box. highlights the item in the
-	 * panel.
+	 * when a user clicks a item in the list box. highlights the item in the panel.
 	 */
 	class ActionItemSelected implements ListSelectionListener {
 		public void valueChanged(ListSelectionEvent e) {
@@ -2112,8 +2171,8 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 	 * <code>undoManager</code>, an instance of UndoManager.
 	 *
 	 * public void undoableEditHappened(UndoableEditEvent e) {
-	 * undoManager.addEdit(e.getEdit()); undoAction.update();
-	 * redoAction.update(); } }
+	 * undoManager.addEdit(e.getEdit()); undoAction.update(); redoAction.update(); }
+	 * }
 	 */
 
 	class UndoAction extends AbstractAction {

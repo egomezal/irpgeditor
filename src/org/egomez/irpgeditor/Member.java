@@ -276,7 +276,7 @@ public class Member {
 		fos = new FileOutputStream(file);
 		fos.write(parser.getDocument().getText(0, parser.getDocument().getLength()).getBytes());
 		fos.close();
-		return file.getAbsolutePath();
+		return file.getPath();
 	}
 
 	public String saveBackupLocal(SourceParser parser, String fileName) throws Exception {

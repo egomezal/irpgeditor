@@ -22,6 +22,10 @@ package org.egomez.irpgeditor;
 import java.io.*;
 import java.util.*;
 
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.egomez.irpgeditor.*;
 import org.egomez.irpgeditor.env.*;
 import org.egomez.irpgeditor.event.*;
@@ -374,8 +378,33 @@ public class Project extends NodeAbstract {
 		}
 		props.store(fos, "");
 		fos.close();
+		saveRepo(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
+				+ "projects" + File.separator + fileName);
 	}
 
+	protected void saveRepo(String name) {
+		String workingDirectory = System.getProperty("user.home") + File.separator + ".iRPGEditor";
+		Repository repo;
+		try {
+			FileRepositoryBuilder builder = new FileRepositoryBuilder();
+			repo = builder.readEnvironment().findGitDir(new File(workingDirectory)).build();
+			Git git = new Git(repo);
+
+			git.add().addFilepattern(name).call();
+			@SuppressWarnings("unused")
+			RevCommit rev = git.commit()
+					.setAuthor("iRPGEditor", "iRPGEditor")
+					.setMessage("Open "
+							+ new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()))
+					.call();
+			git.close();
+		} catch (IOException e1) {
+		
+		} catch (Exception e1) {
+			
+		}
+		
+	}
 	/**
 	 * returns a system for the system name.
 	 */
