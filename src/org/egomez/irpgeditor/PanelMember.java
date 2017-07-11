@@ -38,8 +38,6 @@ import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.InitCommand;
-import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
@@ -1081,6 +1079,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 				// the source.
 				// if the save failed, then the state is still dirty.
 				actionMemberSave.setEnabled(sourceParser.isDirty());
+				
 				saveRepo();
 			}
 		});
@@ -1091,25 +1090,29 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		String name = "projects" + "/" + projectMember.getProject().getName() + "/" + projectMember.member.getName()
 				+ "." + projectMember.member.sourceType;
 		Repository repo;
+		Git git = null;
 		try {
 			FileRepositoryBuilder builder = new FileRepositoryBuilder();
 			repo = builder.readEnvironment().findGitDir(new File(workingDirectory)).build();
-			Git git = new Git(repo);
+			git = new Git(repo);
 
-			git.add().addFilepattern(name).call();
+			//git.add().
 			@SuppressWarnings("unused")
-			RevCommit rev = git.commit()
+			RevCommit rev = git.commit().setOnly(name)
 					.setAuthor(projectMember.member.as400system.getUser(), projectMember.member.as400system.getUser())
 					.setMessage("Open "
 							+ new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()))
 					.call();
-			git.close();
+			//git.close();
 		} catch (IOException e1) {
 			logger.error(e1.getMessage());
 		} catch (Exception e1) {
 			logger.error(e1.getMessage());
 		}
-		
+		finally {
+			if (git!=null)
+				git.close();
+		}
 	}
 
 	public TreeModel getTreeModel() {
@@ -1169,7 +1172,10 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		});
 		try {
 			projectMember.member.save(sourceParser, this);
-			projectMember.member.saveBackupLocal(sourceParser, getProjectMember().getProject().getName());
+			String workingDirectory = System.getProperty("user.home") + File.separator + ".iRPGEditor";
+			String name = "projects" + "/" + projectMember.getProject().getName() + "/" + projectMember.member.getName()
+					+ "." + projectMember.member.sourceType;
+			projectMember.member.saveBackupLocal(sourceParser, workingDirectory+File.separator+name);
 			currentlySaving = false;
 			if (closeAfterSave) {
 				Environment.members.close(projectMember, false);
