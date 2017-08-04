@@ -784,9 +784,13 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 		editorPaneSource.getActionMap().put("redoKeystroke", redoAction);
 		editorPaneSource.getDocument().addUndoableEditListener(new UndoableEditListener() {
 
+			@SuppressWarnings("unused")
+			private Locale loc;
+
 			@Override
 			public void undoableEditHappened(UndoableEditEvent e) {
-				if (!e.getEdit().getUndoPresentationName().equals("Undo style change")) {
+				loc = new Locale("en", "US");
+				if (!e.getEdit().getUndoPresentationName().equals("Undo style change")&&!e.getEdit().getUndoPresentationName().equals("Deshacer cambio de estilo")) {
 					UndoableEdit edit = e.getEdit();
 					undoManager.addEdit(edit);
 					undoAction.update();
