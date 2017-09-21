@@ -274,7 +274,7 @@ public class Member {
 		file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "projects"
 				+ File.separator + projectName + File.separator + getName() + "." + sourceType);
 		fos = new FileOutputStream(file);
-		fos.write(parser.getDocument().getText(0, parser.getDocument().getLength()).getBytes());
+		fos.write(parser.getDocument().getText(0, parser.getDocument().getLength()).replaceAll("\n", "\r\n").getBytes());
 		fos.close();
 		return file.getPath();
 	}
@@ -285,7 +285,7 @@ public class Member {
 
 		file = new File(fileName);
 		fos = new FileOutputStream(file);
-		fos.write(parser.getDocument().getText(0, parser.getDocument().getLength()).getBytes());
+		fos.write(parser.getDocument().getText(0, parser.getDocument().getLength()).replaceAll("\n","\r\n").getBytes());
 		fos.close();
 		return file.getAbsolutePath();
 	}
