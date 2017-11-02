@@ -378,7 +378,7 @@ public class Member {
 			// if (file.equals("QRPGLESRC")) {
 			if (line.getText().length() > lengthFile) {
 				if (listener != null) {
-					listener.saveComplete(0, false, "Line number: " + row + " is over 120 characters.");
+					listener.saveComplete(0, false, "Line number: " + row + " is over "+lengthFile+" characters.");
 				}
 				return;
 				// }

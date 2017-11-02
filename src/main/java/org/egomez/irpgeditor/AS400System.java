@@ -797,10 +797,10 @@ public class AS400System extends NodeAbstract {
 		synchronized (connection) {
 			Statement stmt = connection.createStatement();
 			try {
-				stmt.execute("DROP PROCEDURE " + library.toUpperCase() + "/PRCUPLOAD");
+				stmt.execute("DROP PROCEDURE " + library.toUpperCase() + ".PRCUPLOAD");
 			} catch (Exception e) {
 			}
-			stmt.execute("CREATE PROCEDURE " + library.toUpperCase() + "/PRCUPLOAD (IN SOURCE VARCHAR(32700), "
+			stmt.execute("CREATE PROCEDURE " + library.toUpperCase() + ".PRCUPLOAD (IN SOURCE VARCHAR(32700), "
 					+ "IN CRLF VARCHAR(2), " + "IN APPEND VARCHAR(1)) LANGUAGE SQL " + "SET OPTION DBGVIEW=*SOURCE "
 					+ "BEGIN DECLARE STARTT INTEGER DEFAULT 1 ; DECLARE FOUND INTEGER DEFAULT 0 ; "
 					+ "DECLARE STATUS INTEGER DEFAULT 0 ; DECLARE COUNTT INTEGER DEFAULT 0 ; DECLARE MAXLENFILE INTEGER DEFAULT 0;"
