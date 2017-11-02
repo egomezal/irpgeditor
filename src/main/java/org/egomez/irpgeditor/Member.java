@@ -274,7 +274,8 @@ public class Member {
 		file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "projects"
 				+ File.separator + projectName + File.separator + getName() + "." + sourceType);
 		fos = new FileOutputStream(file);
-		fos.write(parser.getDocument().getText(0, parser.getDocument().getLength()).replaceAll("\n", "\r\n").getBytes());
+		fos.write(
+				parser.getDocument().getText(0, parser.getDocument().getLength()).replaceAll("\n", "\r\n").getBytes());
 		fos.close();
 		return file.getPath();
 	}
@@ -285,7 +286,8 @@ public class Member {
 
 		file = new File(fileName);
 		fos = new FileOutputStream(file);
-		fos.write(parser.getDocument().getText(0, parser.getDocument().getLength()).replaceAll("\n","\r\n").getBytes());
+		fos.write(
+				parser.getDocument().getText(0, parser.getDocument().getLength()).replaceAll("\n", "\r\n").getBytes());
 		fos.close();
 		return file.getAbsolutePath();
 	}
@@ -294,8 +296,8 @@ public class Member {
 		Connection connection = null;
 		Statement stmt = null;
 		/*
-		 * StringBuffer buffer; int row, date, today; Calendar cal; SourceLine
-		 * line; String backup = null; int a;
+		 * StringBuffer buffer; int row, date, today; Calendar cal; SourceLine line;
+		 * String backup = null; int a;
 		 */
 
 		try {
@@ -315,7 +317,7 @@ public class Member {
 				}
 			}
 		}
-		int lengthFile = as400system.getSourceFileRecordLength(library, file);
+		int lengthFile = as400system.getSourceFileRecordLength(library, file) + 12;
 		if (file.equals("QRPGLESRC")) {
 			try {
 				stmt.execute(as400system.buildSqlForCmd("QSYS/DLTF FILE(QTEMP/SRCUPLOAD)"));
@@ -340,19 +342,18 @@ public class Member {
 
 		/*
 		 * synchronized ( as400system ) { alias++; a = alias; } try { backup =
-		 * "	 file saved to: " + saveBackup(parser); cal =
-		 * Calendar.getInstance(); today = (cal.get(Calendar.YEAR) - 2000) *
-		 * 10000; today += ((cal.get(Calendar.MONTH) + 1) * 100); today +=
-		 * cal.get(Calendar.DAY_OF_MONTH); connection =
-		 * as400system.getConnection(); synchronized (connection) { stmt =
-		 * connection.createStatement(); stmt.execute("create alias qtemp/a" + a
-		 * + " for " + library + "/" + file + "(" + member + ")"); stmt.execute(
-		 * "delete from qtemp/a" + a); buffer = new StringBuffer(); line =
-		 * parser.first; row = 1; while ( line != null ) { format(line, buffer);
-		 * date = line.date; if ( line.changed || line.created ) { date = today;
-		 * } line.changed = false; line.created = false; line.date = date;
-		 * stmt.execute("insert into qtemp/a" + a + " values(" + row + ", " +
-		 * date + ", '" + buffer + "')"); row++; if ( listener != null ) {
+		 * "	 file saved to: " + saveBackup(parser); cal = Calendar.getInstance();
+		 * today = (cal.get(Calendar.YEAR) - 2000) * 10000; today +=
+		 * ((cal.get(Calendar.MONTH) + 1) * 100); today +=
+		 * cal.get(Calendar.DAY_OF_MONTH); connection = as400system.getConnection();
+		 * synchronized (connection) { stmt = connection.createStatement();
+		 * stmt.execute("create alias qtemp/a" + a + " for " + library + "/" + file +
+		 * "(" + member + ")"); stmt.execute( "delete from qtemp/a" + a); buffer = new
+		 * StringBuffer(); line = parser.first; row = 1; while ( line != null ) {
+		 * format(line, buffer); date = line.date; if ( line.changed || line.created ) {
+		 * date = today; } line.changed = false; line.created = false; line.date = date;
+		 * stmt.execute("insert into qtemp/a" + a + " values(" + row + ", " + date +
+		 * ", '" + buffer + "')"); row++; if ( listener != null ) {
 		 * listener.lineSaved(row); } line = line.getNext(); } stmt.execute(
 		 * "drop alias qtemp/a" + a); stmt.close(); } if ( listener != null ) {
 		 * listener.saveComplete(row, true, backup); } setDirty(false); } catch
@@ -378,14 +379,14 @@ public class Member {
 			// if (file.equals("QRPGLESRC")) {
 			if (line.getText().trim().length() > lengthFile) {
 				if (listener != null) {
-					listener.saveComplete(0, false, "Line number: " + row + " is over "+lengthFile+" characters.");
+					listener.saveComplete(0, false, "Line number: " + row + " is over " + lengthFile + " characters.");
 				}
 				return;
 				// }
 				/*
-				 * } else { if (line.getText().length() > 100) { if (listener !=
-				 * null) { listener.saveComplete(0, false, "Line number: " + row
-				 * + " is over 120 characters."); } return; }
+				 * } else { if (line.getText().length() > 100) { if (listener != null) {
+				 * listener.saveComplete(0, false, "Line number: " + row +
+				 * " is over 120 characters."); } return; }
 				 */
 			}
 			row++;
@@ -407,7 +408,7 @@ public class Member {
 
 				line = parser.getFirst();
 				while (line != null) {
-					buffer.append(line.getText().replaceAll("\\s+$",""));
+					buffer.append(line.getText());
 					if (!line.getText().substring(line.getText().length() - 1).equals("\n")) {
 						buffer.append("\n");
 					}
@@ -536,8 +537,8 @@ public class Member {
 	}
 
 	/**
-	 * gets the row number for the line, if other lines need to be moved, then
-	 * it moves them and updates them too.
+	 * gets the row number for the line, if other lines need to be moved, then it
+	 * moves them and updates them too.
 	 * 
 	 * @param line
 	 *            RPGSourceLine
@@ -619,9 +620,8 @@ public class Member {
 			buffer.replace(0, buffer.length(), line.parser.getText(line.start, line.start + line.length - 1));
 		} catch (StringIndexOutOfBoundsException e) {
 			/*
-			 * System.out.println("buffer: " + buffer + ", " +
-			 * buffer.toString().length() + ", " + line.start + ", " +
-			 * line.length + ", " + line.parser.length());
+			 * System.out.println("buffer: " + buffer + ", " + buffer.toString().length() +
+			 * ", " + line.start + ", " + line.length + ", " + line.parser.length());
 			 */
 			logger.info("buffer: " + buffer + ", " + buffer.toString().length() + ", " + line.start + ", " + line.length
 					+ ", " + line.parser.length());
