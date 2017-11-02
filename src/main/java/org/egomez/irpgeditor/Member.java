@@ -376,7 +376,7 @@ public class Member {
 		while (line != null) {
 			// 81 because the cr/lf is counted.
 			// if (file.equals("QRPGLESRC")) {
-			if (line.getText().length() > lengthFile) {
+			if (line.getText().trim().length() > lengthFile) {
 				if (listener != null) {
 					listener.saveComplete(0, false, "Line number: " + row + " is over "+lengthFile+" characters.");
 				}
@@ -407,7 +407,7 @@ public class Member {
 
 				line = parser.getFirst();
 				while (line != null) {
-					buffer.append(line.getText());
+					buffer.append(line.getText().replaceAll("\\s+$",""));
 					if (!line.getText().substring(line.getText().length() - 1).equals("\n")) {
 						buffer.append("\n");
 					}
