@@ -113,19 +113,23 @@ public class FrameTN5250J extends JFrame {
 
 		sesProps.put(org.tn5250j.TN5250jConstants.SESSION_SCREEN_SIZE,
 				org.tn5250j.TN5250jConstants.SCREEN_SIZE_27X132_STR);
-
+		
+		sesProps.put(TN5250jConstants.SESSION_TN_ENHANCED,"1");
+		sesProps.put(TN5250jConstants.SESSION_HOST_PORT,"23");
+		sesProps.put(TN5250jConstants.SESSION_TERM_NAME_SYSTEM, "1");
+		
 		//Random aleatorio = new Random(System.currentTimeMillis());
 		// int intAletorio = aleatorio.nextInt(99987) + 1;
 		//session_Name = "VSFP0002";
 
 		this.setTitle("TN5250J - " + session);
-
+		System.out.println("El valor de SSLFlg es "+SSLFlg);
 		if (SSLFlg) {
 			sesProps.put(org.tn5250j.TN5250jConstants.SSL_TYPE, org.tn5250j.TN5250jConstants.SSL_TYPE_SSLv3);
 			sesProps.put(org.tn5250j.TN5250jConstants.SESSION_HOST_PORT, "992");
 			//sesProps.put(org.tn5250j.TN5250jConstants.SESSION_DEVICE_NAME, session_Name);
 		}
-		sesion = manager.openSession(sesProps, "", "");
+		sesion = manager.openSession (sesProps, null, "");
 		sp = new SessionPanel(sesion);
 
 		this.getContentPane().add(sp, BorderLayout.CENTER);
@@ -134,6 +138,7 @@ public class FrameTN5250J extends JFrame {
 	public void connect() {
 		sp.connect();
 		if (!sp.isConnected()) {
+			System.out.println("Se cambio el valor de Flg SSL ");
 			SSLFlg = true;
 		}
 		sp.grabFocus();
