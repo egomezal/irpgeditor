@@ -72,8 +72,8 @@ public class AS400System extends NodeAbstract {
 	}
 
 	/**
-	 * Creates a system with all the connection information. does not connect to
-	 * the system, you must call connect or attemptConnect first.
+	 * Creates a system with all the connection information. does not connect to the
+	 * system, you must call connect or attemptConnect first.
 	 * 
 	 * @param name
 	 *            String The name you use refer to this as400 system.
@@ -247,7 +247,9 @@ public class AS400System extends NodeAbstract {
 	}
 
 	public boolean isConnected() {
-		connected = as400.isConnected();
+		connected = false;
+		if (as400 != null)
+			connected = as400.isConnected();
 		return connected;
 	}
 
@@ -260,8 +262,8 @@ public class AS400System extends NodeAbstract {
 	}
 
 	/**
-	 * checks to see if all the properties are not null and if not then connect.
-	 * if there is an error it records the error in error message.
+	 * checks to see if all the properties are not null and if not then connect. if
+	 * there is an error it records the error in error message.
 	 * 
 	 * calls disconnect first. then calls the connect method.
 	 * 
@@ -293,8 +295,8 @@ public class AS400System extends NodeAbstract {
 
 	/**
 	 * Creates an AS400 object, and connects the FILE and DATABASE services. For
-	 * more info on AS400 object and the FILE and DATABASE services see the
-	 * jtopen project.
+	 * more info on AS400 object and the FILE and DATABASE services see the jtopen
+	 * project.
 	 * 
 	 * @throws Exception
 	 *             if there is an error connecting to the as400.
@@ -364,9 +366,9 @@ public class AS400System extends NodeAbstract {
 	}
 
 	/**
-	 * Returns the connection to the as400. This connection is not a new
-	 * connection for every time this method is called. This connection is the
-	 * same connection for every time thid method is called.
+	 * Returns the connection to the as400. This connection is not a new connection
+	 * for every time this method is called. This connection is the same connection
+	 * for every time thid method is called.
 	 * 
 	 * @return Connection
 	 * @throws SQLException
@@ -416,8 +418,8 @@ public class AS400System extends NodeAbstract {
 	}
 
 	/**
-	 * Adds an object to a list of objects that will be notified of events that
-	 * this object produces.
+	 * Adds an object to a list of objects that will be notified of events that this
+	 * object produces.
 	 * 
 	 * @param listener
 	 *            ListenerAS400System Will be notified of events.
@@ -427,8 +429,8 @@ public class AS400System extends NodeAbstract {
 	}
 
 	/**
-	 * Removes an object from the list of objects that will be notified of
-	 * events that this object produces.
+	 * Removes an object from the list of objects that will be notified of events
+	 * that this object produces.
 	 * 
 	 * @param listener
 	 *            ListenerAS400System Will not be notified of events.
@@ -516,21 +518,20 @@ public class AS400System extends NodeAbstract {
 	}
 
 	/**
-	 * Returns an array list of Member objects that are members of the library
-	 * and file specified. The api.pcml file must be in the class path for this
-	 * method to work. This method uses IBM's PCML to retrieve the list of
-	 * members.
+	 * Returns an array list of Member objects that are members of the library and
+	 * file specified. The api.pcml file must be in the class path for this method
+	 * to work. This method uses IBM's PCML to retrieve the list of members.
 	 * 
 	 * @param library
 	 *            String The name of the library on the as400 to retrieve the
 	 *            members from.
 	 * @param file
-	 *            String The name of the file on the as400 to retrieve the
-	 *            members from.
+	 *            String The name of the file on the as400 to retrieve the members
+	 *            from.
 	 * @throws Exception
 	 *             If there is an error getting the members.
-	 * @return ArrayList Contains Member objects that reside in the library and
-	 *         file specified.
+	 * @return ArrayList Contains Member objects that reside in the library and file
+	 *         specified.
 	 */
 	public ArrayList<Member> listMembers(String library, String file) throws Exception {
 		int listOffset = 0, listEntries = 0, size;
@@ -614,9 +615,9 @@ public class AS400System extends NodeAbstract {
 	}
 
 	/*
-	 * public ArrayList<BindingDirectory> listObjects(String library, String
-	 * type) throws Exception { String userSpaceName; int listOffset,
-	 * listEntries, size; ArrayList<BindingDirectory> list; BindingDirectory bd;
+	 * public ArrayList<BindingDirectory> listObjects(String library, String type)
+	 * throws Exception { String userSpaceName; int listOffset, listEntries, size;
+	 * ArrayList<BindingDirectory> list; BindingDirectory bd;
 	 * 
 	 * if (connected == false) { throw new Exception(
 	 * "Invalid State: DISCONNECTED."); }
@@ -638,11 +639,11 @@ public class AS400System extends NodeAbstract {
 	 * pcml.setValue("qusrtvusOBJL0100.length", new Integer(size)); for (int i =
 	 * listOffset, j = 0; j < listEntries; i += size, j++) {
 	 * pcml.setValue("qusrtvusOBJL0100.startPos", new Integer(i));
-	 * callPcml("qusrtvusOBJL0100"); bd = new BindingDirectory(this, (String)
-	 * pcml .getValue("qusrtvusOBJL0100.receiver.name"), (String) pcml
+	 * callPcml("qusrtvusOBJL0100"); bd = new BindingDirectory(this, (String) pcml
+	 * .getValue("qusrtvusOBJL0100.receiver.name"), (String) pcml
 	 * .getValue("qusrtvusOBJL0100.receiver.library"), (String) pcml
-	 * .getValue("qusrtvusOBJL0100.receiver.type")); list.add(bd); } } return
-	 * list; }
+	 * .getValue("qusrtvusOBJL0100.receiver.type")); list.add(bd); } } return list;
+	 * }
 	 */
 	public ArrayList<Object> listModuleProcedures(String library, String module) throws Exception {
 		String userSpaceName;
@@ -755,8 +756,8 @@ public class AS400System extends NodeAbstract {
 	}
 
 	/**
-	 * The temporary source table is used for uploading source code in bulk to
-	 * the as400 so that saving source code is faster.
+	 * The temporary source table is used for uploading source code in bulk to the
+	 * as400 so that saving source code is faster.
 	 * 
 	 * @throws SQLException
 	 */
@@ -805,35 +806,24 @@ public class AS400System extends NodeAbstract {
 					+ "BEGIN DECLARE STARTT INTEGER DEFAULT 1 ; DECLARE FOUND INTEGER DEFAULT 0 ; "
 					+ "DECLARE STATUS INTEGER DEFAULT 0 ; DECLARE COUNTT INTEGER DEFAULT 0 ; DECLARE MAXLENFILE INTEGER DEFAULT 0;"
 					+ "DECLARE TTODAY INTEGER DEFAULT 0 ; DECLARE SRC VARCHAR ( 200 ) ; DECLARE TMP VARCHAR ( 255 ) ; "
-					+ "DECLARE MSG VARCHAR ( 255 ) ; "				
-					+ "DECLARE CONTINUE HANDLER FOR "
-					+ "SQLSTATE '23502', "
-					+ "SQLSTATE '22018' "				
+					+ "DECLARE MSG VARCHAR ( 255 ) ; " + "DECLARE CONTINUE HANDLER FOR " + "SQLSTATE '23502', "
+					+ "SQLSTATE '22018' "
 					+ "INSERT INTO QTEMP.SRCUPLOAD ( SRCSEQ , SRCDAT , SRCDTA ) VALUES ( COUNTT , TTODAY , '');"
 					+ "SET MAXLENFILE = (SELECT MAX( LENGTH( SRCDTA)) FROM QTEMP.SRCUPLOAD ) ; "
-					+ "IF APPEND = 'T' THEN "
-					+ "SET COUNTT = ( SELECT MAX ( SRCSEQ ) FROM QTEMP.SRCUPLOAD ) ; "
+					+ "IF APPEND = 'T' THEN " + "SET COUNTT = ( SELECT MAX ( SRCSEQ ) FROM QTEMP.SRCUPLOAD ) ; "
 					+ "ELSE "
 					+ "INSERT INTO QTEMP.SRCUPLOAD ( SRCSEQ , SRCDAT , SRCDTA ) VALUES ( COUNTT , TTODAY , '');"
 					+ "SET MAXLENFILE = (SELECT MAX( LENGTH( SRCDTA)) FROM QTEMP.SRCUPLOAD ) ; "
-					+ "DELETE FROM QTEMP.SRCUPLOAD ; "
-					+ "END IF ; "				
-					+ "SET FOUND = LOCATE ( CRLF , SOURCE , STARTT ) ; "
-					+ "WHILE FOUND > 0 DO "
-					+ "IF STATUS = 0 THEN  "
-					+ "SET COUNTT = COUNTT + 1 ;  "
-					+ "SET SRC = SUBSTR ( SOURCE , STARTT , ( FOUND - STARTT ) ) ; "
-					+ "SET STATUS = 1 ;		"		   	
-					+ "ELSE  "
-					+ "SET TMP = SUBSTR ( SOURCE , STARTT , ( FOUND - STARTT ) ) ; "
-					+ "SET TTODAY = INTEGER ( TMP ) ; 	"		
-					+ "IF (LENGTH(SRC)<=MAXLENFILE) THEN "
+					+ "DELETE FROM QTEMP.SRCUPLOAD ; " + "END IF ; "
+					+ "SET FOUND = LOCATE ( CRLF , SOURCE , STARTT ) ; " + "WHILE FOUND > 0 DO "
+					+ "IF STATUS = 0 THEN  " + "SET COUNTT = COUNTT + 1 ;  "
+					+ "SET SRC = SUBSTR ( SOURCE , STARTT , ( FOUND - STARTT ) ) ; " + "SET STATUS = 1 ;		"
+					+ "ELSE  " + "SET TMP = SUBSTR ( SOURCE , STARTT , ( FOUND - STARTT ) ) ; "
+					+ "SET TTODAY = INTEGER ( TMP ) ; 	" + "IF (LENGTH(SRC)<=MAXLENFILE) THEN "
 					+ "INSERT INTO QTEMP . SRCUPLOAD ( SRCSEQ , SRCDAT , SRCDTA ) VALUES ( COUNTT , TTODAY , SRC ) ; "
 					+ "ELSE "
 					+ "INSERT INTO QTEMP . SRCUPLOAD ( SRCSEQ , SRCDAT , SRCDTA ) VALUES ( COUNTT , TTODAY , SUBSTR (SRC,1,MAXLENFILE )) ; "
-					+ "END IF;	"			
-					+ "SET STATUS = 0 ; "
-					+ "END IF ; "
+					+ "END IF;	" + "SET STATUS = 0 ; " + "END IF ; "
 					+ "SET STARTT = STARTT + ( FOUND - STARTT ) + LENGTH ( CRLF ) ; SET FOUND = LOCATE ( CRLF , SOURCE , STARTT ) ; END WHILE ; "
 					+ "END  ");
 
@@ -848,12 +838,12 @@ public class AS400System extends NodeAbstract {
 	 * stmt; ResultSet rs;
 	 * 
 	 * connection = getConnection(); synchronized (connection) { stmt =
-	 * connection.createStatement(); // determine if it already exists. rs =
-	 * stmt .executeQuery(
+	 * connection.createStatement(); // determine if it already exists. rs = stmt
+	 * .executeQuery(
 	 * "SELECT * FROM qsys2/sysprocs WHERE SPECIFIC_SCHEMA = 'QGPL' and SPECIFIC_NAME = 'PRCUPLOAD'"
 	 * ); if (rs.next()) { // exists. uploadProcedureExists = true; } else { //
-	 * doesnt exist. uploadProcedureExists = false; } rs.close(); stmt.close();
-	 * } return uploadProcedureExists; }
+	 * doesnt exist. uploadProcedureExists = false; } rs.close(); stmt.close(); }
+	 * return uploadProcedureExists; }
 	 */
 	/**
 	 * Returns a list of libraries that have source files.
@@ -1031,14 +1021,13 @@ public class AS400System extends NodeAbstract {
 	}
 
 	/**
-	 * Returns a list of files for the given library. For each table, there will
-	 * be 3 strings in the array list. The first string is the name of the
-	 * table. The second string is the FILE_TYPE. The third string is the
-	 * TABLE_TYPE. FILE_TYPE can be D or S. D = Data file type. S = Source file
-	 * type. TABLE_TYPE can be A, L, P, T, or V. A = Alias. (From a create alias
-	 * sql command) L = DDS Logical file. P = DDS Physical file. T = Table. (I
-	 * think from a create table sql command?) V = View. (I think from a create
-	 * view sql command?)
+	 * Returns a list of files for the given library. For each table, there will be
+	 * 3 strings in the array list. The first string is the name of the table. The
+	 * second string is the FILE_TYPE. The third string is the TABLE_TYPE. FILE_TYPE
+	 * can be D or S. D = Data file type. S = Source file type. TABLE_TYPE can be A,
+	 * L, P, T, or V. A = Alias. (From a create alias sql command) L = DDS Logical
+	 * file. P = DDS Physical file. T = Table. (I think from a create table sql
+	 * command?) V = View. (I think from a create view sql command?)
 	 * 
 	 * @param library
 	 *            String The library to look source files in.
@@ -1115,8 +1104,8 @@ public class AS400System extends NodeAbstract {
 	 * @param term
 	 *            String The term/text to search for.
 	 * @param matchCase
-	 *            boolean If true then the case of the term specified must match
-	 *            the case of the term in the source member.
+	 *            boolean If true then the case of the term specified must match the
+	 *            case of the term in the source member.
 	 * @throws SQLException
 	 * @return ArrayList contains String objects.
 	 */
@@ -1155,13 +1144,13 @@ public class AS400System extends NodeAbstract {
 	}
 
 	/**
-	 * Gets the source code for the library, file, member specified. Calls back
-	 * to the source loader object for each line loaded. The copy id returned is
-	 * used when the source is saved after changes are made. The changes are
-	 * updated to the copy, the deleted lines are removed, and the new lines are
-	 * appended. The copy file is then inserted into the original with the lines
-	 * sorted by their number. This improves performance by not writing every
-	 * line to the original file.
+	 * Gets the source code for the library, file, member specified. Calls back to
+	 * the source loader object for each line loaded. The copy id returned is used
+	 * when the source is saved after changes are made. The changes are updated to
+	 * the copy, the deleted lines are removed, and the new lines are appended. The
+	 * copy file is then inserted into the original with the lines sorted by their
+	 * number. This improves performance by not writing every line to the original
+	 * file.
 	 * 
 	 * @param library
 	 *            String The library name of the source member.
@@ -1170,11 +1159,11 @@ public class AS400System extends NodeAbstract {
 	 * @param member
 	 *            String The name of the source member.
 	 * @param sourceLoader
-	 *            SourceLoader Receives an event for each line that is loaded
-	 *            from the line.
+	 *            SourceLoader Receives an event for each line that is loaded from
+	 *            the line.
 	 * @throws SQLException
-	 * @return int the id of the file in qtemp that is a copy of the source that
-	 *         is loaded.
+	 * @return int the id of the file in qtemp that is a copy of the source that is
+	 *         loaded.
 	 */
 	protected int getSource(String library, String file, String member, SourceLoader sourceLoader) throws SQLException {
 		Connection connection;
@@ -1233,12 +1222,11 @@ public class AS400System extends NodeAbstract {
 
 	/**
 	 * Gets the error text that results from compiling a source member with the
-	 * OPTION(*EVENTF) option. So, the file passed in will not match the file
-	 * that the source member was in when the compile occured. The file will be
-	 * EVFEVENT. This is not hardcoded now, but proably will be in future. The
-	 * path is used for preppending the "library file member" to the error line
-	 * and description that is displayed in the compile results tab on the main
-	 * window.
+	 * OPTION(*EVENTF) option. So, the file passed in will not match the file that
+	 * the source member was in when the compile occured. The file will be EVFEVENT.
+	 * This is not hardcoded now, but proably will be in future. The path is used
+	 * for preppending the "library file member" to the error line and description
+	 * that is displayed in the compile results tab on the main window.
 	 * 
 	 * @param library
 	 *            String The library that contains the error text file.
@@ -1247,8 +1235,8 @@ public class AS400System extends NodeAbstract {
 	 * @param member
 	 *            String The name of the source member that contains the errors.
 	 * @param path
-	 *            String The library/file/member that was compiled to produce
-	 *            the errors.
+	 *            String The library/file/member that was compiled to produce the
+	 *            errors.
 	 * @throws SQLException
 	 * @return String The compiler error text.
 	 */
@@ -1356,10 +1344,10 @@ public class AS400System extends NodeAbstract {
 	}
 
 	/**
-	 * output from compiling a SQLRPGLE doesnt have the line numbers the same as
-	 * the source code listing, so this builds an index that can be used to
-	 * translate the numbers in the SQLRPGLE compile listing to the line numbers
-	 * in the source listing.
+	 * output from compiling a SQLRPGLE doesnt have the line numbers the same as the
+	 * source code listing, so this builds an index that can be used to translate
+	 * the numbers in the SQLRPGLE compile listing to the line numbers in the source
+	 * listing.
 	 * 
 	 * @param library
 	 *            String

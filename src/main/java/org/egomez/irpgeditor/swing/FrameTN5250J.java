@@ -20,6 +20,7 @@ package org.egomez.irpgeditor.swing;
  */
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
@@ -123,7 +124,7 @@ public class FrameTN5250J extends JFrame {
 		//session_Name = "VSFP0002";
 
 		this.setTitle("TN5250J - " + session);
-		System.out.println("El valor de SSLFlg es "+SSLFlg);
+		//System.out.println("El valor de SSLFlg es "+SSLFlg);
 		if (SSLFlg) {
 			sesProps.put(org.tn5250j.TN5250jConstants.SSL_TYPE, org.tn5250j.TN5250jConstants.SSL_TYPE_SSLv3);
 			sesProps.put(org.tn5250j.TN5250jConstants.SESSION_HOST_PORT, "992");
@@ -137,8 +138,12 @@ public class FrameTN5250J extends JFrame {
 
 	public void connect() {
 		sp.connect();
+		try {
+			TimeUnit.SECONDS.sleep(10);
+		} catch (InterruptedException e) {
+		}
 		if (!sp.isConnected()) {
-			System.out.println("Se cambio el valor de Flg SSL ");
+			//System.out.println("Se cambio el valor de Flg SSL ");
 			SSLFlg = true;
 		}
 		sp.grabFocus();
