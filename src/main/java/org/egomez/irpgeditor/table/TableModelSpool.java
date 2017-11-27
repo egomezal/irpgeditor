@@ -114,10 +114,17 @@ public class TableModelSpool extends DefaultTableModel implements PrintObjectLis
 	}
 
 	public int getRowCount() {
+		int size = 0;
 		if (spool == null) {
 			return 0;
 		}
-		return spool.size();
+		try {
+			size = spool.size();
+		}
+		catch(Exception e) {
+			
+		}
+		return size;
 	}
 
 	public Object getValueAt(int row, int col) {
