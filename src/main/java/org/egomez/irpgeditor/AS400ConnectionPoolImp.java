@@ -32,6 +32,7 @@ public class AS400ConnectionPoolImp implements ConnectionPoolListener {
 		datasource = new AS400JDBCConnectionPoolDataSource(systemIP, userName, password);
 		datasource.setPackageCriteria("select");
 		datasource.setNaming("system");
+
 		datasource.setTransactionIsolation("none");
 		datasource.setLazyClose(true);
 		this.pool = new AS400JDBCConnectionPool(datasource);

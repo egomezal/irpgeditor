@@ -351,6 +351,8 @@ public class AS400System extends NodeAbstract {
 		String libraryList = null;
 		Properties p = new Properties();
 		p.setProperty("naming", "system");
+		p.setProperty("package ccsid", "system");
+		p.setProperty("keep alive", "true");
 		p.setProperty("translate binary", "true");
 		if (listLibraries != null) {
 			libraryList = "";
