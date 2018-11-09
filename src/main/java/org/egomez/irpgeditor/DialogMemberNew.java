@@ -123,7 +123,7 @@ public class DialogMemberNew extends JDialog {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	JComboBox comboboxType = new JComboBox(
-			new Object[] { "RPGLE", "RPG", "SQLRPGLE", "PRTF", "DSPF", "PF", "LF", "CLP", "CLLE", "C" });
+			new Object[] { "RPGLE", "RPG", "SQLRPGLE", "PRTF", "DSPF", "PF", "LF", "CLP", "CLLE", "C","TXT" });
 	private final JPanel panel = new JPanel();
 	private final JLabel lblDescription = new JLabel();
 	private final JTextField textField = new JTextField();

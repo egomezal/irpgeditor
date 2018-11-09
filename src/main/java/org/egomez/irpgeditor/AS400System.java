@@ -385,6 +385,7 @@ public class AS400System extends NodeAbstract {
 
 	public Connection getConnectionPool() throws SQLException {
 		String libraryList = null;
+		
 		if (listLibraries != null) {
 			libraryList = "";
 			for (String x : listLibraries) {
