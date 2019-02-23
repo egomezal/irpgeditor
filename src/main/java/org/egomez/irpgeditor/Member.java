@@ -422,7 +422,7 @@ public class Member {
 					buffer.append(line.date);
 					buffer.append("\n");
 					row++;
-					if (buffer.length() > 32000) {
+					if (buffer.length() > 31000) {
 						cadena = buffer.toString().replaceAll("'", "''");
 						cadena = cadena.replaceAll("\t", "      ");
 						stmt.execute("call qgpl/prcupload('" + cadena + "',  '\n', '" + append + "')");
