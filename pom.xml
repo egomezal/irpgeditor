@@ -22,19 +22,19 @@
 		<dependency>
 			<groupId>net.sf.jt400</groupId>
 			<artifactId>jt400</artifactId>
-			<version>9.4</version>
+			<version>10.5</version>
 		</dependency>
 
 		<dependency>
 			<groupId>xerces</groupId>
 			<artifactId>xercesImpl</artifactId>
-			<version>2.11.0</version>
+			<version>2.12.1</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.shiro</groupId>
 			<artifactId>shiro-core</artifactId>
-			<version>1.4.0</version>
+			<version>1.4.2</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.jexcelapi</groupId>
@@ -87,22 +87,22 @@
 		<dependency>
 			<groupId>org</groupId>
 			<artifactId>tn5250j</artifactId>
-			<version>0.7.6</version>
+			<version>0.7.6.4</version>
 		</dependency>
 		<dependency>
 			<groupId>jt400</groupId>
 			<artifactId>jui400</artifactId>
-			<version>9.4</version>
+			<version>10.5</version>
 		</dependency>
 		<dependency>
 			<groupId>jt400</groupId>
 			<artifactId>uitools</artifactId>
-			<version>9.4</version>
+			<version>10.5</version>
 		</dependency>
 		<dependency>
 			<groupId>jt400</groupId>
 			<artifactId>util400</artifactId>
-			<version>9.4</version>
+			<version>10.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
