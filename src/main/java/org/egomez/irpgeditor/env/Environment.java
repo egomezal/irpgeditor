@@ -77,7 +77,7 @@ public class Environment {
 		}
 		try {
 			systems.loadSettings();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			logger.error(e.getMessage());
 			//e.printStackTrace();
 		}
@@ -92,7 +92,7 @@ public class Environment {
 		projects.saveSettings();
 		try {
 			systems.saveSettings();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			//e.printStackTrace();
 			logger.error(e.getMessage());
 		}
@@ -102,7 +102,7 @@ public class Environment {
 					+ "conf" + File.separator + "irpgeditor.properties");
 			settings.store(fos, "");
 			fos.close();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			logger.error(e.getMessage());
 		}
 	}

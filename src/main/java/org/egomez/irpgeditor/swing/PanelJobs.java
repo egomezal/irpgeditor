@@ -201,6 +201,7 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 		as400 = system;
 	}
 
+        @SuppressWarnings("UseSpecificCatch")
 	protected void listaTrabajos(int tipo) {
 		treeTable.removeAll();
 		lblCargandoTrabajosActivos.setVisible(true);
@@ -335,16 +336,8 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 
 					} catch (AS400SecurityException e) {
 						logger.error(e.getMessage());
-					} catch (ErrorCompletingRequestException e) {
+					} catch (ErrorCompletingRequestException | InterruptedException | IOException | ObjectDoesNotExistException | PropertyVetoException e) {
 						logger.error(e.getMessage());
-					} catch (InterruptedException e) {
-						logger.error(e.getMessage());
-					} catch (IOException e) {
-						logger.error(e.getMessage());
-					} catch (ObjectDoesNotExistException e) {
-						logger.error(e.getMessage());
-					} catch (PropertyVetoException e1) {
-						logger.error(e1.getMessage());
 					} catch (Exception e1) {
 						logger.error(e1.getMessage());
 					} finally {

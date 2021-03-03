@@ -53,12 +53,17 @@
   </build>
   <repositories>
     <repository>
+      <releases>
+        <enabled>false</enabled>
+        <updatePolicy>always</updatePolicy>
+        <checksumPolicy>warn</checksumPolicy>
+      </releases>
       <id>localrepository</id>
       <url>file://${basedir}/lib</url>
     </repository>
   </repositories>
   <properties>
-    <jdk.version>1.7</jdk.version>
+    <jdk.version>1.8</jdk.version>
   </properties>
 </project>
 

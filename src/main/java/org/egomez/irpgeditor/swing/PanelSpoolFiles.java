@@ -355,7 +355,7 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems, 
 			if (user.equals("")) {
 				tableModelSpool.reset();
 			} else {
-				JOptionPane.showMessageDialog(null, "Wait for process...");
+				//JOptionPane.showMessageDialog(null, "Wait for process...");
 				tableModelSpool.reset(1, user);
 			}
 		}
@@ -381,7 +381,7 @@ public class PanelSpoolFiles extends PanelTool implements ListenerAS400Systems, 
 			if (program.equals("")) {
 				tableModelSpool.reset();
 			} else {
-				JOptionPane.showMessageDialog(null, "Wait for process...");
+				//JOptionPane.showMessageDialog(null, "Wait for process...");
 				tableModelSpool.reset(2, program);
 			}
 		}
