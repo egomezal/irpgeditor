@@ -42,6 +42,7 @@ public class JTabbedPaneWithCloseIcons extends JTabbedPane implements MouseListe
 		addMouseListener(this);
 	}
 
+        @Override
 	public void addTab(String title, Component component) {
 		this.addTab(title, component, null);
 	}
@@ -50,6 +51,7 @@ public class JTabbedPaneWithCloseIcons extends JTabbedPane implements MouseListe
 		super.addTab(title, new CloseTabIcon(extraIcon), component);
 	}
 
+        @Override
 	public void mouseClicked(MouseEvent e) {
 		Component c;
 
@@ -68,15 +70,19 @@ public class JTabbedPaneWithCloseIcons extends JTabbedPane implements MouseListe
 		}
 	}
 
+        @Override
 	public void mouseEntered(MouseEvent e) {
 	}
 
+        @Override
 	public void mouseExited(MouseEvent e) {
 	}
 
+        @Override
 	public void mousePressed(MouseEvent e) {
 	}
 
+        @Override
 	public void mouseReleased(MouseEvent e) {
 	}
 }
@@ -121,10 +127,12 @@ class CloseTabIcon implements Icon {
 		}
 	}
 
+        @Override
 	public int getIconWidth() {
 		return width + (fileIcon != null ? fileIcon.getIconWidth() : 0);
 	}
 
+        @Override
 	public int getIconHeight() {
 		return height;
 	}

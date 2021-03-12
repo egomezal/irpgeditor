@@ -1488,11 +1488,7 @@ public class AS400System extends NodeAbstract {
             try (Statement stmt = connection.createStatement()) {
                 ResultSet rs = stmt.executeQuery("SELECT * FROM qsys2/sysprocs WHERE SPECIFIC_SCHEMA = '"
                         + library.toUpperCase() + "' and SPECIFIC_NAME = 'PRCUPLOAD' FETCH FIRST ROW ONLY");
-                if (rs.next()) {
-                    this.uploadProcedureExists = true;
-                } else {
-                    this.uploadProcedureExists = false;
-                }
+                this.uploadProcedureExists = rs.next();
                 rs.close();
             }
         }
