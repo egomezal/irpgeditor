@@ -310,7 +310,7 @@ public class AS400System extends NodeAbstract {
             pool = new AS400ConnectionPoolImp(address, user, password);
             as400.setGuiAvailable(false);
             as400.connectService(AS400.FILE);
-            as400.connectService(AS400.DATABASE);
+            as400.connectService(AS400.DATABASE);    
             connection = driver.connect(as400, getConnectionProperties(), null);
             commandCall = new CommandCall(as400);
             createUploadProc("QGPL");
@@ -357,6 +357,7 @@ public class AS400System extends NodeAbstract {
         p.setProperty("naming", "system");
         p.setProperty("package ccsid", "system");
         p.setProperty("keep alive", "true");
+        p.setProperty("prompt", "false");
         p.setProperty("translate binary", "true");
         if (listLibraries != null) {
             libraryList = "";

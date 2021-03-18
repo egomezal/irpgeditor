@@ -234,7 +234,7 @@ public class FrameiRPGEditor extends JFrame {
         splitpaneLeft.setOrientation(JSplitPane.VERTICAL_SPLIT);
         this.setIconImage(Icons.iconFrame.getImage());
         this.setJMenuBar(jMenuBar1);
-        this.setTitle("iRPGEditor - The best IDE for i5 Developer");
+        this.setTitle("iRPGEditor - The best IDE for IBM i5");
         setSize(700, 800);
         panelProject.setLayout(borderLayoutProject);
         menuFile.setMnemonic('F');
