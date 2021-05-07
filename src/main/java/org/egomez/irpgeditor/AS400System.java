@@ -705,7 +705,7 @@ public class AS400System extends NodeAbstract {
             throw new Exception("Invalid State: DISCONNECTED.");
         }
 
-        list = new ArrayList<Module>();
+        list = new ArrayList<>();
         userSpaceName = createName(serviceProgram.toUpperCase(), "QTEMP");
         synchronized (pcmlLock) {
             createUserSpace(userSpaceName, 2024 * 2024);
@@ -746,7 +746,7 @@ public class AS400System extends NodeAbstract {
         Statement stmt;
         ResultSet rs;
 
-        list = new ArrayList<BindingDirectoryEntry>();
+        list = new ArrayList<>();
         connection = getConnection();
         stmt = connection.createStatement();
         stmt.execute(buildSqlForCmd("DSPBNDDIR BNDDIR(" + bd.getLibrary() + "/" + bd.getName()
@@ -1486,11 +1486,9 @@ public class AS400System extends NodeAbstract {
     private boolean uploadProcExists(String library) throws SQLException {
      // Connection connection = getConnection();
         synchronized (connection) {
-            try (Statement stmt = connection.createStatement()) {
-                ResultSet rs = stmt.executeQuery("SELECT * FROM qsys2/sysprocs WHERE SPECIFIC_SCHEMA = '"
-                        + library.toUpperCase() + "' and SPECIFIC_NAME = 'PRCUPLOAD' FETCH FIRST ROW ONLY");
+            try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM qsys2/sysprocs WHERE SPECIFIC_SCHEMA = '"
+                    + library.toUpperCase() + "' and SPECIFIC_NAME = 'PRCUPLOAD' FETCH FIRST ROW ONLY")) {
                 this.uploadProcedureExists = rs.next();
-                rs.close();
             }
         }
         return this.uploadProcedureExists;
@@ -1555,8 +1553,9 @@ public class AS400System extends NodeAbstract {
                     String x = getFileType("QGPL", "3EWGH17");
                     String y = getFileTypePool("QGPL", "iR");
                     try {
+                        as400.setGuiAvailable(false);
                         as400.authenticate(getUser(), getPassword());
-                    } catch (AS400SecurityException | IOException ex) {
+                    } catch (AS400SecurityException | IOException | PropertyVetoException ex) {
                         java.util.logging.Logger.getLogger(AS400System.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 } catch (SQLException ex) {
@@ -1584,6 +1583,7 @@ public class AS400System extends NodeAbstract {
             this.listener = listener;
         }
 
+        @Override
         public void jobCompleted(SubmitJob submitJob) {
             if (this.listener == null) {
                 return;
