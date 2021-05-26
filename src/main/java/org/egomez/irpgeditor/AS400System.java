@@ -114,7 +114,7 @@ public class AS400System extends NodeAbstract {
         synchronized (this.pcmlLock) {
             ArrayList<String> list = new ArrayList<>();
             int size = this.pcml.getOutputsize("qusrjobi.receiver");
-            this.pcml.setValue("qusrjobi.receiverLength", new Integer(size));
+            this.pcml.setValue("qusrjobi.receiverLength", size);
             callPcml("qusrjobi");
             String data = (String) this.pcml.getValue("qusrjobi.receiver.libs");
             while (data.length() > 0) {
@@ -176,6 +176,16 @@ public class AS400System extends NodeAbstract {
      * @return AS400
      */
     public AS400 getAS400() {
+        if (!as400.isConnectionAlive()) {
+            try {
+                as400.authenticate(this.user, this.password);
+                connect();
+            } catch (AS400SecurityException | IOException | AS400Exception ex) {
+                java.util.logging.Logger.getLogger(AS400System.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                java.util.logging.Logger.getLogger(AS400System.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         return as400;
     }
 
@@ -224,13 +234,11 @@ public class AS400System extends NodeAbstract {
         //Connection connection = getConnection();
 
         synchronized (connection) {
-            Statement stmt = connection.createStatement();
-            ResultSet rs = stmt.executeQuery("select count(*) from " + library + "/" + file);
-            if (rs.next()) {
-                count = rs.getInt(1);
+            try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery("select count(*) from " + library + "/" + file)) {
+                if (rs.next()) {
+                    count = rs.getInt(1);
+                }
             }
-            rs.close();
-            stmt.close();
         }
         return count;
     }
@@ -310,7 +318,7 @@ public class AS400System extends NodeAbstract {
             pool = new AS400ConnectionPoolImp(address, user, password);
             as400.setGuiAvailable(false);
             as400.connectService(AS400.FILE);
-            as400.connectService(AS400.DATABASE);    
+            as400.connectService(AS400.DATABASE);
             connection = driver.connect(as400, getConnectionProperties(), null);
             commandCall = new CommandCall(as400);
             createUploadProc("QGPL");
@@ -417,7 +425,7 @@ public class AS400System extends NodeAbstract {
             as400 = null;
             try {
                 connection.close();
-            } catch (Exception e) {
+            } catch (SQLException e) {
             }
             connection = null;
             commandCall = null;
@@ -474,7 +482,7 @@ public class AS400System extends NodeAbstract {
             pcml = new ProgramCallDocument(as400, "api");
         }
         pcml.setValue("quscrtus.name", name);
-        pcml.setValue("quscrtus.size", new Integer(size));
+        pcml.setValue("quscrtus.size", size);
         // create the user space only once.
         try {
             callPcml("quscrtus");
@@ -494,10 +502,10 @@ public class AS400System extends NodeAbstract {
             pcml = new ProgramCallDocument(as400, "api");
         }
         pcml.setValue("qusrtvus.userSpace", name);
-        pcml.setValue("qusrtvus.startPos", new Integer(125));
+        pcml.setValue("qusrtvus.startPos", 125);
         callPcml("qusrtvus");
         o = pcml.getValue("qusrtvus.receiver");
-        return ((Integer) o).intValue() + 1;
+        return ((Integer) o) + 1;
     }
 
     public int getUserSpaceNumberOfEntries(String name) throws Exception {
@@ -507,10 +515,10 @@ public class AS400System extends NodeAbstract {
             pcml = new ProgramCallDocument(as400, "api");
         }
         pcml.setValue("qusrtvus.userSpace", name);
-        pcml.setValue("qusrtvus.startPos", new Integer(133));
+        pcml.setValue("qusrtvus.startPos", 133);
         callPcml("qusrtvus");
         o = pcml.getValue("qusrtvus.receiver");
-        return ((Integer) o).intValue();
+        return ((Integer) o);
     }
 
     public String createName(String name, String library) {
@@ -564,12 +572,12 @@ public class AS400System extends NodeAbstract {
             listEntries = getUserSpaceNumberOfEntries(userSpaceName);
 
             // step 3: get member names into Vector
-            members = new ArrayList<Member>();
+            members = new ArrayList<>();
             pcml.setValue("qusrtvusmbr.userSpace", userSpaceName);
             size = pcml.getOutputsize("qusrtvusmbr.receiver");
-            pcml.setValue("qusrtvusmbr.length", new Integer(size));
+            pcml.setValue("qusrtvusmbr.length", size);
             for (int i = listOffset, j = 0; j < listEntries; i += size, j++) {
-                pcml.setValue("qusrtvusmbr.startPos", new Integer(i));
+                pcml.setValue("qusrtvusmbr.startPos", i);
                 callPcml("qusrtvusmbr");
                 member = new Member(this, library, file, (String) pcml.getValue("qusrtvusmbr.receiver.memberName"),
                         (String) pcml.getValue("qusrtvusmbr.receiver.sourceType"),
@@ -587,7 +595,7 @@ public class AS400System extends NodeAbstract {
             throw new Exception("Invalid State: DISCONNECTED.");
         }
 
-        ArrayList<Object> list = new ArrayList<Object>();
+        ArrayList<Object> list = new ArrayList<>();
         String userSpaceName = createName("LISTOBJECT", "QTEMP");
         synchronized (this.pcmlLock) {
             createUserSpace(userSpaceName, 4096576);
@@ -602,10 +610,10 @@ public class AS400System extends NodeAbstract {
 
             this.pcml.setValue("qusrtvusOBJL0100.userSpace", userSpaceName);
             int size = this.pcml.getOutputsize("qusrtvusOBJL0100.receiver");
-            this.pcml.setValue("qusrtvusOBJL0100.length", new Integer(size));
+            this.pcml.setValue("qusrtvusOBJL0100.length", size);
             int i = listOffset;
             for (int j = 0; j < listEntries; j++) {
-                this.pcml.setValue("qusrtvusOBJL0100.startPos", new Integer(i));
+                this.pcml.setValue("qusrtvusOBJL0100.startPos", i);
                 callPcml("qusrtvusOBJL0100");
                 list.add(this.pcml.getValue("qusrtvusOBJL0100.receiver.name"));
                 list.add(this.pcml.getValue("qusrtvusOBJL0100.receiver.library"));
@@ -659,7 +667,7 @@ public class AS400System extends NodeAbstract {
             throw new Exception("Invalid State: DISCONNECTED.");
         }
 
-        list = new ArrayList<Object>();
+        list = new ArrayList<>();
         userSpaceName = createName(module.toUpperCase(), "QTEMP");
         synchronized (pcmlLock) {
             createUserSpace(userSpaceName, 2024 * 2024);
@@ -675,18 +683,18 @@ public class AS400System extends NodeAbstract {
 
             pcml.setValue("qusrtvusMODL0300.userSpace", userSpaceName);
             size = pcml.getOutputsize("qusrtvusMODL0300.receiver");
-            pcml.setValue("qusrtvusMODL0300.length", new Integer(size));
+            pcml.setValue("qusrtvusMODL0300.length", size);
             for (int i = listOffset, j = 0; j < listEntries; i += size, j++) {
                 // get the list of procedure information.
-                pcml.setValue("qusrtvusMODL0300.startPos", new Integer(i));
+                pcml.setValue("qusrtvusMODL0300.startPos", i);
                 callPcml("qusrtvusMODL0300");
                 // must get size of this entry to get to the next entry.
-                size = ((Integer) pcml.getValue("qusrtvusMODL0300.receiver.size")).intValue();
+                size = ((Integer) pcml.getValue("qusrtvusMODL0300.receiver.size"));
 
                 // get the procedure name.
-                procOffset = ((Integer) pcml.getValue("qusrtvusMODL0300.receiver.procOffset")).intValue();
+                procOffset = ((Integer) pcml.getValue("qusrtvusMODL0300.receiver.procOffset"));
                 pcml.setValue("qusrtvus2.userSpace", userSpaceName);
-                pcml.setValue("qusrtvus2.startPos", new Integer(procOffset + 1));
+                pcml.setValue("qusrtvus2.startPos", procOffset + 1);
                 pcml.setValue("qusrtvus2.length", pcml.getValue("qusrtvusMODL0300.receiver.procLength"));
                 callPcml("qusrtvus2");
                 list.add(pcml.getValue("qusrtvus2.receiver"));
@@ -721,9 +729,9 @@ public class AS400System extends NodeAbstract {
 
             pcml.setValue("qusrtvusSPGL0100.userSpace", userSpaceName);
             size = pcml.getOutputsize("qusrtvusSPGL0100.receiver");
-            pcml.setValue("qusrtvusSPGL0100.length", new Integer(size));
+            pcml.setValue("qusrtvusSPGL0100.length", size);
             for (int i = listOffset, j = 0; j < listEntries; i += size, j++) {
-                pcml.setValue("qusrtvusSPGL0100.startPos", new Integer(i));
+                pcml.setValue("qusrtvusSPGL0100.startPos", i);
                 callPcml("qusrtvusSPGL0100");
                 module = new Module(this, (String) pcml.getValue("qusrtvusSPGL0100.receiver.moduleLibrary"),
                         (String) pcml.getValue("qusrtvusSPGL0100.receiver.moduleName"),
@@ -742,12 +750,12 @@ public class AS400System extends NodeAbstract {
 
     public ArrayList<BindingDirectoryEntry> listEntries(BindingDirectory bd) throws Exception {
         ArrayList<BindingDirectoryEntry> list;
-        Connection connection;
+        //Connection connection;
         Statement stmt;
         ResultSet rs;
 
         list = new ArrayList<>();
-        connection = getConnection();
+        //connection = getConnection();
         stmt = connection.createStatement();
         stmt.execute(buildSqlForCmd("DSPBNDDIR BNDDIR(" + bd.getLibrary() + "/" + bd.getName()
                 + ") OUTPUT(*OUTFILE) OUTFILE(QTEMP/" + bd.getName() + ") OUTMBR(*FIRST *REPLACE)"));
@@ -764,6 +772,7 @@ public class AS400System extends NodeAbstract {
      * The temporary source table is used for uploading source code in bulk to
      * the as400 so that saving source code is faster.
      *
+     * @param length
      * @throws SQLException
      */
     public void createTempSrcTable(int length) throws SQLException {
@@ -788,8 +797,9 @@ public class AS400System extends NodeAbstract {
 
     /**
      * checks to see if the stored procedure for upload source code is on the
-     * system. if not, it creates it.
+     * system.if not, it creates it.
      *
+     * @param library
      * @throws SQLException
      */
     public void createUploadProc(String library) throws SQLException {
@@ -802,7 +812,7 @@ public class AS400System extends NodeAbstract {
             try (Statement stmt = connection.createStatement()) {
                 try {
                     stmt.execute("DROP PROCEDURE " + library.toUpperCase() + ".PRCUPLOAD");
-                } catch (Exception e) {
+                } catch (SQLException e) {
                 }
                 stmt.execute("CREATE PROCEDURE " + library.toUpperCase() + ".PRCUPLOAD (IN SOURCE VARCHAR(32700), "
                         + "IN CRLF VARCHAR(2), " + "IN APPEND VARCHAR(1)) LANGUAGE SQL " + "SET OPTION DBGVIEW=*SOURCE "
@@ -854,13 +864,13 @@ public class AS400System extends NodeAbstract {
      * @return ArrayList contains String objects.
      */
     public ArrayList<String> getSourceLibraries() throws SQLException {
-    //  Connection connection;
+        //  Connection connection;
         Statement stmt;
         ResultSet rs;
         ArrayList<String> list;
 
         list = new ArrayList<>();
-     // connection = getConnection();
+        // connection = getConnection();
         // get a list of libraries.
         synchronized (connection) {
             stmt = connection.createStatement();
@@ -911,13 +921,13 @@ public class AS400System extends NodeAbstract {
      * @return ArrayList contains String objects.
      */
     public ArrayList<String> getLibraries() throws SQLException {
-      //Connection connection;
+        //Connection connection;
         Statement stmt;
         ResultSet rs;
         ArrayList<String> list;
 
         list = new ArrayList<>();
-        connection = getConnection();
+        //connection = getConnection();
         // get a list of libraries.
         synchronized (connection) {
             stmt = connection.createStatement();
@@ -952,13 +962,13 @@ public class AS400System extends NodeAbstract {
      * @return ArrayList contains String objects;
      */
     public ArrayList<String> getSourceFiles(String library) throws SQLException {
-    //  Connection connection;
+        //  Connection connection;
         Statement stmt;
         ResultSet rs;
         ArrayList<String> list;
 
         list = new ArrayList<>();
-        connection = getConnection();
+        //connection = getConnection();
         synchronized (connection) {
             // get a list of libraries.
             stmt = connection.createStatement();
@@ -984,7 +994,7 @@ public class AS400System extends NodeAbstract {
             buffer = buffer + " ";
         }
         ProgramCallDocument pcml = new ProgramCallDocument(this.as400, "api");
-        pcml.setValue("qusrmbrd.receiverLength", new Integer(pcml.getOutputsize("qusrmbrd.receiver")));
+        pcml.setValue("qusrmbrd.receiverLength", pcml.getOutputsize("qusrmbrd.receiver"));
         pcml.setValue("qusrmbrd.fileName", "" + buffer);
         pcml.setValue("qusrmbrd.memberName", member);
         boolean result = pcml.callProgram("qusrmbrd");
@@ -998,7 +1008,7 @@ public class AS400System extends NodeAbstract {
 
     public ArrayList<String> getFiles(String library, String fileType, String tableType) throws SQLException {
         ArrayList<String> list = new ArrayList<>();
-   //   Connection connection = getConnection();
+        //   Connection connection = getConnection();
         synchronized (connection) {
             try (Statement stmt = connection.createStatement()) {
                 String sql = "select distinct TABLE_NAME, FILE_TYPE, TABLE_TYPE from qsys2/systables where TABLE_SCHEMA = '"
@@ -1009,13 +1019,13 @@ public class AS400System extends NodeAbstract {
                 if (tableType != null) {
                     sql = sql + " and TABLE_TYPE = '" + tableType + "'";
                 }
-                ResultSet rs = stmt.executeQuery(sql);
-                while (rs.next()) {
-                    list.add(rs.getString(1));
-                    list.add(rs.getString(2));
-                    list.add(rs.getString(3));
+                try (ResultSet rs = stmt.executeQuery(sql)) {
+                    while (rs.next()) {
+                        list.add(rs.getString(1));
+                        list.add(rs.getString(2));
+                        list.add(rs.getString(3));
+                    }
                 }
-                rs.close();
             }
         }
         return list;
@@ -1036,13 +1046,13 @@ public class AS400System extends NodeAbstract {
      * @return ArrayList contains String objects;
      */
     public ArrayList<String> getFiles(String library) throws SQLException {
-      //Connection connection;
+        //Connection connection;
         Statement stmt;
         ResultSet rs;
         ArrayList<String> list;
 
         list = new ArrayList<>();
-        connection = getConnection();
+        //connection = getConnection();
         synchronized (connection) {
             // get a list of libraries.
             stmt = connection.createStatement();
@@ -1107,7 +1117,7 @@ public class AS400System extends NodeAbstract {
      */
     public ArrayList<String> search(String library, String file, String member, String term, boolean matchCase)
             throws SQLException {
-    //  Connection connection;
+        //  Connection connection;
         Statement stmt;
         ResultSet rs;
         ArrayList<String> list;
@@ -1124,7 +1134,7 @@ public class AS400System extends NodeAbstract {
         } else {
             clause = " where ucase(srcdta) like '%" + term.toUpperCase() + "%'";
         }
-     // connection = getConnection();
+        // connection = getConnection();
         synchronized (connection) {
             stmt = connection.createStatement();
             stmt.execute("create alias qtemp/s" + a + " for " + library + "/" + file + "(" + member + ")");
@@ -1158,13 +1168,13 @@ public class AS400System extends NodeAbstract {
      * is loaded.
      */
     protected int getSource(String library, String file, String member, SourceLoader sourceLoader) throws SQLException {
-    //  Connection connection;
+        //  Connection connection;
         Statement stmt;
         ResultSet rs;
         int a;
         String text;
 
-    //  connection = getConnection();
+        //  connection = getConnection();
         synchronized (this) {
             alias++;
             a = alias;
@@ -1194,19 +1204,17 @@ public class AS400System extends NodeAbstract {
     }
 
     public int getSourceFileRecordLength(String library, String file) throws SQLException {
-    //  Connection connection = getConnection();
+        //  Connection connection = getConnection();
         int length;
         synchronized (connection) {
-            try (Statement stmt = connection.createStatement()) {
-                ResultSet rs = stmt
-                        .executeQuery("select max(LENGTH) from syscolumns where table_name = '" + file.toUpperCase()
-                                + "' and table_schema = '" + library.toUpperCase() + "' and SYSTEM_COLUMN_NAME = 'SRCDTA'");
+            try (Statement stmt = connection.createStatement(); ResultSet rs = stmt
+                    .executeQuery("select max(LENGTH) from syscolumns where table_name = '" + file.toUpperCase()
+                            + "' and table_schema = '" + library.toUpperCase() + "' and SYSTEM_COLUMN_NAME = 'SRCDTA'")) {
                 if (rs.next()) {
                     length = rs.getInt(1);
                 } else {
                     length = 120;
                 }
-                rs.close();
             }
         }
         return length;
@@ -1236,30 +1244,30 @@ public class AS400System extends NodeAbstract {
             this.alias += 1;
             a = this.alias;
         }
-        StringBuffer text = new StringBuffer("");
-      //Connection connection = getConnection();
+        StringBuilder text = new StringBuilder("");
+        //Connection connection = getConnection();
         synchronized (connection) {
             try (Statement stmt = connection.createStatement()) {
                 stmt.execute("create alias qtemp/text" + a + " for " + library + "/" + file + "(" + member + ")");
-                ResultSet rs = stmt.executeQuery("select * from qtemp/text" + a);
-                while (rs.next()) {
-                    String buffer = rs.getString(1);
-                    if (buffer.startsWith("ERROR"))
-                        try {
-                            int i = Integer.parseInt(buffer.substring(58, 59));
-                            if (i > 0) {
-                                text.append("ERROR ");
-                                if (path != null) {
-                                    text.append(path);
-                                    text.append(" ");
+                try (ResultSet rs = stmt.executeQuery("select * from qtemp/text" + a)) {
+                    while (rs.next()) {
+                        String buffer = rs.getString(1);
+                        if (buffer.startsWith("ERROR"))
+                            try {
+                                int i = Integer.parseInt(buffer.substring(58, 59));
+                                if (i > 0) {
+                                    text.append("ERROR ");
+                                    if (path != null) {
+                                        text.append(path);
+                                        text.append(" ");
+                                    }
+                                    text.append(buffer.substring(5).trim());
+                                    text.append("\n");
                                 }
-                                text.append(buffer.substring(5).trim());
-                                text.append("\n");
+                            } catch (Exception e) {
                             }
-                        } catch (Exception e) {
-                        }
+                    }
                 }
-                rs.close();
                 stmt.execute("drop alias qtemp/text" + a);
             }
         }
@@ -1269,49 +1277,53 @@ public class AS400System extends NodeAbstract {
     public String getFileType(String library, String file) throws SQLException {
         //Connection connection = getConnection();
         String type;
-        synchronized (connection) {
-            Statement stmt = connection.createStatement();
-            ResultSet rs;
-            if (library == null) {
-                rs = stmt.executeQuery("select TABLE_TYPE from qsys2/systables where TABLE_NAME = '" + file
-                        + "' FETCH FIRST ROW ONLY");
-            } else {
-                rs = stmt.executeQuery("select TABLE_TYPE from qsys2/systables where TABLE_NAME = '" + file
-                        + "' AND TABLE_SCHEMA = '" + library + "'");
+        if (connection != null) {
+            synchronized (connection) {
+                try (Statement stmt = connection.createStatement()) {
+                    ResultSet rs;
+                    if (library == null) {
+                        rs = stmt.executeQuery("select TABLE_TYPE from qsys2/systables where TABLE_NAME = '" + file
+                                + "' FETCH FIRST ROW ONLY");
+                    } else {
+                        rs = stmt.executeQuery("select TABLE_TYPE from qsys2/systables where TABLE_NAME = '" + file
+                                + "' AND TABLE_SCHEMA = '" + library + "'");
+                    }
+                    if (rs.next()) {
+                        type = rs.getString(1).trim();
+                    } else {
+                        type = null;
+                    }
+                    rs.close();
+                }
             }
-            if (rs.next()) {
-                type = rs.getString(1).trim();
-            } else {
-                type = null;
-            }
-            rs.close();
-            stmt.close();
+        } else {
+            type = "";
         }
         return type;
     }
 
     public String getFileTypePool(String library, String file) throws SQLException {
-        Connection cn = getConnectionPool();
         String type;
-        synchronized (cn) {
-            Statement stmt = cn.createStatement();
-            ResultSet rs;
-            if (library == null) {
-                rs = stmt.executeQuery("select TABLE_TYPE from qsys2/systables where TABLE_NAME = '" + file
-                        + "' FETCH FIRST ROW ONLY");
-            } else {
-                rs = stmt.executeQuery("select TABLE_TYPE from qsys2/systables where TABLE_NAME = '" + file
-                        + "' AND TABLE_SCHEMA = '" + library + "'");
+        try (Connection cn = getConnectionPool()) {
+            synchronized (cn) {
+                try (Statement stmt = cn.createStatement()) {
+                    ResultSet rs;
+                    if (library == null) {
+                        rs = stmt.executeQuery("select TABLE_TYPE from qsys2/systables where TABLE_NAME = '" + file
+                                + "' FETCH FIRST ROW ONLY");
+                    } else {
+                        rs = stmt.executeQuery("select TABLE_TYPE from qsys2/systables where TABLE_NAME = '" + file
+                                + "' AND TABLE_SCHEMA = '" + library + "'");
+                    }
+                    if (rs.next()) {
+                        type = rs.getString(1).trim();
+                    } else {
+                        type = null;
+                    }
+                    rs.close();
+                }
             }
-            if (rs.next()) {
-                type = rs.getString(1).trim();
-            } else {
-                type = null;
-            }
-            rs.close();
-            stmt.close();
         }
-        cn.close();
         return type;
     }
 
@@ -1484,7 +1496,7 @@ public class AS400System extends NodeAbstract {
     }
 
     private boolean uploadProcExists(String library) throws SQLException {
-     // Connection connection = getConnection();
+        // Connection connection = getConnection();
         synchronized (connection) {
             try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery("SELECT * FROM qsys2/sysprocs WHERE SPECIFIC_SCHEMA = '"
                     + library.toUpperCase() + "' and SPECIFIC_NAME = 'PRCUPLOAD' FETCH FIRST ROW ONLY")) {
@@ -1554,7 +1566,9 @@ public class AS400System extends NodeAbstract {
                     String y = getFileTypePool("QGPL", "iR");
                     try {
                         as400.setGuiAvailable(false);
-                        as400.authenticate(getUser(), getPassword());
+                        if (!as400.isConnectionAlive()) {
+                            as400.authenticate(getUser(), getPassword());
+                        }
                     } catch (AS400SecurityException | IOException | PropertyVetoException ex) {
                         java.util.logging.Logger.getLogger(AS400System.class.getName()).log(Level.SEVERE, null, ex);
                     }

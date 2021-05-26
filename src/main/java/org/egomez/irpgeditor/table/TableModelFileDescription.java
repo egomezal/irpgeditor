@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ibm.as400.data.*;
+import java.util.logging.Level;
 
 /**
  * 
@@ -63,6 +64,14 @@ public class TableModelFileDescription extends AbstractTableModel {
 		this.name = name.trim().toUpperCase();
 		this.schema = schema.trim().toUpperCase();
 		this.as400 = system;
+                if (!as400.getAS400().isConnectionAlive()){
+                    as400.disconnect();
+                    try {
+                        as400.connect();
+                    } catch (Exception ex) {
+                        java.util.logging.Logger.getLogger(TableModelFileDescription.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
 		getData();
 	}
 
@@ -73,6 +82,7 @@ public class TableModelFileDescription extends AbstractTableModel {
 
 		values = new String[names.length];
 		SwingUtilities.invokeLater(new Runnable() {
+                        @Override
 			public void run() {
 				fireTableDataChanged();
 			}
@@ -87,7 +97,7 @@ public class TableModelFileDescription extends AbstractTableModel {
 		}
 		try {
 			pcml = new ProgramCallDocument(Environment.systems.getDefault().getAS400(), "api");
-			pcml.setValue("qdbrtvfd.receiverLength", new Integer(pcml.getOutputsize("qdbrtvfd.receiver")));
+			pcml.setValue("qdbrtvfd.receiverLength", pcml.getOutputsize("qdbrtvfd.receiver"));
 			// pcml.setValue("qdbrtvfd.receiverLength", new Integer(1024 * 10));
 			pcml.setValue("qdbrtvfd.fileName", "" + buffer);
 			result = pcml.callProgram("qdbrtvfd");
@@ -113,11 +123,12 @@ public class TableModelFileDescription extends AbstractTableModel {
 					values[10] = "Rebuild";
 				}
 			}
-		} catch (Exception e) {
+		} catch (PcmlException e) {
 			//e.printStackTrace();
 			logger.error(e.getMessage());
 		}
 		SwingUtilities.invokeLater(new Runnable() {
+                        @Override
 			public void run() {
 				fireTableDataChanged();
 			}
@@ -151,18 +162,22 @@ public class TableModelFileDescription extends AbstractTableModel {
 		return schema;
 	}
 
+        @Override
 	public int getRowCount() {
 		return names.length;
 	}
 
+        @Override
 	public int getColumnCount() {
 		return columnNames.length;
 	}
 
+        @Override
 	public String getColumnName(int index) {
 		return columnNames[index];
 	}
 
+        @Override
 	public Object getValueAt(int row, int column) {
 		if (column == 0) {
 			return names[row];

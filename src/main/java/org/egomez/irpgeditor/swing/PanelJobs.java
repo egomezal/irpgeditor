@@ -277,38 +277,40 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
                             if (!j.getType().equals("M")) {
                                 if (tipo == LIST_ALL) {
                                     try {
-                                        if (j.getSubsystem() != null && !j.getSubsystem().equals("")) {
-                                            if (j.getSubsystem().equals("/QSYS.LIB/QINTER.SBSD")
-                                                    || j.getSubsystem().startsWith("/QSYS.LIB/QBATCH")
-                                                    || j.getSubsystem().equals("/QSYS.LIB/QUSRWRK.SBSD")
-                                                    || j.getSubsystem().equals("/QSYS.LIB/QMQM.SBSD")) {
-                                                nombreSub = j.getSubsystem()
-                                                        .substring(j.getSubsystem().lastIndexOf("/") + 1);
-                                                nombreSub = nombreSub.substring(0, nombreSub.indexOf("."));
+                                        if (j.getStatus().equals(Job.JOB_STATUS_ACTIVE)) {
+                                            if (j.getSubsystem() != null && !j.getSubsystem().equals("")) {
+                                                if (j.getSubsystem().equals("/QSYS.LIB/QINTER.SBSD")
+                                                        || j.getSubsystem().startsWith("/QSYS.LIB/QBATCH")
+                                                        || j.getSubsystem().equals("/QSYS.LIB/QUSRWRK.SBSD")
+                                                        || j.getSubsystem().equals("/QSYS.LIB/QMQM.SBSD")) {
+                                                    nombreSub = j.getSubsystem()
+                                                            .substring(j.getSubsystem().lastIndexOf("/") + 1);
+                                                    nombreSub = nombreSub.substring(0, nombreSub.indexOf("."));
 
-                                                user = j.getUser();
-                                                try {
-                                                    if (j.getName().equalsIgnoreCase("QZDASOINIT")
-                                                            || j.getName().equalsIgnoreCase("QZRCSRVS")) {
-                                                        log = j.getJobLog();
-                                                        listMessage = log.getMessages();
-                                                        while (listMessage.hasMoreElements()) {
-                                                            message = (QueuedMessage) listMessage.nextElement();
-                                                            if (message.getID().equals("CPIAD02")) {
-                                                                user = message.getText().substring(5, 14);
+                                                    user = j.getUser();
+                                                    try {
+                                                        if (j.getName().equalsIgnoreCase("QZDASOINIT")
+                                                                || j.getName().equalsIgnoreCase("QZRCSRVS")) {
+                                                            log = j.getJobLog();
+                                                            listMessage = log.getMessages();
+                                                            while (listMessage.hasMoreElements()) {
+                                                                message = (QueuedMessage) listMessage.nextElement();
+                                                                if (message.getID().equals("CPIAD02")) {
+                                                                    user = message.getText().substring(5, 14);
+                                                                }
                                                             }
                                                         }
-                                                    }
-                                                } catch (Exception e) {
+                                                    } catch (Exception e) {
 
+                                                    }
+                                                    // j.getValue(Job.ACTIVE_JOB_STATUS);
+                                                    listaNodos.get(nombreSub)
+                                                            .add(new ArrayNode(new Object[]{j.getName(), user,
+                                                        j.getType(), j.getCPUUsed() / 1000, j.getRunPriority(),
+                                                        j.getValue(Job.ACTIVE_JOB_STATUS),
+                                                        sdf.format(j.getJobEnterSystemDate()),
+                                                        j.getNumber()}));
                                                 }
-                                                // j.getValue(Job.ACTIVE_JOB_STATUS);
-                                                listaNodos.get(nombreSub)
-                                                        .add(new ArrayNode(new Object[]{j.getName(), user,
-                                                    j.getType(), j.getCPUUsed() / 1000, j.getRunPriority(),
-                                                    j.getValue(Job.ACTIVE_JOB_STATUS),
-                                                    sdf.format(j.getJobEnterSystemDate()),
-                                                    j.getNumber()}));
                                             }
                                         }
                                     } catch (AS400Exception e) {
