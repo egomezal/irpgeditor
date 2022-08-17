@@ -1,0 +1,4 @@
+target/dependencies.txt
+target/classes
+target/classes/org
+.vscode/settings.json
