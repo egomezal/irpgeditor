@@ -31,7 +31,6 @@ import org.apache.shiro.util.ByteSource;
 import org.egomez.irpgeditor.*;
 import org.egomez.irpgeditor.event.*;
 
-//import com.lowagie.text.pdf.codec.Base64;
 import com.itextpdf.text.pdf.codec.Base64;
 
 /**
@@ -76,7 +75,6 @@ public class AS400Systems {
 	 * loads the system settings.
 	 */
 	public void loadSettings() throws IOException {
-		// FileInputStream fis;
 		Properties props;
 		int systemCount;
 		AS400System system;
@@ -88,21 +86,15 @@ public class AS400Systems {
 		ByteSource decrypted = null;
 		AesCipherService cipher = new AesCipherService();
 		String keyTest = null;
-		// Key key = null;
 
 		file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "conf"
 				+ File.separator + "systems.properties");
 		if (file.exists() == false) {
 			return;
 		}
-		// fis = new FileInputStream(file);
 		props = new Properties();
-		// props.load(fis);
+
 		load(props, file);
-		/*
-		 * if (props.getProperty("system.count") == null) { fis.close(); return;
-		 * }
-		 */
 		defaultName = props.getProperty("system.default");
 		systemCount = Integer.parseInt(props.getProperty("system.count"));
 		for (int x = 0; x < systemCount; x++) {

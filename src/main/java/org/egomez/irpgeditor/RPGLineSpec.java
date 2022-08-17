@@ -97,13 +97,13 @@ public class RPGLineSpec {
   }
   
   public static LinePosition getLinePosition(SourceLine line, int position) {
-    StringBuffer source;
+    StringBuilder source = new StringBuilder();
     char c;
     
     if ( line == null ) {
       return null;
     }
-    source = line.parser.getText();
+    source.append(line.parser.getText());
     if ( line.start + 6 >= source.length() ) {
       return null;
     }

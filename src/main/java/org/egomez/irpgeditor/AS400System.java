@@ -1563,7 +1563,9 @@ public class AS400System extends NodeAbstract {
             public void run() {
                 try {
                     String x = getFileType("QGPL", "3EWGH17");
+                    logger.debug(" EL valor de x es {}", x);
                     String y = getFileTypePool("QGPL", "iR");
+                    logger.debug(" EL valor de y es {}", y);
                     try {
                         as400.setGuiAvailable(false);
                         if (!as400.isConnectionAlive()) {

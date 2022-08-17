@@ -23,5 +23,6 @@ public class CopyMember implements CopyRequest {
   }
 
   public void copyTo(AS400System as400, String library) throws Exception {
+  //Compatibilidad de interfase
   }
 }

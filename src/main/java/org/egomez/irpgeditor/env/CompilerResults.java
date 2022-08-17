@@ -37,9 +37,7 @@ public class CompilerResults {
     output.setResults(text, textComponent);
   }
   
-/*  public void appendLine(String text, JTextComponent textComponent) {
-    append(text + "\n", textComponent);
-  }*/
+
   
   public void focus() {
     output.focus();

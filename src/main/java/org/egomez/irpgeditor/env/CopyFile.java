@@ -20,8 +20,8 @@ public class CopyFile implements CopyRequest {
     this.lib = lib;
     this.file = file;
   }
-
   public void copyTo(AS400System as400, String library, String file) throws Exception {
+   // Para implementacion de interfase
   }
 
   public void copyTo(AS400System as400, String library) throws Exception {

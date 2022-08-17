@@ -19,7 +19,6 @@ package org.egomez.irpgeditor.swing;
  * Boston, MA 02111-1307 USA
  */
 
-import java.io.*;
 import java.awt.*;
 import java.awt.print.*;
 import javax.swing.*;
@@ -32,9 +31,9 @@ import org.slf4j.LoggerFactory;
  * @author Derek Van Kooten.
  */
 @SuppressWarnings("serial")
-public class JTextPanePrintable extends JTextPane implements Printable, Serializable {
-  PageFormat pageFormat;
-  Logger logger = LoggerFactory.getLogger(JTextPanePrintable.class);
+public class JTextPanePrintable extends JTextPane implements Printable{
+  transient PageFormat pageFormat;
+  transient Logger logger = LoggerFactory.getLogger(JTextPanePrintable.class);
   public JTextPanePrintable() {
     super();
     pageFormat = new PageFormat();
@@ -81,7 +80,6 @@ public class JTextPanePrintable extends JTextPane implements Printable, Serializ
         pj.print();
       }
       catch (Exception e) {
-        //e.printStackTrace();
     	  logger.error(e.getMessage());
       }
     }
