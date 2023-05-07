@@ -41,8 +41,8 @@ public class AS400Systems {
 	// static global members.
 	// keep a list of systems defined, and notify listeners when more are
 	// created, or removed or changed.
-	private ArrayList<AS400System> listSystems = new ArrayList<AS400System>();
-	private ArrayList<ListenerAS400Systems> listSystemsListeners = new ArrayList<ListenerAS400Systems>();
+	private final ArrayList<AS400System> listSystems = new ArrayList<>();
+	private final ArrayList<ListenerAS400Systems> listSystemsListeners = new ArrayList<>();
 	private AS400System systemDefault = null;
 
 	public void addSystem(AS400System system) {
@@ -73,6 +73,7 @@ public class AS400Systems {
 
 	/**
 	 * loads the system settings.
+     * @throws java.io.IOException
 	 */
 	public void loadSettings() throws IOException {
 		Properties props;
@@ -81,11 +82,11 @@ public class AS400Systems {
 		String defaultName, name, address, user, password, ssl;
 		File file;
 
-		String tempPassw = null;
-		byte[] encryptedBytes = null;
-		ByteSource decrypted = null;
+		String tempPassw;
+		byte[] encryptedBytes;
+		ByteSource decrypted;
 		AesCipherService cipher = new AesCipherService();
-		String keyTest = null;
+		String keyTest;
 
 		file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "conf"
 				+ File.separator + "systems.properties");
@@ -132,6 +133,7 @@ public class AS400Systems {
 
 	/**
 	 * saves the system settings.
+     * @throws java.io.IOException
 	 */
 	public void saveSettings() throws IOException {
 		// FileOutputStream fos;
@@ -140,8 +142,8 @@ public class AS400Systems {
 
 		AesCipherService cipher = new AesCipherService();
 		Key key = cipher.generateNewKey();
-		byte[] secretBytes = null;
-		ByteSource encrypted = null;
+		byte[] secretBytes;
+		ByteSource encrypted;
 
 		props = new Properties();
 		props.setProperty("system.count", Integer.toString(listSystems.size()));
@@ -186,8 +188,7 @@ public class AS400Systems {
 	/**
 	 * listen for when systems are created, removed, or changed.
 	 * 
-	 * @param object
-	 *            Object
+     * @param listener
 	 */
 	public void addListener(ListenerAS400Systems listener) {
 		listSystemsListeners.add(listener);
@@ -207,9 +208,9 @@ public class AS400Systems {
 		Object[] temp;
 
 		temp = listSystemsListeners.toArray();
-		for (int x = 0; x < temp.length; x++) {
-			((ListenerAS400Systems) temp[x]).addedSytem(system);
-		}
+            for (Object temp1 : temp) {
+                ((ListenerAS400Systems) temp1).addedSytem(system);
+            }
 	}
 
 	/**
@@ -222,9 +223,9 @@ public class AS400Systems {
 		Object[] temp;
 
 		temp = listSystemsListeners.toArray();
-		for (int x = 0; x < temp.length; x++) {
-			((ListenerAS400Systems) temp[x]).removedSytem(system);
-		}
+            for (Object temp1 : temp) {
+                ((ListenerAS400Systems) temp1).removedSytem(system);
+            }
 	}
 
 	/**
@@ -237,29 +238,28 @@ public class AS400Systems {
 		Object[] temp;
 
 		temp = listSystemsListeners.toArray();
-		for (int x = 0; x < temp.length; x++) {
-			((ListenerAS400Systems) temp[x]).defaultSytem(system);
-		}
+            for (Object temp1 : temp) {
+                ((ListenerAS400Systems) temp1).defaultSytem(system);
+            }
 	}
 
 	@SuppressWarnings("rawtypes")
 	private static void save(Properties props, File file) throws IOException {
-		PrintWriter printer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file)));
-		for (Iterator it = props.entrySet().iterator(); it.hasNext();) {
-			Map.Entry entry = (Map.Entry) it.next();
-			printer.println(entry.getKey() + "=" + entry.getValue());
-		}
-		printer.close();
+            try (PrintWriter printer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(file)))) {
+                for (Map.Entry entry : props.entrySet()) {
+                    printer.println(entry.getKey() + "=" + entry.getValue());
+                }
+            }
 	}
 
 	private static void load(Properties props, File file) throws IOException {
-		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-		for (String line; (line = reader.readLine()) != null;) {
-			int separatorPosition = line.indexOf('=');
-			String name = line.substring(0, separatorPosition);
-			String value = line.substring(separatorPosition + 1);
-			props.setProperty(name, value);
-		}
-		reader.close();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+                for (String line; (line = reader.readLine()) != null;) {
+                    int separatorPosition = line.indexOf('=');
+                    String name = line.substring(0, separatorPosition);
+                    String value = line.substring(separatorPosition + 1);
+                    props.setProperty(name, value);
+                }
+            }
 	}
 }

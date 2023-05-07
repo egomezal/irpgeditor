@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.egomez.irpgeditor;
 
@@ -22,83 +22,67 @@ import com.ibm.as400.access.ObjectDoesNotExistException;
  *
  */
 public class TreeJob extends Thread {
-	private SubsistemaAS400 x = null;
-	private ArrayNode root = null;
-	private SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-	Logger logger = LoggerFactory.getLogger(TreeJob.class);
 
-	public TreeJob(SubsistemaAS400 subsystem, ArrayNode node) {
-		root = node;
-		x = subsystem;
-	}
+    private SubsistemaAS400 x = null;
+    private ArrayNode root = null;
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+    Logger logger = LoggerFactory.getLogger(TreeJob.class);
 
-	public void run() {
-		agregarSubsistema();
-	}
+    public TreeJob(SubsistemaAS400 subsystem, ArrayNode node) {
+        root = node;
+        x = subsystem;
+    }
 
-	private void agregarSubsistema() {
-		try {
+    @Override
+    public void run() {
+        agregarSubsistema();
+    }
 
-			ArrayNode node = new ArrayNode(new Object[] { x.getSubsistema().getName(), x.getSubsistema().getUser(),
-					x.getSubsistema().getType(), x.getSubsistema().getCPUUsed() / 1000, "",
-					x.getSubsistema().getStatus(), "", "" });
-			node.setAllowsChildren(true);
+    private void agregarSubsistema() {
+        try {
 
-			Job j = null;
-			if (x.getListaJob() != null) {
-				Iterator<Job> listaJob = x.getListaJob().iterator();
-				while (listaJob.hasNext()) {
-					j = listaJob.next();
-					agregarTrabajo(j, node);
-				}
-			}
-			root.add(node);
-		} catch (AS400SecurityException e) {
-			// e.printStackTrace();
-			logger.error(e.getMessage());
-		} catch (ErrorCompletingRequestException e) {
-			// e.printStackTrace();
-			logger.error(e.getMessage());
-		} catch (InterruptedException e) {
-			// e.printStackTrace();
-			logger.error(e.getMessage());
-		} catch (IOException e) {
-			// e.printStackTrace();
-			logger.error(e.getMessage());
-		} catch (ObjectDoesNotExistException e) {
-			// e.printStackTrace();
-			logger.error(e.getMessage());
-		} catch (Exception e) {
-			// e.printStackTrace();
-			logger.error(e.getMessage());
-		}
-	}
+            ArrayNode node = new ArrayNode(new Object[]{x.getSubsistema().getName(), x.getSubsistema().getUser(),
+                x.getSubsistema().getType(), x.getSubsistema().getCPUUsed() / 1000, "",
+                x.getSubsistema().getStatus(), "", ""});
+            node.setAllowsChildren(true);
 
-	private void agregarTrabajo(Job j, ArrayNode parent) {
-		// GridItem item2 = new GridItem(parent, SWT.NONE);
-		// TreeItem item2 = new TreeItem(parent, SWT.NONE);
-		try {
-			parent.add(new ArrayNode(new Object[] { j.getName(), j.getUser(), j.getType(), j.getCPUUsed() / 1000,
-					j.getRunPriority(), j.getStatus(), sdf.format(j.getJobEnterSystemDate()), j.getNumber() }));
-		} catch (AS400SecurityException e) {
-			// e.printStackTrace();
-			logger.error(e.getMessage());
-		} catch (ErrorCompletingRequestException e) {
-			// e.printStackTrace();
-			logger.error(e.getMessage());
-		} catch (InterruptedException e) {
-			// e.printStackTrace();
-			logger.error(e.getMessage());
-		} catch (IOException e) {
-			// e.printStackTrace();
-			logger.error(e.getMessage());
-		} catch (ObjectDoesNotExistException e) {
-			// e.printStackTrace();
-			logger.error(e.getMessage());
-		} catch (Exception e) {
-			// e.printStackTrace();
-			logger.error(e.getMessage());
-		}
-	}
+            Job j = null;
+            if (x.getListaJob() != null) {
+                Iterator<Job> listaJob = x.getListaJob().iterator();
+                while (listaJob.hasNext()) {
+                    j = listaJob.next();
+                    agregarTrabajo(j, node);
+                }
+            }
+            root.add(node);
+        } catch (AS400SecurityException e) {
+
+            logger.error(e.getMessage());
+        } catch (ErrorCompletingRequestException | InterruptedException | IOException | ObjectDoesNotExistException e) {
+
+            logger.error(e.getMessage());
+        } catch (Exception e) {
+            // e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+    }
+
+    private void agregarTrabajo(Job j, ArrayNode parent) {
+        // GridItem item2 = new GridItem(parent, SWT.NONE);
+        // TreeItem item2 = new TreeItem(parent, SWT.NONE);
+        try {
+            parent.add(new ArrayNode(new Object[]{j.getName(), j.getUser(), j.getType(), j.getCPUUsed() / 1000,
+                j.getRunPriority(), j.getStatus(), sdf.format(j.getJobEnterSystemDate()), j.getNumber()}));
+        } catch (AS400SecurityException e) {
+
+            logger.error(e.getMessage());
+        } catch (ErrorCompletingRequestException | InterruptedException | IOException | ObjectDoesNotExistException e) {
+
+            logger.error(e.getMessage());
+        } catch (Exception e) {
+
+            logger.error(e.getMessage());
+        }
+    }
 
 }

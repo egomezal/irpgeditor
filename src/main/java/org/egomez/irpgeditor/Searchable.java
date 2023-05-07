@@ -18,12 +18,12 @@ package org.egomez.irpgeditor;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 /**
  * Objects that can be searched for text.
- *  
+ *
  * @author Derek Van Kooten.
  */
 public interface Searchable {
-  public void search(String find);
+
+    public void search(String find);
 }

@@ -18,17 +18,22 @@ package org.egomez.irpgeditor.env;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 /**
  * Output for executing sql.
- * 
+ *
  * @author not attributable
  */
 public interface OutputSQL {
-  public void executeSQL(String sql);
-  public void setSQL(String sql);
-  public void appendSQL(String sql);
-  public void clear();
-  public void focus();
-  public void saveSettings();
+
+    public void executeSQL(String sql);
+
+    public void setSQL(String sql);
+
+    public void appendSQL(String sql);
+
+    public void clear();
+
+    public void focus();
+
+    public void saveSettings();
 }

@@ -21,7 +21,6 @@ package org.egomez.irpgeditor;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
-import java.awt.Color;
 
 import javax.swing.SwingUtilities;
 
@@ -204,10 +203,7 @@ public class Member {
         if (index == -1) {
             return false;
         }
-        if (name.substring(index + 1).equalsIgnoreCase(this.member)) {
-            return true;
-        }
-        return false;
+        return name.substring(index + 1).equalsIgnoreCase(this.member);
     }
 
     public void dispose() {
@@ -236,7 +232,7 @@ public class Member {
         }
         try {
             pcml = new ProgramCallDocument(as400system.as400, "api");
-            pcml.setValue("qusrmbrd.receiverLength", new Integer(pcml.getOutputsize("qusrmbrd.receiver")));
+            pcml.setValue("qusrmbrd.receiverLength", pcml.getOutputsize("qusrmbrd.receiver"));
             pcml.setValue("qusrmbrd.fileName", "" + buffer);
             pcml.setValue("qusrmbrd.memberName", member);
             result = pcml.callProgram("qusrmbrd");
@@ -245,8 +241,8 @@ public class Member {
             } else {
                 sourceType = pcml.getValue("qusrmbrd.receiver.sourceType").toString();
             }
-        } catch (Exception e) {
-            // e.printStackTrace();
+        } catch (PcmlException e) {
+            
             logger.error(e.getMessage());
         }
     }
@@ -258,14 +254,14 @@ public class Member {
 
     public String saveBackup(SourceParser parser) throws Exception {
         FileOutputStream fos;
-        File file;
+        File file1;
 
-        file = new File(
+        file1 = new File(
                 System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "backup.txt");
-        fos = new FileOutputStream(file);
+        fos = new FileOutputStream(file1);
         fos.write(parser.getDocument().getText(0, parser.getDocument().getLength()).getBytes());
         fos.close();
-        return file.getAbsolutePath();
+        return file1.getAbsolutePath();
     }
 
     public String saveLocalMember(SourceParser parser, String projectName) throws Exception {
@@ -283,14 +279,14 @@ public class Member {
 
     public String saveBackupLocal(SourceParser parser, String fileName) throws Exception {
         FileOutputStream fos;
-        File file;
+        File file1;
 
-        file = new File(fileName);
-        fos = new FileOutputStream(file);
+        file1 = new File(fileName);
+        fos = new FileOutputStream(file1);
         fos.write(
                 parser.getDocument().getText(0, parser.getDocument().getLength()).replaceAll("\n", "\r\n").getBytes());
         fos.close();
-        return file.getAbsolutePath();
+        return file1.getAbsolutePath();
     }
 
     public void save(SourceParser parser, ListenerSave listener) throws SQLException {
@@ -323,7 +319,7 @@ public class Member {
             try {
                 stmt.execute(as400system.buildSqlForCmd("QSYS/DLTF FILE(QTEMP/SRCUPLOAD)"));
             } catch (SQLException e) {
-                // e.printStackTrace();
+                
                 logger.error(e.getMessage());
             }
             stmt.execute(as400system.buildSqlForCmd("QSYS/CRTSRCPF FILE(QTEMP/SRCUPLOAD) RCDLEN(" + lengthFile + ")"));
@@ -332,8 +328,8 @@ public class Member {
             try {
                 stmt.execute(as400system.buildSqlForCmd("QSYS/DLTF FILE(QTEMP/SRCUPLOAD)"));
             } catch (SQLException e) {
-                // e.printStackTrace();
-                // logger.error(e.getMessage());
+                
+                
             }
             stmt.execute(as400system.buildSqlForCmd("QSYS/CRTSRCPF FILE(QTEMP/SRCUPLOAD) RCDLEN(" + lengthFile + ")"));
             stmt.execute(as400system.buildSqlForCmd("QSYS/ADDPFM FILE(QTEMP/SRCUPLOAD) MBR(SOURCE)"));
@@ -341,26 +337,7 @@ public class Member {
 
         saveBulk(parser, listener);
 
-        /*
-		 * synchronized ( as400system ) { alias++; a = alias; } try { backup =
-		 * "	 file saved to: " + saveBackup(parser); cal = Calendar.getInstance();
-		 * today = (cal.get(Calendar.YEAR) - 2000) * 10000; today +=
-		 * ((cal.get(Calendar.MONTH) + 1) * 100); today +=
-		 * cal.get(Calendar.DAY_OF_MONTH); connection = as400system.getConnection();
-		 * synchronized (connection) { stmt = connection.createStatement();
-		 * stmt.execute("create alias qtemp/a" + a + " for " + library + "/" + file +
-		 * "(" + member + ")"); stmt.execute( "delete from qtemp/a" + a); buffer = new
-		 * StringBuffer(); line = parser.first; row = 1; while ( line != null ) {
-		 * format(line, buffer); date = line.date; if ( line.changed || line.created ) {
-		 * date = today; } line.changed = false; line.created = false; line.date = date;
-		 * stmt.execute("insert into qtemp/a" + a + " values(" + row + ", " + date +
-		 * ", '" + buffer + "')"); row++; if ( listener != null ) {
-		 * listener.lineSaved(row); } line = line.getNext(); } stmt.execute(
-		 * "drop alias qtemp/a" + a); stmt.close(); } if ( listener != null ) {
-		 * listener.saveComplete(row, true, backup); } setDirty(false); } catch
-		 * (Exception e) { e.printStackTrace(); if ( listener != null ) {
-		 * listener.saveComplete(0, false, e.getMessage() + "\n" + backup); } }
-         */
+        
     }
 
     public void saveBulk(SourceParser parser, ListenerSave listener) throws SQLException {
@@ -468,11 +445,11 @@ public class Member {
         int date, today;
         Calendar cal;
         SourceLine line;
-        boolean changed;
+        boolean changed1;
         int a;
 
         saveBackup(parser);
-        changed = false;
+        changed1 = false;
         cal = Calendar.getInstance();
         today = (cal.get(Calendar.YEAR) - 2000) * 10000;
         today += ((cal.get(Calendar.MONTH) + 1) * 100);
@@ -502,7 +479,7 @@ public class Member {
                     if (listener != null) {
                         listener.lineSaved(1);
                     }
-                    changed = true;
+                    changed1 = true;
                 } else if (line.changed) { // changed line.
                     format(line, buffer);
                     date = today;
@@ -511,14 +488,14 @@ public class Member {
                     if (listener != null) {
                         listener.lineSaved(1);
                     }
-                    changed = true;
+                    changed1 = true;
                 }
                 line.changed = false;
                 line.created = false;
                 line.date = date;
                 line = line.getNext();
             }
-            if (changed || parser.listDeleted.size() > 0) {
+            if (changed1 || parser.listDeleted.size() > 0) {
                 synchronized (as400system) {
                     alias++;
                     a = alias;
@@ -610,7 +587,9 @@ public class Member {
     }
 
     /**
-     * replaces the ' character with a ''.
+     * replaces the ' character with
+     * @param line
+     * @param buffer
      */
     public void format(SourceLine line, StringBuffer buffer) {
         int index;
@@ -618,13 +597,10 @@ public class Member {
         try {
             buffer.replace(0, buffer.length(), line.parser.getText(line.start, line.start + line.length - 1));
         } catch (StringIndexOutOfBoundsException e) {
-            /*
-			 * System.out.println("buffer: " + buffer + ", " + buffer.toString().length() +
-			 * ", " + line.start + ", " + line.length + ", " + line.parser.length());
-             */
+            
             logger.info("buffer: " + buffer + ", " + buffer.toString().length() + ", " + line.start + ", " + line.length
                     + ", " + line.parser.length());
-            // e.printStackTrace();
+            
             logger.error(e.getMessage());
             throw e;
         }
@@ -641,31 +617,30 @@ public class Member {
         }
     }
 
+    @Override
     public int hashCode() {
         return member.hashCode();
     }
 
+    @Override
     public boolean equals(Object object) {
         if (object == null) {
             return false;
         }
         if (object instanceof Member) {
-            Member member;
+            Member member2;
 
-            member = (Member) object;
-            if (member.member.trim().equalsIgnoreCase(this.member.trim()) == false) {
+            member2 = (Member) object;
+            if (member2.member.trim().equalsIgnoreCase(this.member.trim()) == false) {
                 return false;
             }
-            if (member.file.trim().equalsIgnoreCase(file.trim()) == false) {
+            if (member2.file.trim().equalsIgnoreCase(file.trim()) == false) {
                 return false;
             }
-            if (member.library.trim().equalsIgnoreCase(library.trim()) == false) {
+            if (member2.library.trim().equalsIgnoreCase(library.trim()) == false) {
                 return false;
             }
-            if (member.as400system.getName().trim().equalsIgnoreCase(as400system.getName().trim()) == false) {
-                return false;
-            }
-            return true;
+            return member2.as400system.getName().trim().equalsIgnoreCase(as400system.getName().trim()) != false;
         }
         return false;
     }
@@ -683,9 +658,9 @@ public class Member {
     public void fireChanged() {
         ListenerMember[] temp;
 
-        temp = (ListenerMember[]) listListeners.toArray(new ListenerMember[listListeners.size()]);
-        for (int x = 0; x < temp.length; x++) {
-            temp[x].memberChanged(this);
+        temp = (ListenerMember[]) listListeners.toArray(new ListenerMember[0]);
+        for (ListenerMember temp1 : temp) {
+            temp1.memberChanged(this);
         }
     }
 
@@ -698,15 +673,16 @@ public class Member {
     public boolean isOkToClose() {
         ListenerMember[] temp;
 
-        temp = (ListenerMember[]) listListeners.toArray(new ListenerMember[listListeners.size()]);
-        for (int x = 0; x < temp.length; x++) {
-            if (temp[x].isOkToClose(this) == false) {
+        temp = (ListenerMember[]) listListeners.toArray(new ListenerMember[0]);
+        for (ListenerMember temp1 : temp) {
+            if (temp1.isOkToClose(this) == false) {
                 return false;
             }
         }
         return true;
     }
 
+    @Override
     public String toString() {
         return member;
     }

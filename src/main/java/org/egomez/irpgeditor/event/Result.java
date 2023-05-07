@@ -18,12 +18,13 @@ package org.egomez.irpgeditor.event;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 /**
- * Base class for search results. This way search results can be from multiple places.
- *  
+ * Base class for search results. This way search results can be from multiple
+ * places.
+ *
  * @author not attributable
  */
 abstract public class Result {
-  abstract public void select();
+
+    abstract public void select();
 }

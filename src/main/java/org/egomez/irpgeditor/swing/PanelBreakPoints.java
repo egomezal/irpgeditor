@@ -21,7 +21,7 @@ public class PanelBreakPoints extends JPanel implements ChangeListener {
      *
      */
     private static final long serialVersionUID = 7237738665464327958L;
-    ProjectMember member;
+    transient ProjectMember member;
     int fontHeight;
     FontMetrics fm;
     JScrollPane scrollPane;

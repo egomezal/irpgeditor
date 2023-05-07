@@ -10,153 +10,154 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Keeps a list of projects.
- * 
+ *
  * @author Derek Van Kooten.
  */
 public class Projects {
-	final Logger logger = LoggerFactory.getLogger(Projects.class);
-	@SuppressWarnings("rawtypes")
-	ArrayList listProjects = new ArrayList();
-	@SuppressWarnings("rawtypes")
-	ArrayList listListeners = new ArrayList();
-	Project selected;
-	int count;
 
-	public void loadSettings() {
-		String buffer, selected;
-		Project project;
+    final Logger logger = LoggerFactory.getLogger(Projects.class);
+    @SuppressWarnings("rawtypes")
+    ArrayList listProjects = new ArrayList();
+    @SuppressWarnings("rawtypes")
+    ArrayList listListeners = new ArrayList();
+    Project selected;
+    int count;
 
-		// load open projects.
-		buffer = Environment.settings.getProperty("openprojectcount");
-		if (buffer == null) {
-			return;
-		}
-		selected = Environment.settings.getProperty("projectselected");
-		count = Integer.parseInt(buffer);
-		for (int x = 0; x < count; x++) {
-			try {
-				project = Project.load(Environment.settings.getProperty("openproject." + x));
-				if (project.getName().equalsIgnoreCase(selected)) {
-					select(project);
-				}
-				add(project);
-			} catch (IOException e) {
-				logger.error(e.getMessage());
-				//e.printStackTrace();
-			}
-		}
-	}
+    public void loadSettings() {
+        String buffer, selected;
+        Project project;
 
-	public void saveSettings() {
-		Project project;
-		int count;
+        // load open projects.
+        buffer = Environment.settings.getProperty("openprojectcount");
+        if (buffer == null) {
+            return;
+        }
+        selected = Environment.settings.getProperty("projectselected");
+        count = Integer.parseInt(buffer);
+        for (int x = 0; x < count; x++) {
+            try {
+                project = Project.load(Environment.settings.getProperty("openproject." + x));
+                if (project.getName().equalsIgnoreCase(selected)) {
+                    select(project);
+                }
+                add(project);
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+                //e.printStackTrace();
+            }
+        }
+    }
 
-		count = listProjects.size();
-		// save what projects are loaded, and what the selected project is.
-		Environment.settings.setProperty("openprojectcount", Integer.toString(count));
-		for (int x = 0; x < count; x++) {
-			project = (Project) listProjects.get(x);
-			Environment.settings.setProperty("openproject." + x, project.getFileName());
-		}
-		if (selected == null) {
-			Environment.settings.setProperty("projectselected", "");
-		} else {
-			Environment.settings.setProperty("projectselected", selected.getName());
-		}
-	}
+    public void saveSettings() {
+        Project project;
+        int countx;
 
-	@SuppressWarnings("unchecked")
-	public void add(Project project) {
-		listProjects.add(project);
-		fireAdded(project, listProjects.indexOf(project));
-	}
+        countx = listProjects.size();
+        // save what projects are loaded, and what the selected project is.
+        Environment.settings.setProperty("openprojectcount", Integer.toString(countx));
+        for (int x = 0; x < countx; x++) {
+            project = (Project) listProjects.get(x);
+            Environment.settings.setProperty("openproject." + x, project.getFileName());
+        }
+        if (selected == null) {
+            Environment.settings.setProperty("projectselected", "");
+        } else {
+            Environment.settings.setProperty("projectselected", selected.getName());
+        }
+    }
 
-	public void remove(Project project) {
-		int index;
+    @SuppressWarnings("unchecked")
+    public void add(Project project) {
+        listProjects.add(project);
+        fireAdded(project, listProjects.indexOf(project));
+    }
 
-		index = listProjects.indexOf(project);
-		listProjects.remove(project);
-		fireRemoved(project, index);
-		if (this.selected.equals(project)) {
-			select(null);
-		}
-	}
+    public void remove(Project project) {
+        int index;
 
-	public Project get(int index) {
-		return (Project) listProjects.get(index);
-	}
+        index = listProjects.indexOf(project);
+        listProjects.remove(project);
+        fireRemoved(project, index);
+        if (this.selected.equals(project)) {
+            select(null);
+        }
+    }
 
-	public int getSize() {
-		return listProjects.size();
-	}
+    public Project get(int index) {
+        return (Project) listProjects.get(index);
+    }
 
-	@SuppressWarnings("rawtypes")
-	public void select(Project project) {
-		ProjectMember projectMember;
+    public int getSize() {
+        return listProjects.size();
+    }
 
-		if (project == null && selected == null) {
-			return;
-		}
-		if (project != null && project.equals(this.selected)) {
-			return;
-		}
-		this.selected = project;
-		// only one project can be selected at a time, close other projects open
-		// members.
-		Environment.members.closeAll(true);
-		// add members.
-		if (project != null) {
-			ArrayList list = project.getMembers();
-			for (int x = 0; x < list.size(); x++) {
-				projectMember = (ProjectMember) list.get(x);
-				// was already opened?
-				if (Environment.members.isCached(projectMember)) {
-					Environment.members.open(projectMember);
-				}
-			}
-			Environment.members.select(project.getProjectMemberSelected());
-		}
+    @SuppressWarnings("rawtypes")
+    public void select(Project project) {
+        ProjectMember projectMember;
 
-		fireSelected(project);
-	}
+        if (project == null && selected == null) {
+            return;
+        }
+        if (project != null && project.equals(this.selected)) {
+            return;
+        }
+        this.selected = project;
+        // only one project can be selected at a time, close other projects open
+        // members.
+        Environment.members.closeAll(true);
+        // add members.
+        if (project != null) {
+            ArrayList list = project.getMembers();
+            for (int x = 0; x < list.size(); x++) {
+                projectMember = (ProjectMember) list.get(x);
+                // was already opened?
+                if (Environment.members.isCached(projectMember)) {
+                    Environment.members.open(projectMember);
+                }
+            }
+            Environment.members.select(project.getProjectMemberSelected());
+        }
 
-	public Project getSelected() {
-		return selected;
-	}
+        fireSelected(project);
+    }
 
-	@SuppressWarnings("unchecked")
-	public void addListener(ListenerProjects l) {
-		listListeners.add(l);
-	}
+    public Project getSelected() {
+        return selected;
+    }
 
-	public void removeListener(ListenerProjects l) {
-		listListeners.remove(l);
-	}
+    @SuppressWarnings("unchecked")
+    public void addListener(ListenerProjects l) {
+        listListeners.add(l);
+    }
 
-	protected void fireAdded(Project project, int index) {
-		Object[] temp;
+    public void removeListener(ListenerProjects l) {
+        listListeners.remove(l);
+    }
 
-		temp = listListeners.toArray();
-		for (int x = 0; x < temp.length; x++) {
-			((ListenerProjects) temp[x]).added(project, index);
-		}
-	}
+    protected void fireAdded(Project project, int index) {
+        Object[] temp;
 
-	protected void fireRemoved(Project project, int index) {
-		Object[] temp;
+        temp = listListeners.toArray();
+        for (Object temp1 : temp) {
+            ((ListenerProjects) temp1).added(project, index);
+        }
+    }
 
-		temp = listListeners.toArray();
-		for (int x = 0; x < temp.length; x++) {
-			((ListenerProjects) temp[x]).removed(project, index);
-		}
-	}
+    protected void fireRemoved(Project project, int index) {
+        Object[] temp;
 
-	protected void fireSelected(Project project) {
-		Object[] temp;
+        temp = listListeners.toArray();
+        for (Object temp1 : temp) {
+            ((ListenerProjects) temp1).removed(project, index);
+        }
+    }
 
-		temp = listListeners.toArray();
-		for (int x = 0; x < temp.length; x++) {
-			((ListenerProjects) temp[x]).selected(project);
-		}
-	}
+    protected void fireSelected(Project project) {
+        Object[] temp;
+
+        temp = listListeners.toArray();
+        for (Object temp1 : temp) {
+            ((ListenerProjects) temp1).selected(project);
+        }
+    }
 }

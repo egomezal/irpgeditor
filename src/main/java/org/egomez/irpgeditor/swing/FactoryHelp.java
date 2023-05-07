@@ -13,6 +13,7 @@ public class FactoryHelp implements FactoryPanelTool {
 	PanelHelp panelHelp = new PanelHelp();
 	Logger logger = LoggerFactory.getLogger(FactoryHelp.class);
 
+        @Override
 	public PanelTool construct(Object object) {
 		HelpRequest request;
 

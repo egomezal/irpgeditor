@@ -44,11 +44,11 @@ public class Qcmdexec {
             appendLine(message.getText(), color);
             if (!result)
                 try {
-                    message.load();
-                    appendLine(message.getHelp(), color);
-                } catch (AS400SecurityException | ErrorCompletingRequestException | ObjectDoesNotExistException | IOException | InterruptedException e) {
-                    logger.error(e.getMessage());
-                }
+                message.load();
+                appendLine(message.getHelp(), color);
+            } catch (AS400SecurityException | ErrorCompletingRequestException | ObjectDoesNotExistException | IOException | InterruptedException e) {
+                logger.error(e.getMessage());
+            }
         }
     }
 

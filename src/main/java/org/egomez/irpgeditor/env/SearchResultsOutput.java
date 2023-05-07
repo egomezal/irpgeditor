@@ -18,16 +18,18 @@ package org.egomez.irpgeditor.env;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 import org.egomez.irpgeditor.event.*;
 
 /**
  * A call back for when a result is found in text.
- *  
+ *
  * @author not attributable
  */
 public interface SearchResultsOutput {
-  public void searchResultFound(Result result);
-  public void clear();
-  public void focus();
+
+    public void searchResultFound(Result result);
+
+    public void clear();
+
+    public void focus();
 }

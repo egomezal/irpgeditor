@@ -59,8 +59,6 @@ public class FrameiRPGEditor extends JFrame {
     private boolean flgExit = true;
     // tree files.
     TreeCellRendererNode treeCellRendererNode = new TreeCellRendererNode();
-    DefaultMutableTreeNode nodeFilesRoot = new DefaultMutableTreeNode("");
-    TreeModelProject treeModelFiles = new TreeModelProject();
 
     // tree structure.
     TreeModelSourceStructure treeModelStructure = new TreeModelSourceStructure();
@@ -102,9 +100,7 @@ public class FrameiRPGEditor extends JFrame {
     // JMenuItem jMenuItem13 = new JMenuItem();
     JMenu menuBuild = new JMenu();
     Border border1;
-    TitledBorder titledBorder1;
     Border border2;
-    TitledBorder titledBorder2;
     PanelSearchResults panelSearchResults = new PanelSearchResults();
     JMenu menuHelp = new JMenu();
     JMenuItem menuRpgReference = new JMenuItem();
@@ -146,7 +142,7 @@ public class FrameiRPGEditor extends JFrame {
 
         try {
             String SO = System.getProperty("os.name");
-            if (SO.toUpperCase().indexOf("WINDOWS") == -1) {
+            if (!SO.toUpperCase().contains("WINDOWS")) {
                 PlasticXPLookAndFeel.setPlasticTheme(new ExperienceBlue());
                 UIManager.setLookAndFeel(new PlasticXPLookAndFeel());
             } else {
@@ -190,7 +186,7 @@ public class FrameiRPGEditor extends JFrame {
             Environment.actions.addActions(new Action[]{actionExit});
         } catch (Exception e) {
             logger.error(e.getMessage());
-            // e.printStackTrace();
+            
         }
         splash.setVisible(false);
         splash.dispose();
@@ -226,9 +222,9 @@ public class FrameiRPGEditor extends JFrame {
 
     private void jbInit() throws Exception {
         border1 = new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(148, 145, 140));
-        titledBorder1 = new TitledBorder(border1, "Run");
+        new TitledBorder(border1, "Run");
         border2 = new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(148, 145, 140));
-        titledBorder2 = new TitledBorder(border2, "Debug");
+        new TitledBorder(border2, "Debug");
         splitpaneMain.setOrientation(JSplitPane.VERTICAL_SPLIT);
         splitpaneMain.setLastDividerLocation(600);
         splitpaneLeft.setOrientation(JSplitPane.VERTICAL_SPLIT);
@@ -387,6 +383,7 @@ public class FrameiRPGEditor extends JFrame {
     /**
      * Overridden so we can exit when window is closed
      */
+    @Override
     protected void processWindowEvent(WindowEvent e) {
         super.processWindowEvent(e);
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
@@ -499,6 +496,7 @@ public class FrameiRPGEditor extends JFrame {
             // putValue(Action.MNEMONIC_KEY, new Character('S'));
         }
 
+        @Override
         public void actionPerformed(ActionEvent evt) {
             if (flgExit) {
                 saveSettings();
@@ -524,6 +522,7 @@ public class FrameiRPGEditor extends JFrame {
      */
     class ActionLayout implements ActionListener {
 
+        @Override
         public void actionPerformed(ActionEvent evt) {
             Component component;
             String buffer;
@@ -555,6 +554,7 @@ public class FrameiRPGEditor extends JFrame {
      */
     class ActionRpgReference implements ActionListener {
 
+        @Override
         public void actionPerformed(ActionEvent evt) {
             Component component;
             String buffer;
@@ -596,6 +596,7 @@ public class FrameiRPGEditor extends JFrame {
         ListenerStructure listener;
 
         @SuppressWarnings("rawtypes")
+        @Override
         public void setStructure(TreeModel treeModel, Enumeration expands, ListenerStructure listener) {
             TreePath path;
 
@@ -614,6 +615,7 @@ public class FrameiRPGEditor extends JFrame {
             }
         }
 
+        @Override
         public void removeStructure(TreeModel treeModel) {
             if (treeStructure.getModel() == treeModel) {
                 if (listener != null) {

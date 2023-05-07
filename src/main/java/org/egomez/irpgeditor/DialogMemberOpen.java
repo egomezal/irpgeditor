@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.borland.jbcl.layout.*;
-import com.ibm.as400.access.*;
 
 /**
  *
@@ -52,7 +51,6 @@ public class DialogMemberOpen extends JDialog {
     ActionSelectLibrary actionSelectLibrary = new ActionSelectLibrary();
 
     ActionSelectSystem actionSelectSystem = new ActionSelectSystem();
-    AS400System as400system;
 
     BorderLayout borderLayout3 = new BorderLayout();
 
@@ -66,8 +64,6 @@ public class DialogMemberOpen extends JDialog {
 
     JButton buttonCancel = new JButton();
     JButton buttonOk = new JButton();
-
-    AS400JDBCDriver driver = new AS400JDBCDriver();
 
     FlowLayout flowLayout1 = new FlowLayout();
 
@@ -101,8 +97,6 @@ public class DialogMemberOpen extends JDialog {
 
     @SuppressWarnings("rawtypes")
     DefaultComboBoxModel listModelSystems = new DefaultComboBoxModel();
-    ListenerMemberCreated listener;
-    Member member;
     JPanel panel1 = new JPanel();
 
     JTextField textfieldMember = new JTextField();
@@ -234,7 +228,6 @@ public class DialogMemberOpen extends JDialog {
     public static void showDialog(Frame frame, AS400System as400, String library, String file, String memberName,
             String type, ListenerMemberCreated listener) {
         DialogMemberOpen dialog = new DialogMemberOpen(frame);
-        dialog.listener = listener;
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension frameSize = dialog.getSize();
@@ -338,7 +331,7 @@ public class DialogMemberOpen extends JDialog {
                 DialogMemberOpen.this.listModelFiles.removeAllElements();
                 ArrayList<String> list = system
                         .getSourceFiles((String) DialogMemberOpen.this.comboboxLibrary.getSelectedItem());
-                while (list.size() > 0) {
+                while (!list.isEmpty()) {
                     DialogMemberOpen.this.listModelFiles.addElement((String) list.remove(0));
                 }
                 DialogMemberOpen.this.comboboxFile.setSelectedIndex(-1);
@@ -346,7 +339,7 @@ public class DialogMemberOpen extends JDialog {
                 DialogMemberOpen.this.comboboxFile.setEnabled(true);
                 DialogMemberOpen.this.comboboxFile.addActionListener(DialogMemberOpen.this.actionSelectFile);
             } catch (SQLException e) {
-                //e.printStackTrace();
+
                 logger.error(e.getMessage());
                 JOptionPane.showMessageDialog(KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow(),
                         e.getMessage());
@@ -368,7 +361,7 @@ public class DialogMemberOpen extends JDialog {
             }
             try {
                 ArrayList<String> list = system.getSourceLibraries();
-                while (list.size() > 0) {
+                while (!list.isEmpty()) {
                     DialogMemberOpen.this.listModelLibraries.addElement(list.remove(0));
                 }
                 DialogMemberOpen.this.comboboxLibrary.setSelectedIndex(-1);
@@ -376,7 +369,7 @@ public class DialogMemberOpen extends JDialog {
                 DialogMemberOpen.this.labelLibrary.setEnabled(true);
                 DialogMemberOpen.this.comboboxLibrary.setEnabled(true);
             } catch (SQLException e) {
-                //e.printStackTrace();
+
                 logger.error(e.getMessage());
                 JOptionPane.showMessageDialog(KeyboardFocusManager.getCurrentKeyboardFocusManager().getActiveWindow(),
                         e.getMessage());

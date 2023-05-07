@@ -1,5 +1,7 @@
 package org.egomez.irpgeditor.swing;
 
+import com.ibm.as400.access.AS400SecurityException;
+import com.ibm.as400.access.ErrorCompletingRequestException;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -13,11 +15,13 @@ import javax.swing.border.EmptyBorder;
 import org.jdesktop.swingx.JXTextArea;
 
 import com.ibm.as400.access.JobLog;
+import com.ibm.as400.access.ObjectDoesNotExistException;
 
 import com.ibm.as400.access.QueuedMessage;
 import javax.swing.JScrollPane;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 
 public class DlgJobLog extends JDialog {
 
@@ -30,6 +34,7 @@ public class DlgJobLog extends JDialog {
 	boolean flgError = false;
 	/**
 	 * Create the dialog.
+     * @param title
 	 */
 	public DlgJobLog(String title, JobLog log) {
 		addWindowListener(new WindowAdapter() {
@@ -53,9 +58,9 @@ public class DlgJobLog extends JDialog {
 		{
 			textArea = new JXTextArea();
 			textArea.setEditable(false);
-			QueuedMessage message = null;
+			QueuedMessage message;
 			@SuppressWarnings("rawtypes")
-			Enumeration listMessage = null;
+			Enumeration listMessage;
 			String datos = "";
 			try {
 				listMessage = log.getMessages();
@@ -66,7 +71,7 @@ public class DlgJobLog extends JDialog {
 				textArea.setText(datos);
 				JScrollPane scrollPane = new JScrollPane(textArea);
 				contentPanel.add(scrollPane, BorderLayout.CENTER);
-			} catch (Exception e) {
+			} catch (AS400SecurityException | ErrorCompletingRequestException | ObjectDoesNotExistException | IOException | InterruptedException e) {
 				JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				flgError=true;
 			}

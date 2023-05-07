@@ -29,10 +29,12 @@ import org.egomez.irpgeditor.*;
 public interface ListenerAS400System {
   /**
    * Is called by the AS400System object when a connection is made.
+     * @param system
    */
   public void connected(AS400System system);
   /**
    * Is called by the AS400System object when a disconnect happens.
+     * @param system
    */
   public void disconnected(AS400System system);
 }

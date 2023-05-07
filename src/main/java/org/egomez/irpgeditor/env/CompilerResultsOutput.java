@@ -20,22 +20,25 @@ import javax.swing.text.*;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 /**
  * interface for a class to implement to make it capable of displaying compiler
- * results. 
+ * results.
+ *
  * @author not attributable
  */
 public interface CompilerResultsOutput {
-  public void clear();
-  /**
-   * the textComponent is optional, if the source is being displayed in a
-   * text component, then include it, so that compile result line numbers can be
-   * matched up to a text component.
-   * 
-   * @param text String
-   * @param textComponent JTextComponent
-   */
-  public void setResults(String text, JTextComponent textComponent);
-  public void focus();
+
+    public void clear();
+
+    /**
+     * the textComponent is optional, if the source is being displayed in a text
+     * component, then include it, so that compile result line numbers can be
+     * matched up to a text component.
+     *
+     * @param text String
+     * @param textComponent JTextComponent
+     */
+    public void setResults(String text, JTextComponent textComponent);
+
+    public void focus();
 }

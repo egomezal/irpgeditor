@@ -18,10 +18,12 @@ public class CopyMember implements CopyRequest {
     this.member = member;
   }
 
+  @Override
   public void copyTo(AS400System as400, String library, String file) throws Exception {
 	  this.member.copyTo(as400, library, file, this.member.getName(), null);
   }
 
+  @Override
   public void copyTo(AS400System as400, String library) throws Exception {
   //Compatibilidad de interfase
   }

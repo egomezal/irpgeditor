@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * @author Derek Van Kooten.
  */
 public class AS400System extends NodeAbstract {
-
+    
     AS400JDBCDriver driver = new AS400JDBCDriver();
     ArrayList<ListenerAS400System> listListeners = new ArrayList<>();
     AS400ConnectionPoolImp pool;
@@ -60,11 +60,10 @@ public class AS400System extends NodeAbstract {
     boolean connected = false;
     boolean ssl = false;
     int alias = 0;
-    boolean tempSrcTableCreated = false;
     int tempSrcTableLength = 0;
     boolean uploadProcedureExists = false;
     Logger logger = LoggerFactory.getLogger(AS400System.class);
-
+    
     ArrayList<String> listCallBuffer = new ArrayList<>();
     ArrayList<String> listLibraries = new ArrayList<>();
 
@@ -89,7 +88,7 @@ public class AS400System extends NodeAbstract {
         this.user = user;
         this.password = password;
     }
-
+    
     public void addToLibraryList(String library, String position, boolean background, ListenerSubmitJob listener)
             throws Exception {
         if (position == null) {
@@ -97,13 +96,13 @@ public class AS400System extends NodeAbstract {
         } else {
             call("ADDLIBLE " + library + " POSITION(" + position + ")", background, listener);
         }
-
+        
         if (listLibraries == null) {
             listLibraries = new ArrayList<>();
         }
         listLibraries.add(library);
     }
-
+    
     public ArrayList<String> libraryList() throws Exception {
         if (!this.connected) {
             throw new Exception("Invalid State: DISCONNECTED.");
@@ -129,44 +128,44 @@ public class AS400System extends NodeAbstract {
             return list;
         }
     }
-
+    
     public ArrayList<BindingDirectory> listBindingDirectories(String library, String type) throws Exception {
         if (!this.connected) {
             throw new Exception("Invalid State: DISCONNECTED.");
         }
-
+        
         ArrayList<BindingDirectory> list = new ArrayList<>();
         String userSpaceName = createName(library.toUpperCase(), "QTEMP");
         synchronized (this.pcmlLock) {
             createUserSpace(userSpaceName, 4096576);
-
+            
             this.pcml.setValue("quslobj.userSpace", userSpaceName);
             this.pcml.setValue("quslobj.objectName", createName("*ALL", library));
             this.pcml.setValue("quslobj.objectType", type);
             callPcml("quslobj");
-
+            
             int listOffset = getUserSpaceListOffset(userSpaceName);
             int listEntries = getUserSpaceNumberOfEntries(userSpaceName);
-
+            
             this.pcml.setValue("qusrtvusOBJL0100.userSpace", userSpaceName);
             int size = this.pcml.getOutputsize("qusrtvusOBJL0100.receiver");
-            this.pcml.setValue("qusrtvusOBJL0100.length", new Integer(size));
+            this.pcml.setValue("qusrtvusOBJL0100.length", size);
             int i = listOffset;
             for (int j = 0; j < listEntries; j++) {
-                this.pcml.setValue("qusrtvusOBJL0100.startPos", new Integer(i));
+                this.pcml.setValue("qusrtvusOBJL0100.startPos", i);
                 callPcml("qusrtvusOBJL0100");
                 BindingDirectory bd = new BindingDirectory(this,
                         (String) this.pcml.getValue("qusrtvusOBJL0100.receiver.name"),
                         (String) this.pcml.getValue("qusrtvusOBJL0100.receiver.library"),
                         (String) this.pcml.getValue("qusrtvusOBJL0100.receiver.type"));
-
+                
                 list.add(bd);
-
+                
                 i += size;
             }
-
+            
         }
-
+        
         return list;
     }
 
@@ -178,7 +177,7 @@ public class AS400System extends NodeAbstract {
     public AS400 getAS400() {
         if (!as400.isConnectionAlive()) {
             try {
-                as400.authenticate(this.user, this.password);
+                as400.authenticate(this.user, this.password.toCharArray());
                 connect();
             } catch (AS400SecurityException | IOException | AS400Exception ex) {
                 java.util.logging.Logger.getLogger(AS400System.class.getName()).log(Level.SEVERE, null, ex);
@@ -188,23 +187,23 @@ public class AS400System extends NodeAbstract {
         }
         return as400;
     }
-
+    
     public String getName() {
         return name;
     }
-
+    
     public ArrayList<String> getCallBuffer() {
         return this.listCallBuffer;
     }
-
+    
     public void setName(String name) {
         this.name = name;
     }
-
+    
     public String getAddress() {
         return address;
     }
-
+    
     public void setAddress(String address) {
         if (this.address != null && this.address.equalsIgnoreCase(address)) {
             return;
@@ -212,11 +211,11 @@ public class AS400System extends NodeAbstract {
         this.address = address;
         attemptConnect();
     }
-
+    
     public String getUser() {
         return user;
     }
-
+    
     public void setUser(String user) {
         if (this.user != null && this.user.equalsIgnoreCase(user)) {
             return;
@@ -224,15 +223,14 @@ public class AS400System extends NodeAbstract {
         this.user = user;
         attemptConnect();
     }
-
+    
     public String getPassword() {
         return password;
     }
-
+    
     public int getRecordCount(String library, String file) throws SQLException {
         int count = 0;
-        //Connection connection = getConnection();
-
+        
         synchronized (connection) {
             try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery("select count(*) from " + library + "/" + file)) {
                 if (rs.next()) {
@@ -242,7 +240,7 @@ public class AS400System extends NodeAbstract {
         }
         return count;
     }
-
+    
     public void setPassword(String password) {
         if (this.password != null && this.password.equalsIgnoreCase(password)) {
             return;
@@ -250,11 +248,11 @@ public class AS400System extends NodeAbstract {
         this.password = password;
         attemptConnect();
     }
-
+    
     public String getErrorMessage() {
         return errorMessage;
     }
-
+    
     public boolean isConnected() {
         connected = false;
         if (as400 != null) {
@@ -262,11 +260,11 @@ public class AS400System extends NodeAbstract {
         }
         return connected;
     }
-
+    
     public boolean isSsl() {
         return ssl;
     }
-
+    
     public void setSsl(boolean ssl) {
         this.ssl = ssl;
     }
@@ -297,7 +295,6 @@ public class AS400System extends NodeAbstract {
             JOptionPane.showMessageDialog(null, e.getMessage() + "\nSystem could disable your user. "
                     + "Check if user and password are correct and try again.", name, JOptionPane.ERROR_MESSAGE);
             errorMessage = e.getMessage();
-            // e.printStackTrace();
             logger.error(e.getMessage());
         }
         return connected;
@@ -313,8 +310,8 @@ public class AS400System extends NodeAbstract {
     public void connect() throws Exception {
         if (user != null && password != null) {
             disconnect();
-
-            as400 = new AS400(address, user, password);
+            
+            as400 = new AS400(address, user, password.toCharArray());
             pool = new AS400ConnectionPoolImp(address, user, password);
             as400.setGuiAvailable(false);
             as400.connectService(AS400.FILE);
@@ -327,7 +324,7 @@ public class AS400System extends NodeAbstract {
             executeTimer();
         }
     }
-
+    
     public boolean call(String cmd) throws Exception {
         this.listCallBuffer.add(cmd);
         boolean result;
@@ -339,13 +336,14 @@ public class AS400System extends NodeAbstract {
             } else {
                 Environment.qcmdexec.append(this.commandCall.getMessageList(), Color.RED, result);
             }
-        } catch (AS400SecurityException | ErrorCompletingRequestException | PropertyVetoException | IOException | InterruptedException e) {
+        } catch (AS400SecurityException | ErrorCompletingRequestException | PropertyVetoException | IOException
+                | InterruptedException e) {
             Environment.qcmdexec.appendLine(e.getMessage(), Color.RED);
             throw e;
         }
         return result;
     }
-
+    
     public void call(String cmd, boolean background, ListenerSubmitJob listener) throws Exception {
         if (background) {
             Environment.qcmdexec.submitJob(this, cmd, listener);
@@ -360,7 +358,7 @@ public class AS400System extends NodeAbstract {
      * @return Properties
      */
     protected Properties getConnectionProperties() {
-        String libraryList = null;
+        String libraryList;
         Properties p = new Properties();
         p.setProperty("naming", "system");
         p.setProperty("package ccsid", "system");
@@ -390,15 +388,15 @@ public class AS400System extends NodeAbstract {
      */
     public Connection getConnection() throws SQLException {
         /*
-		 * if (connection == null) { connection = driver.connect(as400,
-		 * getConnectionProperties(), null); }
+         * if (connection == null) { connection = driver.connect(as400,
+         * getConnectionProperties(), null); }
          */
         return connection;
     }
-
+    
     public Connection getConnectionPool() throws SQLException {
         String libraryList = null;
-
+        
         if (listLibraries != null) {
             libraryList = "";
             for (String x : listLibraries) {
@@ -417,7 +415,7 @@ public class AS400System extends NodeAbstract {
      */
     public void disconnect() {
         connected = false;
-
+        
         if (as400 != null) {
             as400.disconnectAllServices();
             pool.close();
@@ -470,13 +468,13 @@ public class AS400System extends NodeAbstract {
     @SuppressWarnings("unchecked")
     protected void fireDisconnected() {
         ArrayList<ListenerAS400System> temp;
-
+        
         temp = (ArrayList<ListenerAS400System>) listListeners.clone();
         for (int x = 0; x < temp.size(); x++) {
             temp.get(x).disconnected(this);
         }
     }
-
+    
     public void createUserSpace(String name, int size) throws Exception {
         if (pcml == null) {
             pcml = new ProgramCallDocument(as400, "api");
@@ -489,15 +487,15 @@ public class AS400System extends NodeAbstract {
         } catch (Exception e) {
         }
     }
-
+    
     public void deleteFile(String library, String file, boolean background, ListenerSubmitJob listener)
             throws Exception {
         call("DLTF FILE(" + library + "/" + file + ")", background, listener);
     }
-
+    
     public int getUserSpaceListOffset(String name) throws Exception {
         Object o;
-
+        
         if (pcml == null) {
             pcml = new ProgramCallDocument(as400, "api");
         }
@@ -507,10 +505,10 @@ public class AS400System extends NodeAbstract {
         o = pcml.getValue("qusrtvus.receiver");
         return ((Integer) o) + 1;
     }
-
+    
     public int getUserSpaceNumberOfEntries(String name) throws Exception {
         Object o;
-
+        
         if (pcml == null) {
             pcml = new ProgramCallDocument(as400, "api");
         }
@@ -520,7 +518,7 @@ public class AS400System extends NodeAbstract {
         o = pcml.getValue("qusrtvus.receiver");
         return ((Integer) o);
     }
-
+    
     public String createName(String name, String library) {
         while (name.length() < 10) {
             name = name + " ";
@@ -547,11 +545,11 @@ public class AS400System extends NodeAbstract {
      * file specified.
      */
     public ArrayList<Member> listMembers(String library, String file) throws Exception {
-        int listOffset = 0, listEntries = 0, size;
+        int listOffset, listEntries, size;
         ArrayList<Member> members;
         Member member;
         String buffer, userSpaceName;
-
+        
         if (connected == false) {
             throw new Exception("Invalid State: DISCONNECTED.");
         }
@@ -567,7 +565,7 @@ public class AS400System extends NodeAbstract {
             pcml.setValue("quslmbr.userSpace", userSpaceName);
             pcml.setValue("quslmbr.fileName", buffer);
             callPcml("quslmbr");
-
+            
             listOffset = getUserSpaceListOffset(userSpaceName);
             listEntries = getUserSpaceNumberOfEntries(userSpaceName);
 
@@ -589,25 +587,25 @@ public class AS400System extends NodeAbstract {
             return members;
         }
     }
-
+    
     public ArrayList<Object> listObjects(String library, String file, String type) throws Exception {
         if (!this.connected) {
             throw new Exception("Invalid State: DISCONNECTED.");
         }
-
+        
         ArrayList<Object> list = new ArrayList<>();
         String userSpaceName = createName("LISTOBJECT", "QTEMP");
         synchronized (this.pcmlLock) {
             createUserSpace(userSpaceName, 4096576);
-
+            
             this.pcml.setValue("quslobj.userSpace", userSpaceName);
             this.pcml.setValue("quslobj.objectName", createName(file, library));
             this.pcml.setValue("quslobj.objectType", type);
             callPcml("quslobj");
-
+            
             int listOffset = getUserSpaceListOffset(userSpaceName);
             int listEntries = getUserSpaceNumberOfEntries(userSpaceName);
-
+            
             this.pcml.setValue("qusrtvusOBJL0100.userSpace", userSpaceName);
             int size = this.pcml.getOutputsize("qusrtvusOBJL0100.receiver");
             this.pcml.setValue("qusrtvusOBJL0100.length", size);
@@ -618,55 +616,24 @@ public class AS400System extends NodeAbstract {
                 list.add(this.pcml.getValue("qusrtvusOBJL0100.receiver.name"));
                 list.add(this.pcml.getValue("qusrtvusOBJL0100.receiver.library"));
                 list.add(this.pcml.getValue("qusrtvusOBJL0100.receiver.type"));
-
+                
                 i += size;
             }
-
+            
         }
-
+        
         return list;
     }
-
-    /*
-	 * public ArrayList<BindingDirectory> listObjects(String library, String type)
-	 * throws Exception { String userSpaceName; int listOffset, listEntries, size;
-	 * ArrayList<BindingDirectory> list; BindingDirectory bd;
-	 * 
-	 * if (connected == false) { throw new Exception(
-	 * "Invalid State: DISCONNECTED."); }
-	 * 
-	 * list = new ArrayList<BindingDirectory>(); userSpaceName =
-	 * createName(library.toUpperCase(), "QTEMP"); synchronized (pcmlLock) {
-	 * createUserSpace(userSpaceName, 2024 * 2024);
-	 * 
-	 * // retrieve the list of binding directories into the user space on // the
-	 * as400. pcml.setValue("quslobj.userSpace", userSpaceName);
-	 * pcml.setValue("quslobj.objectName", createName("*ALL", library));
-	 * pcml.setValue("quslobj.objectType", type); callPcml("quslobj");
-	 * 
-	 * listOffset = getUserSpaceListOffset(userSpaceName); listEntries =
-	 * getUserSpaceNumberOfEntries(userSpaceName);
-	 * 
-	 * pcml.setValue("qusrtvusOBJL0100.userSpace", userSpaceName); size =
-	 * pcml.getOutputsize("qusrtvusOBJL0100.receiver");
-	 * pcml.setValue("qusrtvusOBJL0100.length", new Integer(size)); for (int i =
-	 * listOffset, j = 0; j < listEntries; i += size, j++) {
-	 * pcml.setValue("qusrtvusOBJL0100.startPos", new Integer(i));
-	 * callPcml("qusrtvusOBJL0100"); bd = new BindingDirectory(this, (String) pcml
-	 * .getValue("qusrtvusOBJL0100.receiver.name"), (String) pcml
-	 * .getValue("qusrtvusOBJL0100.receiver.library"), (String) pcml
-	 * .getValue("qusrtvusOBJL0100.receiver.type")); list.add(bd); } } return list;
-	 * }
-     */
+    
     public ArrayList<Object> listModuleProcedures(String library, String module) throws Exception {
         String userSpaceName;
         int listOffset, listEntries, size, procOffset;
         ArrayList<Object> list;
-
+        
         if (connected == false) {
             throw new Exception("Invalid State: DISCONNECTED.");
         }
-
+        
         list = new ArrayList<>();
         userSpaceName = createName(module.toUpperCase(), "QTEMP");
         synchronized (pcmlLock) {
@@ -677,10 +644,10 @@ public class AS400System extends NodeAbstract {
             pcml.setValue("QBNLMODI_MODL0300.userSpace", userSpaceName);
             pcml.setValue("QBNLMODI_MODL0300.module", createName(module.toUpperCase(), library.toUpperCase()));
             callPcml("QBNLMODI_MODL0300");
-
+            
             listOffset = getUserSpaceListOffset(userSpaceName);
             listEntries = getUserSpaceNumberOfEntries(userSpaceName);
-
+            
             pcml.setValue("qusrtvusMODL0300.userSpace", userSpaceName);
             size = pcml.getOutputsize("qusrtvusMODL0300.receiver");
             pcml.setValue("qusrtvusMODL0300.length", size);
@@ -702,17 +669,17 @@ public class AS400System extends NodeAbstract {
         }
         return list;
     }
-
+    
     public ArrayList<Module> listServiceProgramModules(String library, String serviceProgram) throws Exception {
         String userSpaceName;
         int listOffset, listEntries, size;
         Module module;
         ArrayList<Module> list;
-
+        
         if (connected == false) {
             throw new Exception("Invalid State: DISCONNECTED.");
         }
-
+        
         list = new ArrayList<>();
         userSpaceName = createName(serviceProgram.toUpperCase(), "QTEMP");
         synchronized (pcmlLock) {
@@ -723,10 +690,10 @@ public class AS400System extends NodeAbstract {
             pcml.setValue("QBNLSPGM_SPGL0100.userSpace", userSpaceName);
             pcml.setValue("QBNLSPGM_SPGL0100.serviceProgram", createName(serviceProgram.toUpperCase(), library));
             callPcml("QBNLSPGM_SPGL0100");
-
+            
             listOffset = getUserSpaceListOffset(userSpaceName);
             listEntries = getUserSpaceNumberOfEntries(userSpaceName);
-
+            
             pcml.setValue("qusrtvusSPGL0100.userSpace", userSpaceName);
             size = pcml.getOutputsize("qusrtvusSPGL0100.receiver");
             pcml.setValue("qusrtvusSPGL0100.length", size);
@@ -743,28 +710,28 @@ public class AS400System extends NodeAbstract {
         }
         return list;
     }
-
+    
     public void removeFromLibraryList(String library, boolean background, ListenerSubmitJob listener) throws Exception {
         call("RMVLIBLE " + library, background, listener);
     }
-
+    
     public ArrayList<BindingDirectoryEntry> listEntries(BindingDirectory bd) throws Exception {
         ArrayList<BindingDirectoryEntry> list;
-        //Connection connection;
-        Statement stmt;
+        
         ResultSet rs;
-
+        
         list = new ArrayList<>();
-        //connection = getConnection();
-        stmt = connection.createStatement();
-        stmt.execute(buildSqlForCmd("DSPBNDDIR BNDDIR(" + bd.getLibrary() + "/" + bd.getName()
-                + ") OUTPUT(*OUTFILE) OUTFILE(QTEMP/" + bd.getName() + ") OUTMBR(*FIRST *REPLACE)"));
-        rs = stmt.executeQuery("SELECT * FROM QTEMP/" + bd.getName());
-        while (rs.next()) {
-            list.add(new BindingDirectoryEntry(bd, rs.getString(4), rs.getString(5), rs.getString(6)));
+        
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute(buildSqlForCmd("DSPBNDDIR BNDDIR(" + bd.getLibrary() + "/" + bd.getName()
+                    + ") OUTPUT(*OUTFILE) OUTFILE(QTEMP/" + bd.getName() + ") OUTMBR(*FIRST *REPLACE)"));
+            rs = stmt.executeQuery("SELECT * FROM QTEMP/" + bd.getName());
+            while (rs.next()) {
+                list.add(new BindingDirectoryEntry(bd, rs.getString(4), rs.getString(5), rs.getString(6)));
+            }
+            rs.close();
+            
         }
-        rs.close();
-        stmt.close();
         return list;
     }
 
@@ -779,18 +746,17 @@ public class AS400System extends NodeAbstract {
         if (length == this.tempSrcTableLength) {
             return;
         }
-
-        //Connection connection = getConnection();
+        
         synchronized (connection) {
             try (Statement stmt = connection.createStatement()) {
                 try {
                     stmt.execute(buildSqlForCmd("QSYS/DLTF QTEMP/SRCUPLOAD"));
                 } catch (SQLException e) {
+                    logger.error(e.getMessage());
                 }
                 stmt.execute(buildSqlForCmd("QSYS/CRTSRCPF FILE(QTEMP/SRCUPLOAD) RCDLEN(" + length + ")"));
                 stmt.execute(buildSqlForCmd("QSYS/ADDPFM FILE(QTEMP/SRCUPLOAD) MBR(SOURCE)"));
             }
-            this.tempSrcTableCreated = true;
             this.tempSrcTableLength = length;
         }
     }
@@ -806,13 +772,13 @@ public class AS400System extends NodeAbstract {
         if (uploadProcExists(library)) {
             return;
         }
-
-        //  Connection connection = getConnection();
+        
         synchronized (connection) {
             try (Statement stmt = connection.createStatement()) {
                 try {
                     stmt.execute("DROP PROCEDURE " + library.toUpperCase() + ".PRCUPLOAD");
                 } catch (SQLException e) {
+                    logger.error(e.getMessage());
                 }
                 stmt.execute("CREATE PROCEDURE " + library.toUpperCase() + ".PRCUPLOAD (IN SOURCE VARCHAR(32700), "
                         + "IN CRLF VARCHAR(2), " + "IN APPEND VARCHAR(1)) LANGUAGE SQL " + "SET OPTION DBGVIEW=*SOURCE "
@@ -844,19 +810,6 @@ public class AS400System extends NodeAbstract {
         }
     }
 
-    /*
-	 * private boolean uploadProcExists() throws SQLException { if
-	 * (uploadProcedureExists) { return true; } Connection connection; Statement
-	 * stmt; ResultSet rs;
-	 * 
-	 * connection = getConnection(); synchronized (connection) { stmt =
-	 * connection.createStatement(); // determine if it already exists. rs = stmt
-	 * .executeQuery(
-	 * "SELECT * FROM qsys2/sysprocs WHERE SPECIFIC_SCHEMA = 'QGPL' and SPECIFIC_NAME = 'PRCUPLOAD'"
-	 * ); if (rs.next()) { // exists. uploadProcedureExists = true; } else { //
-	 * doesnt exist. uploadProcedureExists = false; } rs.close(); stmt.close(); }
-	 * return uploadProcedureExists; }
-     */
     /**
      * Returns a list of libraries that have source files.
      *
@@ -864,13 +817,11 @@ public class AS400System extends NodeAbstract {
      * @return ArrayList contains String objects.
      */
     public ArrayList<String> getSourceLibraries() throws SQLException {
-        //  Connection connection;
         Statement stmt;
         ResultSet rs;
         ArrayList<String> list;
-
+        
         list = new ArrayList<>();
-        // connection = getConnection();
         // get a list of libraries.
         synchronized (connection) {
             stmt = connection.createStatement();
@@ -897,7 +848,7 @@ public class AS400System extends NodeAbstract {
         Statement stmt;
         ResultSet rs;
         ArrayList<String> list;
-
+        
         list = new ArrayList<>();
         cn = getConnection();
         synchronized (cn) {
@@ -921,13 +872,13 @@ public class AS400System extends NodeAbstract {
      * @return ArrayList contains String objects.
      */
     public ArrayList<String> getLibraries() throws SQLException {
-        //Connection connection;
+        // Connection connection;
         Statement stmt;
         ResultSet rs;
         ArrayList<String> list;
-
+        
         list = new ArrayList<>();
-        //connection = getConnection();
+        // connection = getConnection();
         // get a list of libraries.
         synchronized (connection) {
             stmt = connection.createStatement();
@@ -940,11 +891,11 @@ public class AS400System extends NodeAbstract {
         }
         return list;
     }
-
+    
     public ArrayList<String> getLibrariesList() {
         return listLibraries;
     }
-
+    
     public void setLibrariesList(ArrayList<String> list) {
         listLibraries = list;
         try {
@@ -962,13 +913,13 @@ public class AS400System extends NodeAbstract {
      * @return ArrayList contains String objects;
      */
     public ArrayList<String> getSourceFiles(String library) throws SQLException {
-        //  Connection connection;
+        // Connection connection;
         Statement stmt;
         ResultSet rs;
         ArrayList<String> list;
-
+        
         list = new ArrayList<>();
-        //connection = getConnection();
+        // connection = getConnection();
         synchronized (connection) {
             // get a list of libraries.
             stmt = connection.createStatement();
@@ -983,7 +934,7 @@ public class AS400System extends NodeAbstract {
         }
         return list;
     }
-
+    
     public String getSourceMemberType(String library, String file, String member) throws Exception {
         String buffer = file;
         while (buffer.length() < 10) {
@@ -993,22 +944,22 @@ public class AS400System extends NodeAbstract {
         while (buffer.length() < 20) {
             buffer = buffer + " ";
         }
-        ProgramCallDocument pcml = new ProgramCallDocument(this.as400, "api");
-        pcml.setValue("qusrmbrd.receiverLength", pcml.getOutputsize("qusrmbrd.receiver"));
-        pcml.setValue("qusrmbrd.fileName", "" + buffer);
-        pcml.setValue("qusrmbrd.memberName", member);
-        boolean result = pcml.callProgram("qusrmbrd");
+        ProgramCallDocument pcml1 = new ProgramCallDocument(this.as400, "api");
+        pcml1.setValue("qusrmbrd.receiverLength", pcml1.getOutputsize("qusrmbrd.receiver"));
+        pcml1.setValue("qusrmbrd.fileName", "" + buffer);
+        pcml1.setValue("qusrmbrd.memberName", member);
+        boolean result = pcml1.callProgram("qusrmbrd");
         if (!result) {
-            Environment.qcmdexec.append(pcml.getMessageList("qusrmbrd"), Color.RED, result);
+            Environment.qcmdexec.append(pcml1.getMessageList("qusrmbrd"), Color.RED, result);
             return null;
         }
-
-        return pcml.getValue("qusrmbrd.receiver.sourceType").toString();
+        
+        return pcml1.getValue("qusrmbrd.receiver.sourceType").toString();
     }
-
+    
     public ArrayList<String> getFiles(String library, String fileType, String tableType) throws SQLException {
         ArrayList<String> list = new ArrayList<>();
-        //   Connection connection = getConnection();
+        // Connection connection = getConnection();
         synchronized (connection) {
             try (Statement stmt = connection.createStatement()) {
                 String sql = "select distinct TABLE_NAME, FILE_TYPE, TABLE_TYPE from qsys2/systables where TABLE_SCHEMA = '"
@@ -1046,13 +997,13 @@ public class AS400System extends NodeAbstract {
      * @return ArrayList contains String objects;
      */
     public ArrayList<String> getFiles(String library) throws SQLException {
-        //Connection connection;
+        // Connection connection;
         Statement stmt;
         ResultSet rs;
         ArrayList<String> list;
-
+        
         list = new ArrayList<>();
-        //connection = getConnection();
+        // connection = getConnection();
         synchronized (connection) {
             // get a list of libraries.
             stmt = connection.createStatement();
@@ -1069,7 +1020,7 @@ public class AS400System extends NodeAbstract {
         }
         return list;
     }
-
+    
     public void copyTo(String fromLib, String fromFile, String fromMember, AS400System toSystem, String toLib,
             String toFile, String toMember, boolean background, ListenerSubmitJob listener) throws Exception {
         if (!equals(toSystem)) {
@@ -1083,7 +1034,7 @@ public class AS400System extends NodeAbstract {
                     + ") MBROPT(*REPLACE)", background, listener);
         }
     }
-
+    
     public void copyTo(String fromLib, String fromFile, AS400System toSystem, String toLib, String toFile,
             boolean background, ListenerSubmitJob listener) throws Exception {
         if (!equals(toSystem)) {
@@ -1097,7 +1048,7 @@ public class AS400System extends NodeAbstract {
                     + ") CRTFILE(*YES) FMTOPT(*NOCHK) MBROPT(*REPLACE)", background, listener);
         }
     }
-
+    
     public void copyTo(String fromLib, String fromFile, String toLib, String toFile, boolean background,
             ListenerSubmitJob listener) throws Exception {
         copyTo(fromLib, fromFile, this, toLib, toFile, background, listener);
@@ -1117,13 +1068,13 @@ public class AS400System extends NodeAbstract {
      */
     public ArrayList<String> search(String library, String file, String member, String term, boolean matchCase)
             throws SQLException {
-        //  Connection connection;
+        // Connection connection;
         Statement stmt;
         ResultSet rs;
         ArrayList<String> list;
         int a;
         String clause;
-
+        
         synchronized (this) {
             alias++;
             a = alias;
@@ -1168,13 +1119,13 @@ public class AS400System extends NodeAbstract {
      * is loaded.
      */
     protected int getSource(String library, String file, String member, SourceLoader sourceLoader) throws SQLException {
-        //  Connection connection;
+        // Connection connection;
         Statement stmt;
         ResultSet rs;
         int a;
         String text;
 
-        //  connection = getConnection();
+        // connection = getConnection();
         synchronized (this) {
             alias++;
             a = alias;
@@ -1202,14 +1153,15 @@ public class AS400System extends NodeAbstract {
         }
         return a;
     }
-
+    
     public int getSourceFileRecordLength(String library, String file) throws SQLException {
-        //  Connection connection = getConnection();
+        // Connection connection = getConnection();
         int length;
         synchronized (connection) {
             try (Statement stmt = connection.createStatement(); ResultSet rs = stmt
                     .executeQuery("select max(LENGTH) from syscolumns where table_name = '" + file.toUpperCase()
-                            + "' and table_schema = '" + library.toUpperCase() + "' and SYSTEM_COLUMN_NAME = 'SRCDTA'")) {
+                            + "' and table_schema = '" + library.toUpperCase()
+                            + "' and SYSTEM_COLUMN_NAME = 'SRCDTA'")) {
                 if (rs.next()) {
                     length = rs.getInt(1);
                 } else {
@@ -1245,7 +1197,7 @@ public class AS400System extends NodeAbstract {
             a = this.alias;
         }
         StringBuilder text = new StringBuilder("");
-        //Connection connection = getConnection();
+        // Connection connection = getConnection();
         synchronized (connection) {
             try (Statement stmt = connection.createStatement()) {
                 stmt.execute("create alias qtemp/text" + a + " for " + library + "/" + file + "(" + member + ")");
@@ -1254,18 +1206,19 @@ public class AS400System extends NodeAbstract {
                         String buffer = rs.getString(1);
                         if (buffer.startsWith("ERROR"))
                             try {
-                                int i = Integer.parseInt(buffer.substring(58, 59));
-                                if (i > 0) {
-                                    text.append("ERROR ");
-                                    if (path != null) {
-                                        text.append(path);
-                                        text.append(" ");
-                                    }
-                                    text.append(buffer.substring(5).trim());
-                                    text.append("\n");
+                            int i = Integer.parseInt(buffer.substring(58, 59));
+                            if (i > 0) {
+                                text.append("ERROR ");
+                                if (path != null) {
+                                    text.append(path);
+                                    text.append(" ");
                                 }
-                            } catch (Exception e) {
+                                text.append(buffer.substring(5).trim());
+                                text.append("\n");
                             }
+                        } catch (NumberFormatException e) {
+                            logger.error(e.getMessage());
+                        }
                     }
                 }
                 stmt.execute("drop alias qtemp/text" + a);
@@ -1273,9 +1226,9 @@ public class AS400System extends NodeAbstract {
         }
         return text.toString();
     }
-
+    
     public String getFileType(String library, String file) throws SQLException {
-        //Connection connection = getConnection();
+        // Connection connection = getConnection();
         String type;
         if (connection != null) {
             synchronized (connection) {
@@ -1301,7 +1254,7 @@ public class AS400System extends NodeAbstract {
         }
         return type;
     }
-
+    
     public String getFileTypePool(String library, String file) throws SQLException {
         String type;
         try (Connection cn = getConnectionPool()) {
@@ -1379,14 +1332,14 @@ public class AS400System extends NodeAbstract {
      * @return int[]
      */
     public int[] getIndex(String library, String file, String member) throws SQLException {
-        //Connection connection;
+        // Connection connection;
         Statement stmt;
         ResultSet rs;
         ArrayList<Integer> list = new ArrayList<>();
         int[] index;
         int a;
 
-        //connection = getConnection();
+        // connection = getConnection();
         synchronized (this) {
             alias++;
             a = alias;
@@ -1413,7 +1366,7 @@ public class AS400System extends NodeAbstract {
         }
         return index;
     }
-
+    
     private int findNumbersStart(String content, int start) {
         int end, count;
 
@@ -1445,7 +1398,7 @@ public class AS400System extends NodeAbstract {
     private void replace(StringBuffer buffer, String content, int[] index, int start) {
         int line;
         String replace;
-
+        
         line = Integer.parseInt(content.substring(start, start + 6));
         if (line == 0) {
             return;
@@ -1457,7 +1410,7 @@ public class AS400System extends NodeAbstract {
         }
         buffer.replace(start, start + 6, replace);
     }
-
+    
     public void createMember(String library, String file, String member, String type, String description,
             ListenerMemberCreated listener) throws Exception {
         Environment.qcmdexec
@@ -1466,17 +1419,17 @@ public class AS400System extends NodeAbstract {
                         + ") TEXT('" + description + "')",
                         new JobCreateMember(library, file, member, type, listener));
     }
-
+    
     public Member createMember(String library, String file, String member, String type, String description)
             throws Exception {
         call("QSYS/ADDPFM FILE(" + library + "/" + file + ") MBR(" + member + ") SRCTYPE(" + type + ") TEXT('"
                 + description + "')");
         return new Member(this, library, file, member);
     }
-
+    
     public String buildSqlForCmd(String cmd) {
         String length;
-
+        
         cmd = cmd.trim();
         length = Integer.toString(cmd.length());
         while (length.length() < 10) {
@@ -1494,7 +1447,7 @@ public class AS400System extends NodeAbstract {
     public void sqlCall(String cmd) throws Exception {
         SQL.executeSQL(buildSqlForCmd(cmd));
     }
-
+    
     private boolean uploadProcExists(String library) throws SQLException {
         // Connection connection = getConnection();
         synchronized (connection) {
@@ -1521,22 +1474,22 @@ public class AS400System extends NodeAbstract {
             throw new Exception(buffer.toString());
         }
     }
-
+    
     @Override
     public boolean isCheckBox() {
         return true;
     }
-
+    
     @Override
     public Node getParent() {
         return null;
     }
-
+    
     @Override
     public Icon getIcon() {
         return Icons.iconScreen;
     }
-
+    
     @Override
     public String toString() {
         if (name.trim().length() == 0) {
@@ -1544,7 +1497,7 @@ public class AS400System extends NodeAbstract {
         }
         return name;
     }
-
+    
     public void dispose() {
         disconnect();
         pcml = null;
@@ -1554,7 +1507,7 @@ public class AS400System extends NodeAbstract {
         user = null;
         password = null;
     }
-
+    
     private void executeTimer() {
         java.util.Timer timer;
         timer = new java.util.Timer();
@@ -1569,36 +1522,34 @@ public class AS400System extends NodeAbstract {
                     try {
                         as400.setGuiAvailable(false);
                         if (!as400.isConnectionAlive()) {
-                            as400.authenticate(getUser(), getPassword());
+                            as400.authenticate(getUser(), getPassword().toCharArray());
                         }
                     } catch (AS400SecurityException | IOException | PropertyVetoException ex) {
-                        java.util.logging.Logger.getLogger(AS400System.class.getName()).log(Level.SEVERE, null, ex);
+                        logger.error(ex.getMessage());
                     }
                 } catch (SQLException ex) {
-                    java.util.logging.Logger.getLogger(AS400System.class.getName()).log(Level.SEVERE, null, ex);
+                    logger.error(ex.getMessage());
                 }
-
+                
             }
         }, 1000, 10 * 1000);
     }
-
+    
     class JobCreateMember implements ListenerSubmitJob {
-
+        
         String file;
         String library;
         ListenerMemberCreated listener;
         String member;
-        String type;
-
+        
         public JobCreateMember(String library, String file, String member, String type,
                 ListenerMemberCreated listener) {
             this.library = library;
             this.file = file;
             this.member = member;
-            this.type = type;
             this.listener = listener;
         }
-
+        
         @Override
         public void jobCompleted(SubmitJob submitJob) {
             if (this.listener == null) {

@@ -20,30 +20,28 @@ import javax.swing.text.*;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 /**
  * Outputs compiler results.
- *  
+ *
  * @author not attributable
  */
 public class CompilerResults {
-  CompilerResultsOutput output;
-      
-  public void clear() {
-    output.clear();
-  }
-  
-  public void setResults(String text, JTextComponent textComponent) {
-    output.setResults(text, textComponent);
-  }
-  
 
-  
-  public void focus() {
-    output.focus();
-  }
-  
-  public void setOutput(CompilerResultsOutput output) {
-    this.output = output;
-  }
+    CompilerResultsOutput output;
+
+    public void clear() {
+        output.clear();
+    }
+
+    public void setResults(String text, JTextComponent textComponent) {
+        output.setResults(text, textComponent);
+    }
+
+    public void focus() {
+        output.focus();
+    }
+
+    public void setOutput(CompilerResultsOutput output) {
+        this.output = output;
+    }
 }

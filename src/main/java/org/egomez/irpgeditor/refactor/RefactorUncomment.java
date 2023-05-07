@@ -18,28 +18,28 @@ package org.egomez.irpgeditor.refactor;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 import org.egomez.irpgeditor.*;
 
 /**
  * Converts all the lines to un-commented.
- * 
+ *
  * @author Derek Van Kooten.
  */
 public class RefactorUncomment extends Refactor {
-  public void process(SourceLine line) {
-    char c;
-    StringBuffer text;
 
-    if ( line.getLength() < 7 ) {
-      return;
+    public void process(SourceLine line) {
+        char c;
+        StringBuffer text;
+
+        if (line.getLength() < 7) {
+            return;
+        }
+        c = line.charAt(6);
+        if (c != '*') {
+            return;
+        }
+        text = new StringBuffer(line.getText());
+        text.replace(6, 7, " ");
+        line.setText(text.toString());
     }
-    c = line.charAt(6);
-    if ( c != '*' ) {
-      return;
-    }
-    text =  new StringBuffer(line.getText());
-    text.replace(6, 7, " ");
-    line.setText(text.toString());
-  }
 }

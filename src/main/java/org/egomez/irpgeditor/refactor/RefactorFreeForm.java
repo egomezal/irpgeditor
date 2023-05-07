@@ -54,7 +54,8 @@ public class RefactorFreeForm extends Refactor {
 		setIgnore.add("lookup");
 	}
 
-	public void start() {
+        @Override
+    public void start() {
 		currentIndicator = "";
 		bufferTab.replace(0, 2, "  ");
 	}
@@ -209,7 +210,7 @@ public class RefactorFreeForm extends Refactor {
 		} else if (op.equalsIgnoreCase("seton")) {
 			text = line.getText(70, 2);
 			if (text.trim().length() > 0) {
-				StringBuffer buffer = new StringBuffer(bufferTab.toString());
+				StringBuilder buffer = new StringBuilder(bufferTab.toString());
 				buffer.append("*in");
 				buffer.append(text);
 				buffer.append(" = *on;\n");
@@ -232,7 +233,7 @@ public class RefactorFreeForm extends Refactor {
 		} else if (op.equalsIgnoreCase("setoff")) {
 			text = line.getText(70, 2);
 			if (text.trim().length() > 0) {
-				StringBuffer buffer = new StringBuffer(bufferTab.toString());
+				StringBuilder buffer = new StringBuilder(bufferTab.toString());
 				buffer.append("*in");
 				buffer.append(text);
 				buffer.append(" = *off;\n");
@@ -305,7 +306,7 @@ public class RefactorFreeForm extends Refactor {
 		// must come at the end of the block of code.
 		if (op.startsWith("if") || op.startsWith("do") || op.startsWith("select")) {
 			// this indicator must be ended at the end of the block.
-			listIndicators.add(new Integer(0));
+			listIndicators.add(0);
 		} else {
 			currentIndicator = ind;
 		}
@@ -316,9 +317,9 @@ public class RefactorFreeForm extends Refactor {
 		int i;
 
 		for (int x = 0; x < listIndicators.size(); x++) {
-			i = ((Integer) listIndicators.get(x)).intValue();
+			i = ((Integer) listIndicators.get(x));
 			i++;
-			listIndicators.set(x, new Integer(i));
+			listIndicators.set(x, Integer.valueOf(i));
 		}
 	}
 

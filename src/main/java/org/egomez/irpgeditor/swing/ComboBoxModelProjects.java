@@ -11,38 +11,48 @@ import org.egomez.irpgeditor.event.*;
  */
 @SuppressWarnings("rawtypes")
 public class ComboBoxModelProjects extends AbstractListModel implements javax.swing.ComboBoxModel, ListenerProjects {
-  /**
-	 * 
-	 */
-	private static final long serialVersionUID = 3303495099645947565L;
 
-public ComboBoxModelProjects() {
-    Environment.projects.addListener(this);
-  }
+    /**
+     *
+     */
+    private static final long serialVersionUID = 3303495099645947565L;
 
-  public Object getSelectedItem() {
-    return Environment.projects.getSelected();
-  }
+    public ComboBoxModelProjects() {
+        Environment.projects.addListener(this);
+    }
 
-  public void setSelectedItem(Object object) {
-    Environment.projects.select((Project)object);
-  }
+    public Object getSelectedItem() {
+        return Environment.projects.getSelected();
+    }
 
-  public Object getElementAt(int index) {
-    return Environment.projects.get(index);
-  }
+    public void setSelectedItem(Object object) {
+        Environment.projects.select((Project) object);
+    }
 
-  public int getSize() {
-    return Environment.projects.getSize();
-  }
+    public Object getElementAt(int index) {
+        return Environment.projects.get(index);
+    }
 
-  public void added(Project project, int index) {
-    fireIntervalAdded(this, index, index);
-  }
+    /**
+     *
+     * @return
+     */
+    @Override
+    public int getSize() {
+        return Environment.projects.getSize();
+    }
 
-  public void removed(Project project, int index) {
-    fireIntervalRemoved(this, index, index);
-  }
+    @Override
+    public void added(Project project, int index) {
+        fireIntervalAdded(this, index, index);
+    }
 
-  public void selected(Project project) {}
+    @Override
+    public void removed(Project project, int index) {
+        fireIntervalRemoved(this, index, index);
+    }
+
+    @Override
+    public void selected(Project project) {
+    }
 }

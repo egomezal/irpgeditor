@@ -18,29 +18,30 @@ package org.egomez.irpgeditor.env;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 import org.egomez.irpgeditor.event.*;
 
 /**
  * Results for searches should all goto one place.
+ *
  * @author Derek Van Kooten.
  */
 public class SearchResults {
-  SearchResultsOutput output;
-  
-  public void setOutput(SearchResultsOutput output) {
-    this.output = output;
-  }
-  
-  public void searchResultFound(Result result) {
-    output.searchResultFound(result);
-  }
-  
-  public void focus() {
-    output.focus();
-  }
-  
-  public void clear() {
-    output.clear();
-  }
+
+    SearchResultsOutput output;
+
+    public void setOutput(SearchResultsOutput output) {
+        this.output = output;
+    }
+
+    public void searchResultFound(Result result) {
+        output.searchResultFound(result);
+    }
+
+    public void focus() {
+        output.focus();
+    }
+
+    public void clear() {
+        output.clear();
+    }
 }

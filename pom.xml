@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.egomez</groupId>
     <artifactId>irpgeditor</artifactId>
@@ -9,25 +9,25 @@
     <repositories>
         <repository>
             <id>localrepository</id>
-            <url>file://${basedir}/lib</url>
+            <url>file:${basedir}/lib</url>
             <releases>
                 <enabled>false</enabled>
                 <updatePolicy>always</updatePolicy>
                 <checksumPolicy>warn</checksumPolicy>
             </releases>
         </repository>
-    </repositories>  
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itextpdf</artifactId>
-            <version>5.5.12</version>
+            <version>5.5.13.3</version>
         </dependency>
 
         <dependency>
             <groupId>net.sf.jt400</groupId>
             <artifactId>jt400</artifactId>
-            <version>11.0</version>
+            <version>11.2</version>
         </dependency>
 
         <dependency>
@@ -39,18 +39,27 @@
         <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-core</artifactId>
-            <version>1.10.0</version>
+            <version>1.11.0</version>
         </dependency>
+        <!--
         <dependency>
             <groupId>net.sourceforge.jexcelapi</groupId>
             <artifactId>jxl</artifactId>
             <version>2.6.12</version>
         </dependency>
+-->
+
+        <!-- https://mvnrepository.com/artifact/org.jxls/jxls-jexcel -->
+        <dependency>
+            <groupId>org.jxls</groupId>
+            <artifactId>jxls-jexcel</artifactId>
+            <version>1.0.9</version>
+        </dependency>
 
         <dependency>
             <groupId>org.python</groupId>
             <artifactId>jython</artifactId>
-            <version>2.7.3b1</version>
+            <version>2.7.3</version>
         </dependency>
 
         <dependency>
@@ -61,7 +70,7 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <version>5.11.0.202103091610-r</version>
+            <version>6.5.0.202303070854-r</version>
         </dependency>
         <dependency>
             <groupId>org.swinglabs.swingx</groupId>
@@ -82,7 +91,7 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.18.0</version>
+            <version>2.20.0</version>
         </dependency>
         <dependency>
             <groupId>borland</groupId>
@@ -99,18 +108,18 @@
         <dependency>
             <groupId>jt400</groupId>
             <artifactId>jui400</artifactId>
-            <version>11.0</version>
+            <version>11.2</version>
         </dependency>
         <dependency>
             <groupId>jt400</groupId>
             <artifactId>uitools</artifactId>
-            <version>11.0</version>
+            <version>11.2</version>
         </dependency>
         <dependency>
             <groupId>jt400</groupId>
             <artifactId>util400</artifactId>
-            <version>11.0</version>
-        </dependency> 
+            <version>11.2</version>
+        </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
@@ -118,12 +127,17 @@
         </dependency>
     </dependencies>
     <build>
-	
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
+                <version>3.4.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -159,7 +173,7 @@
                     </execution>
                 </executions>
             </plugin>
-
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -167,12 +181,14 @@
                 <configuration>
                     <source>${jdk.version}</source>
                     <target>${jdk.version}</target>
-                </configuration>
-            </plugin>
+                </configuration> 
+            </plugin>-->
         </plugins>
     </build>
 
     <properties>
-        <jdk.version>1.8</jdk.version>
+        <!--<jdk.version>1.8</jdk.version>-->
+        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>11</maven.compiler.source>
     </properties>
 </project>

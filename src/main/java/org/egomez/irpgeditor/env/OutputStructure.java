@@ -9,8 +9,9 @@ import org.egomez.irpgeditor.event.*;
  * @author Derek Van Kooten
  */
 public interface OutputStructure {
-	@SuppressWarnings("rawtypes")
-	public void setStructure(TreeModel model, Enumeration expands, ListenerStructure listener);
 
-	public void removeStructure(TreeModel model);
+    @SuppressWarnings("rawtypes")
+    public void setStructure(TreeModel model, Enumeration expands, ListenerStructure listener);
+
+    public void removeStructure(TreeModel model);
 }

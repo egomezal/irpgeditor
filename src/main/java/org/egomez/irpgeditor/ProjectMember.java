@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Derek Van Kooten.
  */
-public class ProjectMember extends NodeAbstract implements ListenerMember {
+public final class ProjectMember extends NodeAbstract implements ListenerMember {
 	Project project;
 	Member member;
 	String compileType;
@@ -102,6 +102,7 @@ public class ProjectMember extends NodeAbstract implements ListenerMember {
 		determineIcon();
 	}
 
+        @Override
 	public void memberChanged(Member member) {
 		determineIcon();
 	}
@@ -109,6 +110,7 @@ public class ProjectMember extends NodeAbstract implements ListenerMember {
 	public void isDirty(Member member, boolean isDirty) {
 	}
 
+        @Override
 	public boolean isOkToClose(Member member) {
 		return true;
 	}
@@ -175,7 +177,7 @@ public class ProjectMember extends NodeAbstract implements ListenerMember {
 	public void toggleBreakPoint(int line) {
 		Integer i;
 
-		i = new Integer(line);
+		i = line;
 		if (breakPoints.contains(i)) {
 			breakPoints.remove(i);
 		} else {
@@ -190,6 +192,7 @@ public class ProjectMember extends NodeAbstract implements ListenerMember {
 
 	/**
 	 * adds a compile option.
+     * @param option
 	 */
 	@SuppressWarnings("unchecked")
 	public void addCompileOption(String option) {
@@ -270,26 +273,32 @@ public class ProjectMember extends NodeAbstract implements ListenerMember {
 		}
 	}
 
+        @Override
 	public String getText() {
 		return member.member;
 	}
 
+        @Override
 	public String getToolTipText() {
 		return member.as400system.name + " - " + member.library + " - " + member.file + " - " + member.member;
 	}
 
+        @Override
 	public Icon getIcon() {
 		return icon;
 	}
 
+        @Override
 	public Node getParent() {
 		return project;
 	}
 
+        @Override
 	public int hashCode() {
 		return member.hashCode();
 	}
 
+        @Override
 	public boolean equals(Object object) {
 		if (object == null) {
 			return false;
@@ -300,6 +309,7 @@ public class ProjectMember extends NodeAbstract implements ListenerMember {
 		return false;
 	}
 
+        @Override
 	public String toString() {
 		return member.member;
 	}

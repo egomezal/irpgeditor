@@ -18,15 +18,15 @@ package org.egomez.irpgeditor.help;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 import java.net.*;
 
 /**
- * 
+ *
  * @author Derek Van Kooten.
  */
 public class Help {
-  public static URL getURL(String context) {
-    return Help.class.getResource("Help" + context + ".html");
-  }
+
+    public static URL getURL(String context) {
+        return Help.class.getResource("Help" + context + ".html");
+    }
 }

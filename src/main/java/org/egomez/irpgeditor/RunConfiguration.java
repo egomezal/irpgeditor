@@ -18,20 +18,21 @@ package org.egomez.irpgeditor;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 /**
  * holds information on how to run a program.
- * 
+ *
  * @author Derek Van Kooten.
  */
 public class RunConfiguration {
-  public String name = "";
-  public String program = "";
-  public String parms = "";
-  public String libraries = "";
-  public String debug = "";
-  
-  public String toString() {
-    return name;
-  }
+
+    public String name = "";
+    public String program = "";
+    public String parms = "";
+    public String libraries = "";
+    public String debug = "";
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

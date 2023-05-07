@@ -18,18 +18,18 @@ package org.egomez.irpgeditor;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 import java.io.*;
 import java.util.*;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
-import org.egomez.irpgeditor.*;
 import org.egomez.irpgeditor.env.*;
 import org.egomez.irpgeditor.event.*;
 import org.egomez.irpgeditor.tree.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A group of source members. A list of run configurations.
@@ -38,436 +38,441 @@ import org.egomez.irpgeditor.tree.*;
  */
 @SuppressWarnings("unused")
 public class Project extends NodeAbstract {
-	String name;
-	String fileName;
-	@SuppressWarnings("rawtypes")
-	ArrayList listMembers = new ArrayList();
-	@SuppressWarnings("rawtypes")
-	ArrayList listRun = new ArrayList();
-	@SuppressWarnings("rawtypes")
-	ArrayList listListeners = new ArrayList();
-	ProjectMember memberSelected;
 
-	/**
-	 * create a project with the specified name and specified file name to save
-	 * the project to.
-	 * 
-	 * @param name
-	 *            String The name of the project seen when displayed.
-	 * @param fileName
-	 *            String The name of the file that the project is saved to.
-	 */
-	public Project(String name, String fileName) {
-		this.name = name;
-		this.fileName = fileName;
-	}
+    String name;
+    String fileName;
+    @SuppressWarnings("rawtypes")
+    ArrayList listMembers = new ArrayList();
+    @SuppressWarnings("rawtypes")
+    ArrayList listRun = new ArrayList();
+    @SuppressWarnings("rawtypes")
+    ArrayList listListeners = new ArrayList();
+    ProjectMember memberSelected;
+    transient Logger logger = LoggerFactory.getLogger(Project.class);
 
-	/**
-	 * Adds an object to a list of objects that will be notified of events that
-	 * this object produces.
-	 * 
-	 * @param listener
-	 *            ListenerProject
-	 */
-	@SuppressWarnings("unchecked")
-	public void addListener(ListenerProject listener) {
-		listListeners.add(listener);
-	}
+    /**
+     * create a project with the specified name and specified file name to save
+     * the project to.
+     *
+     * @param name String The name of the project seen when displayed.
+     * @param fileName String The name of the file that the project is saved to.
+     */
+    public Project(String name, String fileName) {
+        this.name = name;
+        this.fileName = fileName;
+    }
 
-	/**
-	 * Removes an object from the list of objects that will be notified of
-	 * events that this object produces.
-	 * 
-	 * @param listener
-	 *            ListenerProject
-	 */
-	public void removeListener(ListenerProject listener) {
-		listListeners.remove(listener);
-	}
+    /**
+     * Adds an object to a list of objects that will be notified of events that
+     * this object produces.
+     *
+     * @param listener ListenerProject
+     */
+    @SuppressWarnings("unchecked")
+    public void addListener(ListenerProject listener) {
+        listListeners.add(listener);
+    }
 
-	/**
-	 * adds a source member to the project.
-	 * 
-	 * @param member
-	 *            ProjectMember
-	 */
-	@SuppressWarnings("unchecked")
-	public ProjectMember addMember(ProjectMember member) {
-		int index;
+    /**
+     * Removes an object from the list of objects that will be notified of
+     * events that this object produces.
+     *
+     * @param listener ListenerProject
+     */
+    public void removeListener(ListenerProject listener) {
+        listListeners.remove(listener);
+    }
 
-		index = listMembers.indexOf(member);
-		if (index > -1) {
-			return (ProjectMember) listMembers.get(index);
-		}
-		listMembers.add(member);
-		fireMemberAdded(member);
-		return member;
-	}
+    /**
+     * adds a source member to the project.
+     *
+     * @param member ProjectMember
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public ProjectMember addMember(ProjectMember member) {
+        int index;
 
-	public ProjectMember addMember(Member member) {
-		return addMember(new ProjectMember(this, member));
-	}
+        index = listMembers.indexOf(member);
+        if (index > -1) {
+            return (ProjectMember) listMembers.get(index);
+        }
+        listMembers.add(member);
+        fireMemberAdded(member);
+        return member;
+    }
 
-	/**
-	 * removes a source member from the project.
-	 * 
-	 * @param member
-	 *            ProjectMember
-	 */
-	public void removeMember(ProjectMember member) {
-		if (listMembers.remove(member)) {
-			fireMemberRemoved(member);
-			Environment.members.close(member, false);
-		}
-	}
+    public ProjectMember addMember(Member member) {
+        return addMember(new ProjectMember(this, member));
+    }
 
-	/**
-	 * gets called when a member is added to this project. notifies listeners
-	 * that a member was added to the project.
-	 * 
-	 * @param member
-	 *            Member
-	 */
-	@SuppressWarnings("rawtypes")
-	protected void fireMemberAdded(ProjectMember member) {
-		ArrayList temp;
+    /**
+     * removes a source member from the project.
+     *
+     * @param member ProjectMember
+     */
+    public void removeMember(ProjectMember member) {
+        if (listMembers.remove(member)) {
+            fireMemberRemoved(member);
+            Environment.members.close(member, false);
+        }
+    }
 
-		temp = (ArrayList) listListeners.clone();
-		for (int x = 0; x < temp.size(); x++) {
-			((ListenerProject) temp.get(x)).memberAdded(this, member);
-		}
-	}
+    /**
+     * gets called when a member is added to this project. notifies listeners
+     * that a member was added to the project.
+     *
+     * @param member Member
+     */
+    @SuppressWarnings("rawtypes")
+    protected void fireMemberAdded(ProjectMember member) {
+        ArrayList temp;
 
-	/**
-	 * gets called when a member is removed from this project. notifies
-	 * listeners that a member was removed from the project.
-	 * 
-	 * @param member
-	 *            Member
-	 */
-	@SuppressWarnings("rawtypes")
-	protected void fireMemberRemoved(ProjectMember member) {
-		ArrayList temp;
+        temp = (ArrayList) listListeners.clone();
+        for (int x = 0; x < temp.size(); x++) {
+            ((ListenerProject) temp.get(x)).memberAdded(this, member);
+        }
+    }
 
-		temp = (ArrayList) listListeners.clone();
-		for (int x = 0; x < temp.size(); x++) {
-			((ListenerProject) temp.get(x)).memberRemoved(this, member);
-		}
-	}
+    /**
+     * gets called when a member is removed from this project. notifies
+     * listeners that a member was removed from the project.
+     *
+     * @param member Member
+     */
+    @SuppressWarnings("rawtypes")
+    protected void fireMemberRemoved(ProjectMember member) {
+        ArrayList temp;
 
-	public ProjectMember getProjectMemberSelected() {
-		return memberSelected;
-	}
+        temp = (ArrayList) listListeners.clone();
+        for (int x = 0; x < temp.size(); x++) {
+            ((ListenerProject) temp.get(x)).memberRemoved(this, member);
+        }
+    }
 
-	public String getName() {
-		return name;
-	}
+    public ProjectMember getProjectMemberSelected() {
+        return memberSelected;
+    }
 
-	public String getFileName() {
-		return fileName;
-	}
+    public String getName() {
+        return name;
+    }
 
-	/**
-	 * returns all the source members in the project.
-	 * 
-	 * @return ArrayList contains ProjectMember objects.
-	 */
-	@SuppressWarnings("rawtypes")
-	public ArrayList getMembers() {
-		return listMembers;
-	}
+    public String getFileName() {
+        return fileName;
+    }
 
-	/**
-	 * returns all the run configurations for this project.
-	 * 
-	 * @return ArrayList contains RunConfiguration objects.
-	 */
-	@SuppressWarnings("rawtypes")
-	public ArrayList getRunConfigurations() {
-		return listRun;
-	}
+    /**
+     * returns all the source members in the project.
+     *
+     * @return ArrayList contains ProjectMember objects.
+     */
+    @SuppressWarnings("rawtypes")
+    public ArrayList getMembers() {
+        return listMembers;
+    }
 
-	/**
-	 * Adds a RunConfiguration to this project.
-	 * 
-	 * @param config
-	 *            RunConfiguration
-	 */
-	@SuppressWarnings("unchecked")
-	public void addRunConfiguration(RunConfiguration config) {
-		listRun.add(config);
-	}
+    /**
+     * returns all the run configurations for this project.
+     *
+     * @return ArrayList contains RunConfiguration objects.
+     */
+    @SuppressWarnings("rawtypes")
+    public ArrayList getRunConfigurations() {
+        return listRun;
+    }
 
-	/**
-	 * returns a ProjectMember that has a name the same as the one specified.
-	 * 
-	 * @param name
-	 *            String
-	 * @return ProjectMember
-	 */
-	public ProjectMember getMember(String name) {
-		ProjectMember projectMember;
+    /**
+     * Adds a RunConfiguration to this project.
+     *
+     * @param config RunConfiguration
+     */
+    @SuppressWarnings("unchecked")
+    public void addRunConfiguration(RunConfiguration config) {
+        listRun.add(config);
+    }
 
-		for (int x = 0; x < listMembers.size(); x++) {
-			projectMember = (ProjectMember) listMembers.get(x);
-			if (projectMember.member.nameEquals(name)) {
-				return projectMember;
-			}
-		}
-		return null;
-	}
+    /**
+     * returns a ProjectMember that has a name the same as the one specified.
+     *
+     * @param name String
+     * @return ProjectMember
+     */
+    public ProjectMember getMember(String name) {
+        ProjectMember projectMember;
 
-	/**
-	 * returns a ProjectMember that has a name the same as the one specified and
-	 * is on the system specified.
-	 * 
-	 * @param name
-	 *            String
-	 * @param system
-	 *            AS400System
-	 * @return ProjectMember
-	 */
-	public ProjectMember getMember(String name, AS400System system) {
-		ProjectMember projectMember;
+        for (int x = 0; x < listMembers.size(); x++) {
+            projectMember = (ProjectMember) listMembers.get(x);
+            if (projectMember.member.nameEquals(name)) {
+                return projectMember;
+            }
+        }
+        return null;
+    }
 
-		for (int x = 0; x < listMembers.size(); x++) {
-			projectMember = (ProjectMember) listMembers.get(x);
-			if (projectMember.member.nameEquals(name) && projectMember.member.as400system.name.equals(system.name)) {
-				return projectMember;
-			}
-		}
-		return null;
-	}
+    /**
+     * returns a ProjectMember that has a name the same as the one specified and
+     * is on the system specified.
+     *
+     * @param name String
+     * @param system AS400System
+     * @return ProjectMember
+     */
+    public ProjectMember getMember(String name, AS400System system) {
+        ProjectMember projectMember;
 
-	/**
-	 * loads the settings for a project from the file specified and returns the
-	 * project.
-	 * 
-	 * @param fileName
-	 *            String
-	 * @throws IOException
-	 * @return Project
-	 */
-	@SuppressWarnings("unchecked")
-	public static Project load(String fileName) throws IOException {
-		Project project;
-		FileInputStream fis;
-		Properties props;
-		int count, optionCount;
-		ProjectMember projectMember;
-		Member member;
-		AS400System system;
-		String systemName, library, file, memberName, compileType, sourceType, destinationLibrary;
-		RunConfiguration run;
+        for (int x = 0; x < listMembers.size(); x++) {
+            projectMember = (ProjectMember) listMembers.get(x);
+            if (projectMember.member.nameEquals(name) && projectMember.member.as400system.name.equals(system.name)) {
+                return projectMember;
+            }
+        }
+        return null;
+    }
 
-		fis = new FileInputStream(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
-				+ "projects" + File.separator + fileName);
-		props = new Properties();
-		props.load(fis);
-		fis.close();
-		project = new Project(props.getProperty("name"), fileName);
-		// Creamos el directorio
-		File dirName = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
-				+ "projects" + File.separator + project);
-		if (!dirName.exists()) {
-			dirName.mkdirs();
-		}
+    /**
+     * loads the settings for a project from the file specified and returns the
+     * project.
+     *
+     * @param fileName String
+     * @throws IOException
+     * @return Project
+     */
+    @SuppressWarnings("unchecked")
+    public static Project load(String fileName) throws IOException {
+        Project project;
+        FileInputStream fis;
+        Properties props;
+        int count, optionCount;
+        ProjectMember projectMember;
+        Member member;
+        AS400System system;
+        String systemName, library, file, memberName, compileType, sourceType, destinationLibrary;
+        RunConfiguration run;
 
-		if (props.getProperty("member.count") == null) {
-			return project;
-		}
+        fis = new FileInputStream(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
+                + "projects" + File.separator + fileName);
+        props = new Properties();
+        props.load(fis);
+        fis.close();
+        project = new Project(props.getProperty("name"), fileName);
+        // Creamos el directorio
+        File dirName = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
+                + "projects" + File.separator + project);
+        if (!dirName.exists()) {
+            dirName.mkdirs();
+        }
 
-		count = Integer.parseInt(props.getProperty("run.count"));
-		for (int x = 0; x < count; x++) {
-			run = new RunConfiguration();
-			run.name = props.getProperty("run." + x + ".name");
-			run.program = props.getProperty("run." + x + ".program");
-			run.debug = props.getProperty("run." + x + ".debug");
-			run.parms = props.getProperty("run." + x + ".parms");
-			run.libraries = props.getProperty("run." + x + ".libraries");
-			project.listRun.add(run);
-		}
+        if (props.getProperty("member.count") == null) {
+            return project;
+        }
 
-		count = Integer.parseInt(props.getProperty("member.count"));
-		for (int x = 0; x < count; x++) {
-			systemName = props.getProperty("member." + x + ".system");
-			system = getSystem(systemName);
-			if (system == null) {
-				continue;
-			}
-			library = props.getProperty("member." + x + ".library");
-			file = props.getProperty("member." + x + ".file");
-			memberName = props.getProperty("member." + x + ".name");
-			sourceType = props.getProperty("member." + x + ".sourceType");
-			member = new Member(system, library, file, memberName, sourceType, "", "", "");
-			compileType = props.getProperty("member." + x + ".compileType");
-			destinationLibrary = props.getProperty("member." + x + ".destinationLibrary");
-			if (destinationLibrary == null) {
-				destinationLibrary = library;
-			}
-			projectMember = new ProjectMember(project, member, compileType, destinationLibrary);
-			optionCount = Integer.parseInt(props.getProperty("member." + x + ".optionCount"));
-			for (int o = 0; o < optionCount; o++) {
-				projectMember.addCompileOption(props.getProperty("member." + x + ".option." + o));
-			}
-			project.listMembers.add(projectMember);
-		}
-		return project;
-	}
+        count = Integer.parseInt(props.getProperty("run.count"));
+        for (int x = 0; x < count; x++) {
+            run = new RunConfiguration();
+            run.name = props.getProperty("run." + x + ".name");
+            run.program = props.getProperty("run." + x + ".program");
+            run.debug = props.getProperty("run." + x + ".debug");
+            run.parms = props.getProperty("run." + x + ".parms");
+            run.libraries = props.getProperty("run." + x + ".libraries");
+            project.listRun.add(run);
+        }
 
-	/**
-	 * saves the settings for this project to the file specified.
-	 */
-	public void save() throws IOException {
-		FileOutputStream fos;
-		Properties props;
-		ProjectMember projectMember;
-		Member member;
-		RunConfiguration run;
+        count = Integer.parseInt(props.getProperty("member.count"));
+        for (int x = 0; x < count; x++) {
+            systemName = props.getProperty("member." + x + ".system");
+            system = getSystem(systemName);
+            if (system == null) {
+                continue;
+            }
+            library = props.getProperty("member." + x + ".library");
+            file = props.getProperty("member." + x + ".file");
+            memberName = props.getProperty("member." + x + ".name");
+            sourceType = props.getProperty("member." + x + ".sourceType");
+            member = new Member(system, library, file, memberName, sourceType, "", "", "");
+            compileType = props.getProperty("member." + x + ".compileType");
+            destinationLibrary = props.getProperty("member." + x + ".destinationLibrary");
+            if (destinationLibrary == null) {
+                destinationLibrary = library;
+            }
+            projectMember = new ProjectMember(project, member, compileType, destinationLibrary);
+            optionCount = Integer.parseInt(props.getProperty("member." + x + ".optionCount"));
+            for (int o = 0; o < optionCount; o++) {
+                projectMember.addCompileOption(props.getProperty("member." + x + ".option." + o));
+            }
+            project.listMembers.add(projectMember);
+        }
+        return project;
+    }
 
-		// Creamos los directorios
-		File file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "conf"
-				+ File.separator + "systems.properties");
-		if (file.exists() == false) {
-			file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor");
-			file.mkdir();
-			file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "conf");
-			file.mkdir();
-			file = new File(
-					System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "projects");
-			file.mkdir();
-		}
+    /**
+     * saves the settings for this project to the file specified.
+     *
+     * @throws java.io.IOException
+     */
+    public void save() throws IOException {
+        FileOutputStream fos;
+        Properties props;
+        ProjectMember projectMember;
+        Member member;
+        RunConfiguration run;
 
-		// Creamos el directorio
-		File dirName = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
-				+ "projects" + File.separator + name);
-		if (!dirName.exists()) {
-			dirName.mkdirs();
-		}
-		
-		fos = new FileOutputStream(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
-				+ "projects" + File.separator + fileName);
-		props = new Properties();
-		props.setProperty("name", name);
+        // Creamos los directorios
+        File file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "conf"
+                + File.separator + "systems.properties");
+        if (file.exists() == false) {
+            file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor");
+            file.mkdir();
+            file = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "conf");
+            file.mkdir();
+            file = new File(
+                    System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator + "projects");
+            file.mkdir();
+        }
 
-		props.setProperty("run.count", Integer.toString(listRun.size()));
-		for (int x = 0; x < listRun.size(); x++) {
-			run = (RunConfiguration) listRun.get(x);
-			props.setProperty("run." + x + ".name", run.name);
-			props.setProperty("run." + x + ".program", run.program);
-			props.setProperty("run." + x + ".debug", run.debug);
-			props.setProperty("run." + x + ".libraries", run.libraries);
-			props.setProperty("run." + x + ".parms", run.parms);
-		}
+        // Creamos el directorio
+        File dirName = new File(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
+                + "projects" + File.separator + name);
+        if (!dirName.exists()) {
+            dirName.mkdirs();
+        }
 
-		props.setProperty("member.count", Integer.toString(listMembers.size()));
-		for (int x = 0; x < listMembers.size(); x++) {
-			projectMember = (ProjectMember) listMembers.get(x);
-			member = projectMember.member;
-			props.setProperty("member." + x + ".library", member.library);
-			props.setProperty("member." + x + ".file", member.file);
-			props.setProperty("member." + x + ".name", member.member);
-			props.setProperty("member." + x + ".sourceType", member.sourceType);
-			props.setProperty("member." + x + ".system", member.as400system.name);
-			props.setProperty("member." + x + ".compileType", projectMember.compileType);
-			props.setProperty("member." + x + ".destinationLibrary", projectMember.destinationLibrary);
-			props.setProperty("member." + x + ".optionCount", Integer.toString(projectMember.compileOptionCount()));
-			for (int o = 0; o < projectMember.compileOptionCount(); o++) {
-				props.setProperty("member." + x + ".option." + o, projectMember.getCompileOption(o));
-			}
-		}
-		props.store(fos, "");
-		fos.close();
-		saveRepo(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
-				+ "projects" + File.separator + fileName);
-	}
+        fos = new FileOutputStream(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
+                + "projects" + File.separator + fileName);
+        props = new Properties();
+        props.setProperty("name", name);
 
-	protected void saveRepo(String name) {
-		String workingDirectory = System.getProperty("user.home") + File.separator + ".iRPGEditor";
-		Repository repo;
-		try {
-			FileRepositoryBuilder builder = new FileRepositoryBuilder();
-			repo = builder.readEnvironment().findGitDir(new File(workingDirectory)).build();
-			Git git = new Git(repo);
+        props.setProperty("run.count", Integer.toString(listRun.size()));
+        for (int x = 0; x < listRun.size(); x++) {
+            run = (RunConfiguration) listRun.get(x);
+            props.setProperty("run." + x + ".name", run.name);
+            props.setProperty("run." + x + ".program", run.program);
+            props.setProperty("run." + x + ".debug", run.debug);
+            props.setProperty("run." + x + ".libraries", run.libraries);
+            props.setProperty("run." + x + ".parms", run.parms);
+        }
 
-			git.add().addFilepattern(name).call();
-			@SuppressWarnings("unused")
-			RevCommit rev = git.commit()
-					.setAuthor("iRPGEditor", "iRPGEditor")
-					.setMessage("Open "
-							+ new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()))
-					.call();
-			git.close();
-		} catch (IOException e1) {
-		
-		} catch (Exception e1) {
-			
-		}
-		
-	}
-	/**
-	 * returns a system for the system name.
-	 */
-	@SuppressWarnings("rawtypes")
-	private static AS400System getSystem(String systemName) {
-		ArrayList list;
-		AS400System system;
+        props.setProperty("member.count", Integer.toString(listMembers.size()));
+        for (int x = 0; x < listMembers.size(); x++) {
+            projectMember = (ProjectMember) listMembers.get(x);
+            member = projectMember.member;
+            props.setProperty("member." + x + ".library", member.library);
+            props.setProperty("member." + x + ".file", member.file);
+            props.setProperty("member." + x + ".name", member.member);
+            props.setProperty("member." + x + ".sourceType", member.sourceType);
+            props.setProperty("member." + x + ".system", member.as400system.name);
+            props.setProperty("member." + x + ".compileType", projectMember.compileType);
+            props.setProperty("member." + x + ".destinationLibrary", projectMember.destinationLibrary);
+            props.setProperty("member." + x + ".optionCount", Integer.toString(projectMember.compileOptionCount()));
+            for (int o = 0; o < projectMember.compileOptionCount(); o++) {
+                props.setProperty("member." + x + ".option." + o, projectMember.getCompileOption(o));
+            }
+        }
+        props.store(fos, "");
+        fos.close();
+        saveRepo(System.getProperty("user.home") + File.separator + ".iRPGEditor" + File.separator
+                + "projects" + File.separator + fileName);
+    }
 
-		list = Environment.systems.getSystems();
-		for (int x = 0; x < list.size(); x++) {
-			system = (AS400System) list.get(x);
-			if (system.name.equals(systemName)) {
-				return system;
-			}
-		}
-		return null;
-	}
+    protected void saveRepo(String name) {
+        String workingDirectory = System.getProperty("user.home") + File.separator + ".iRPGEditor";
+        Repository repo;
+        try {
+            FileRepositoryBuilder builder = new FileRepositoryBuilder();
+            repo = builder.readEnvironment().findGitDir(new File(workingDirectory)).build();
+            try (Git git = new Git(repo)) {
+                git.add().addFilepattern(name).call();
 
-	/**
-	 * returns the child for the object specified.
-	 */
-	public Object getChild(int index) {
-		return listMembers.get(index);
-	}
+                git.commit()
+                        .setAuthor("iRPGEditor", "iRPGEditor")
+                        .setMessage("Open "
+                                + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()))
+                        .call();
 
-	/**
-	 * return the child count for a given parent.
-	 */
-	public int getChildCount() {
-		return listMembers.size();
-	}
+            }
+        } catch (IOException | GitAPIException e1) {
+            logger.error(e1.getMessage());
+        }
 
-	/**
-	 * return the index of the child.
-	 */
-	public int getIndexOfChild(Object child) {
-		for (int x = 0; x < listMembers.size(); x++) {
-			if (listMembers.get(x) == child) {
-				return x;
-			}
-		}
-		return -1;
-	}
+    }
 
-	/**
-	 * returns true if the object has no children.
-	 */
-	public boolean isLeaf() {
-		if (listMembers.size() == 0) {
-			return true;
-		}
-		return false;
-	}
+    /**
+     * returns a system for the system name.
+     */
+    @SuppressWarnings("rawtypes")
+    private static AS400System getSystem(String systemName) {
+        ArrayList list;
+        AS400System system;
 
-	public String getText() {
-		return name;
-	}
+        list = Environment.systems.getSystems();
+        for (int x = 0; x < list.size(); x++) {
+            system = (AS400System) list.get(x);
+            if (system.name.equals(systemName)) {
+                return system;
+            }
+        }
+        return null;
+    }
 
-	public Node getParent() {
-		return null;
-	}
+    /**
+     * returns the child for the object specified.
+     *
+     * @param index
+     * @return
+     */
+    @Override
+    public Object getChild(int index) {
+        return listMembers.get(index);
+    }
 
-	public String toString() {
-		return name;
-	}
+    /**
+     * return the child count for a given parent.
+     *
+     * @return
+     */
+    @Override
+    public int getChildCount() {
+        return listMembers.size();
+    }
+
+    /**
+     * return the index of the child.
+     *
+     * @param child
+     * @return
+     */
+    @Override
+    public int getIndexOfChild(Object child) {
+        for (int x = 0; x < listMembers.size(); x++) {
+            if (listMembers.get(x) == child) {
+                return x;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * returns true if the object has no children.
+     *
+     * @return
+     */
+    @Override
+    public boolean isLeaf() {
+        return listMembers.isEmpty();
+    }
+
+    @Override
+    public String getText() {
+        return name;
+    }
+
+    @Override
+    public Node getParent() {
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

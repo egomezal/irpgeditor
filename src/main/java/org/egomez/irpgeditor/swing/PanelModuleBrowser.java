@@ -434,7 +434,7 @@ public class PanelModuleBrowser extends JPanel {
 					temp = bde.getBindingDirectory().getAS400().listServiceProgramModules(bde.getLibrary(),
 							bde.getName());
 					for (int x = 0; x < temp.size(); x++) {
-						add(new NodeModule(this, (Module) temp.get(x), treeModel));
+						add(new NodeModule(this, (org.egomez.irpgeditor.Module) temp.get(x), treeModel));
 					}
 				} else {
 					temp = bde.getBindingDirectory().getAS400().listModuleProcedures(bde.getLibrary(), bde.getName());
@@ -503,13 +503,13 @@ public class PanelModuleBrowser extends JPanel {
 	}
 
 	class NodeModule extends NodeDefault {
-		Module module;
+		org.egomez.irpgeditor.Module module;
 		TreeModelNode treeModel;
 		boolean hasExpanded = false;
 		boolean isRetrieving = false;
 		NodeDefault nodeWait;
 
-		public NodeModule(Node parent, Module module, TreeModelNode treeModel) {
+		public NodeModule(Node parent, org.egomez.irpgeditor.Module module, TreeModelNode treeModel) {
 			super(parent, module.getName());
 			this.module = module;
 			this.treeModel = treeModel;
@@ -624,9 +624,9 @@ public class PanelModuleBrowser extends JPanel {
 	}
 
 	class NodeProcedure extends NodeDefault {
-		Module module;
+		org.egomez.irpgeditor.Module module;
 
-		public NodeProcedure(Node parent, String name, Module module) {
+		public NodeProcedure(Node parent, String name, org.egomez.irpgeditor.Module module) {
 			super(parent, name);
 			this.module = module;
 			this.icon = Icons.iconExportedProcedure;

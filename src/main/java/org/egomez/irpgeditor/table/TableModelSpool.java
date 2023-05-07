@@ -28,10 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ibm.as400.access.*;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Level;
+
 
 /**
  * holds spool information.
@@ -118,14 +117,17 @@ public class TableModelSpool extends DefaultTableModel implements PrintObjectLis
         }
     }
 
+    @Override
     public String getColumnName(int index) {
         return columns[index];
     }
 
+    @Override
     public int getColumnCount() {
         return columns.length;
     }
 
+    @Override
     public int getRowCount() {
         int size = 0;
         if (spool == null) {
@@ -139,6 +141,7 @@ public class TableModelSpool extends DefaultTableModel implements PrintObjectLis
         return size;
     }
 
+    @Override
     public Object getValueAt(int row, int col) {
         SpooledFile file;
 
@@ -149,7 +152,7 @@ public class TableModelSpool extends DefaultTableModel implements PrintObjectLis
             return file.getJobUser();
         } else if (col == 2) {
             try {
-                String queue = file.getStringAttribute(SpooledFile.ATTR_OUTPUT_QUEUE);
+                String queue = file.getStringAttribute(PrintObject.ATTR_OUTPUT_QUEUE);
                 int index = queue.indexOf("/");
                 int count = 1;
                 while (count < 3 && index > -1) {
@@ -170,7 +173,7 @@ public class TableModelSpool extends DefaultTableModel implements PrintObjectLis
             }
         } else if (col == 3) {
             try {
-                return file.getStringAttribute(SpooledFile.ATTR_USERDATA);
+                return file.getStringAttribute(PrintObject.ATTR_USERDATA);
             } catch (Exception e) {
                 return e.getMessage();
             }
@@ -182,7 +185,7 @@ public class TableModelSpool extends DefaultTableModel implements PrintObjectLis
             }
         } else if (col == 5) {
             try {
-                return file.getIntegerAttribute(SpooledFile.ATTR_PAGES);
+                return file.getIntegerAttribute(PrintObject.ATTR_PAGES);
             } catch (Exception e) {
                 return e.getMessage();
             }
@@ -307,6 +310,7 @@ public class TableModelSpool extends DefaultTableModel implements PrintObjectLis
 
     public void listOpened(PrintObjectListEvent e) {
         SwingUtilities.invokeLater(new Thread() {
+            @Override
             public void run() {
                 fireTableDataChanged();
             }
