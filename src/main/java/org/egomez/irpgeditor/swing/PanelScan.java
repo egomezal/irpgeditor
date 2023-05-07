@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.borland.jbcl.layout.*;
+import java.sql.SQLException;
 
 /**
  * Scan systems for some text.
@@ -133,6 +134,7 @@ public class PanelScan extends PanelTool {
 	}
 
 	class ActionScanStop implements ActionListener {
+                @Override
 		public void actionPerformed(ActionEvent evt) {
 			stop = true;
 			cardlayout.first(panelScan);
@@ -144,11 +146,13 @@ public class PanelScan extends PanelTool {
 	 * displays the results in the scan results pane.
 	 */
 	class ActionScanStart implements ActionListener {
+                @Override
 		public void actionPerformed(ActionEvent evt) {
 			cardlayout.last(panelScan);
 			// scan should be a background task.
 			new Thread() {
 				@SuppressWarnings("rawtypes")
+                                @Override
 				public void run() {
 					AS400System system;
 					ArrayList listLibs, listFiles, listMembers, listResults;
@@ -209,7 +213,7 @@ public class PanelScan extends PanelTool {
 								}
 							}
 						}
-					} catch (Exception e) {
+					} catch (SQLException e) {
 						// e.printStackTrace();
 						logger.error(e.getMessage());
 						// JOptionPane.showMessageDialog(FrameRPGEditor.frameRPGEditor,
@@ -224,19 +228,15 @@ public class PanelScan extends PanelTool {
 		}
 
 		public void setText(final JLabel label, final String text) {
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					label.setText(text);
-				}
-			});
+			SwingUtilities.invokeLater(() -> {
+                            label.setText(text);
+                        });
 		}
 
 		public void append(final String text) {
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					textareaScanResults.append(text);
-				}
-			});
+			SwingUtilities.invokeLater(() -> {
+                            textareaScanResults.append(text);
+                        });
 		}
 	}
 }

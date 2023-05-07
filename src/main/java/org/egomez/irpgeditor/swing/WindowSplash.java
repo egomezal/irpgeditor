@@ -45,6 +45,7 @@ public class WindowSplash extends Window {
         setVisible(true);
     }
 
+    @Override
     public void paint(Graphics g) {
         g.drawImage(iconFrame.getImage(), 0, 0, this);
     }

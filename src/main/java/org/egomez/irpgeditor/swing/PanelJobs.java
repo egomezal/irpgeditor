@@ -47,7 +47,7 @@ import com.ibm.as400.access.QueuedMessage;
  * @author EDGO
  *
  */
-public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnable {
+public final class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnable {
 
     /**
      *
@@ -63,7 +63,6 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
     Thread t1;
     JLabel lblCargandoTrabajosActivos;
     SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-    Hashtable<String, SubsistemaAS400> listaSubSistemas = null;
     Logger logger = LoggerFactory.getLogger(PanelJobs.class);
     Hashtable<String, ArrayNode> listaNodos = null;
 
@@ -123,32 +122,25 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 
         JMenuItem mnuJobLog = new JMenuItem("View Job Log");
         mnuJobLog.setIcon(Icons.iconJobLog);
-        mnuJobLog.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int row = treeTable.getSelectedRow();
-                String name = (String) treeTable.getValueAt(row, 0);
-                String user = (String) treeTable.getValueAt(row, 1);
-                if (name.equalsIgnoreCase("QZDASOINIT") || name.equalsIgnoreCase("QZRCSRVS")) {
-                    user = "QUSER";
-                }
-
-                String number = (String) treeTable.getValueAt(row, 7);
-                Job j = new Job(as400.getAS400(), name, user, number);
-                new DlgJobLog("Job " + name + "/" + user + "/" + number, j.getJobLog()).setVisible(true);
+        mnuJobLog.addActionListener((ActionEvent e) -> {
+            int row = treeTable.getSelectedRow();
+            String name1 = (String) treeTable.getValueAt(row, 0);
+            String user = (String) treeTable.getValueAt(row, 1);
+            if (name1.equalsIgnoreCase("QZDASOINIT") || name1.equalsIgnoreCase("QZRCSRVS")) {
+                user = "QUSER";
             }
+            String number = (String) treeTable.getValueAt(row, 7);
+            Job j = new Job(as400.getAS400(), name1, user, number);
+            new DlgJobLog("Job " + name1 + "/" + user + "/" + number, j.getJobLog()).setVisible(true);
         });
         popupMenu.add(mnuJobLog);
 
         JMenuItem mnuRefresh = new JMenuItem("Refresh");
         mnuRefresh.setIcon(Icons.iconRefresh);
-        mnuRefresh.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!flg) {
-                    t1 = new Thread(getPanel());
-                    t1.start();
-                }
+        mnuRefresh.addActionListener((ActionEvent e) -> {
+            if (!flg) {
+                t1 = new Thread(getPanel());
+                t1.start();
             }
         });
         popupMenu.add(mnuRefresh);
@@ -232,11 +224,11 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
                         @SuppressWarnings("rawtypes")
                         Enumeration list1 = jobList.getJobs();
                         // SubsistemaAS400 x = null;
-                        ArrayNode node = null;
-                        Job j = null;
-                        listaSubSistemas = new Hashtable<String, SubsistemaAS400>();
+                        ArrayNode node;
+                        Job j;
+                        new Hashtable<String, SubsistemaAS400>();
 
-                        listaNodos = new Hashtable<String, ArrayNode>();
+                        listaNodos = new Hashtable<>();
 
                         while (list1.hasMoreElements()) {
                             j = (Job) list1.nextElement();
@@ -267,10 +259,10 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
 
                         String nombreSub = "";
                         String user = "";
-                        JobLog log = null;
-                        QueuedMessage message = null;
+                        JobLog log;
+                        QueuedMessage message;
                         @SuppressWarnings("rawtypes")
-                        Enumeration listMessage = null;
+                        Enumeration listMessage;
                         while (list.hasMoreElements()) {
                             j = (Job) list.nextElement();
 
@@ -360,15 +352,5 @@ public class PanelJobs extends PanelTool implements ListenerAS400Systems, Runnab
     public void run() {
         listaTrabajos(LIST_ALL);
     }
-    /*
-	 * public class BeanIconValue implements IconValue { private static final
-	 * long serialVersionUID = -869519891086205061L;
-	 * 
-	 * public Icon getIcon(Object value) { if (value != null) { //ArrayNode x =
-	 * (ArrayNode) value; Object [] y = (Object[])value; if
-	 * (y[5].equals("MSGW")) { return Icons.iconJobMsg; } else { return
-	 * Icons.iconJobs; }
-	 * 
-	 * } return null; } }
-     */
+
 }

@@ -79,7 +79,7 @@ public class PanelQcmdexec extends PanelTool
     @SuppressWarnings("rawtypes")
     DefaultListModel listModel = new DefaultListModel();
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     JList jList1 = new JList(this.listModel);
 
     JPanel panelQcmdexecPrompt = new JPanel();
@@ -109,6 +109,7 @@ public class PanelQcmdexec extends PanelTool
         }
     }
 
+    @Override
     public void addedSytem(AS400System system) {
     }
 
@@ -268,32 +269,29 @@ public class PanelQcmdexec extends PanelTool
     public void run() {
         while (true)
             try {
-                Thread.currentThread();
-                Thread.sleep(500L);
-                SubmitJob job = null;
-                // continue;
-                if (PanelQcmdexec.this.listModel.size() > 0) {
-                    job = (SubmitJob) this.listModel.get(0);
+            Thread.currentThread();
+            Thread.sleep(500L);
+            SubmitJob job;
+            // continue;
+            if (PanelQcmdexec.this.listModel.size() > 0) {
+                job = (SubmitJob) this.listModel.get(0);
 
-                    SwingUtilities.invokeAndWait(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (PanelQcmdexec.this.listModel.size() > 0) {
-                                PanelQcmdexec.this.listModel.remove(0);
-                            }
-                        }
-                    });
-                    job.execute();
-                }
-                if (this.listModel.size() > 0)
+                SwingUtilities.invokeAndWait(() -> {
+                    if (PanelQcmdexec.this.listModel.size() > 0) {
+                        PanelQcmdexec.this.listModel.remove(0);
+                    }
+                });
+                job.execute();
+            }
+            if (this.listModel.size() > 0)
                     ;
 
-                continue;
+            continue;
 
-            } catch (Exception e) {
-                logger.error(e.getMessage());
-                // e.printStackTrace();
-            }
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+            // e.printStackTrace();
+        }
     }
 
     public void setJFrame(JFrame frame) {
@@ -307,7 +305,7 @@ public class PanelQcmdexec extends PanelTool
         } /*
            * private final String val$command; private final ListenerSubmitJob
            * val$listener; private final AS400System val$system;
-           */);
+         */);
     }
 
     class ActionQcmdexec implements ActionListener {

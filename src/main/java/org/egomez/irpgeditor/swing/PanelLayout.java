@@ -210,6 +210,7 @@ public class PanelLayout extends PanelTool implements Runnable, ClosableTab {
              */
             private static final long serialVersionUID = -837790319558038020L;
 
+            @Override
             public String getToolTipText(MouseEvent e) {
                 String tip = null;
                 java.awt.Point p = e.getPoint();
@@ -307,21 +308,18 @@ public class PanelLayout extends PanelTool implements Runnable, ClosableTab {
     }
 
     protected void showResults() {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                panelFields.removeAll();
-                if (tableModel.getRowCount() == 0) {
-                    labelLoading.setText(tableName + " not found.");
-                    panelFields.setLayout(new FlowLayout());
-                    panelFields.add(labelLoading, null);
-                } else {
-                    panelFields.setLayout(new BorderLayout());
-                    panelFields.add(scrollpane, BorderLayout.CENTER);
-                }
-                revalidate();
-                repaint();
+        SwingUtilities.invokeLater(() -> {
+            panelFields.removeAll();
+            if (tableModel.getRowCount() == 0) {
+                labelLoading.setText(tableName + " not found.");
+                panelFields.setLayout(new FlowLayout());
+                panelFields.add(labelLoading, null);
+            } else {
+                panelFields.setLayout(new BorderLayout());
+                panelFields.add(scrollpane, BorderLayout.CENTER);
             }
+            revalidate();
+            repaint();
         });
     }
 
@@ -400,7 +398,7 @@ public class PanelLayout extends PanelTool implements Runnable, ClosableTab {
         public boolean replaceFields(StringBuffer text) {
             String fields = null;
             String field;
-            String repeat = null;
+            String repeat;
             int index, index2;
 
             // fields.

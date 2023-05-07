@@ -8,154 +8,155 @@ import org.egomez.irpgeditor.env.*;
  * @author not attributable
  */
 public class ToolManager {
-	@SuppressWarnings("rawtypes")
-	HashMap mapPanels = new HashMap();
-	@SuppressWarnings("rawtypes")
-	HashMap mapPanelContainers = new HashMap();
-	@SuppressWarnings("rawtypes")
-	HashMap mapFactories = new HashMap();
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void setPanelContainer(Class c, PanelToolContainer container) {
-		mapPanelContainers.put(c, container);
-	}
+    @SuppressWarnings("rawtypes")
+    HashMap mapPanels = new HashMap();
+    @SuppressWarnings("rawtypes")
+    HashMap mapPanelContainers = new HashMap();
+    @SuppressWarnings("rawtypes")
+    HashMap mapFactories = new HashMap();
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void setFactory(Class c, FactoryPanelTool factory) {
-		mapFactories.put(c, factory);
-	}
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void setPanelContainer(Class c, PanelToolContainer container) {
+        mapPanelContainers.put(c, container);
+    }
 
-	protected PanelTool createPanelTool(Object object) {
-		FactoryPanelTool factory;
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public void setFactory(Class c, FactoryPanelTool factory) {
+        mapFactories.put(c, factory);
+    }
 
-		factory = (FactoryPanelTool) mapFactories.get(object.getClass());
-		if (factory == null) {
-			return null;
-		}
-		return factory.construct(object);
-	}
+    protected PanelTool createPanelTool(Object object) {
+        FactoryPanelTool factory;
 
-	@SuppressWarnings("rawtypes")
-	protected PanelToolContainer getPanelToolContainer(Class c) {
-		return (PanelToolContainer) mapPanelContainers.get(c);
-	}
+        factory = (FactoryPanelTool) mapFactories.get(object.getClass());
+        if (factory == null) {
+            return null;
+        }
+        return factory.construct(object);
+    }
 
-	@SuppressWarnings("rawtypes")
-	public Object getSelected(Class c) {
-		PanelToolContainer panelContainer;
-		PanelTool panelTool;
-		Iterator iterator;
-		Object key;
+    @SuppressWarnings("rawtypes")
+    protected PanelToolContainer getPanelToolContainer(Class c) {
+        return (PanelToolContainer) mapPanelContainers.get(c);
+    }
 
-		panelContainer = getPanelToolContainer(c);
-		panelTool = panelContainer.getSelectedPanel();
-		iterator = mapPanels.keySet().iterator();
-		key = iterator.next();
-		while (key != null) {
-			if (mapPanels.get(key) == panelTool) {
-				return key;
-			}
-			key = iterator.next();
-		}
-		return null;
-	}
+    @SuppressWarnings("rawtypes")
+    public Object getSelected(Class c) {
+        PanelToolContainer panelContainer;
+        PanelTool panelTool;
+        Iterator iterator;
+        Object key;
 
-	public boolean isCached(Object object) {
-		return mapPanels.containsKey(object);
-	}
+        panelContainer = getPanelToolContainer(c);
+        panelTool = panelContainer.getSelectedPanel();
+        iterator = mapPanels.keySet().iterator();
+        key = iterator.next();
+        while (key != null) {
+            if (mapPanels.get(key) == panelTool) {
+                return key;
+            }
+            key = iterator.next();
+        }
+        return null;
+    }
 
-	@SuppressWarnings("unchecked")
-	public PanelTool open(Object object) {
-		PanelToolContainer panelContainer;
-		PanelTool panelTool;
+    public boolean isCached(Object object) {
+        return mapPanels.containsKey(object);
+    }
 
-		panelContainer = getPanelToolContainer(object.getClass());
-		panelTool = (PanelTool) mapPanels.get(object);
-		if (panelTool == null) {
-			panelTool = createPanelTool(object);
-			if (panelTool == null) {
-				return null;
-			}
-			mapPanels.put(object, panelTool);
-			panelTool.setContainer(panelContainer);
-		} else {
-			// panel already exists in cache.
-			// does it exist in the container?
-			if (panelContainer.indexOf(panelTool) == -1) {
-				panelTool.setContainer(panelContainer);
-				// must re add the actions from this panelTool to the
-				// environment
-				// since they were removed when the panel was last closed before
-				// it was cached.
-				Environment.actions.addActions(panelTool.getActions());
-			}
-		}
-		panelContainer.select(panelTool);
-		return panelTool;
-	}
+    @SuppressWarnings("unchecked")
+    public PanelTool open(Object object) {
+        PanelToolContainer panelContainer;
+        PanelTool panelTool;
 
-	public void close(Object object, boolean cache) {
-		PanelTool panelTool;
+        panelContainer = getPanelToolContainer(object.getClass());
+        panelTool = (PanelTool) mapPanels.get(object);
+        if (panelTool == null) {
+            panelTool = createPanelTool(object);
+            if (panelTool == null) {
+                return null;
+            }
+            mapPanels.put(object, panelTool);
+            panelTool.setContainer(panelContainer);
+        } else {
+            // panel already exists in cache.
+            // does it exist in the container?
+            if (panelContainer.indexOf(panelTool) == -1) {
+                panelTool.setContainer(panelContainer);
+                // must re add the actions from this panelTool to the
+                // environment
+                // since they were removed when the panel was last closed before
+                // it was cached.
+                Environment.actions.addActions(panelTool.getActions());
+            }
+        }
+        panelContainer.select(panelTool);
+        return panelTool;
+    }
 
-		panelTool = (PanelTool) mapPanels.get(object);
-		if (panelTool == null) {
-			return;
-		}
-		panelTool.setContainer(null);
-		panelTool.close();
-		if (!cache) {
-			mapPanels.remove(object);
-			panelTool.dispose();
-		}
-	}
+    public void close(Object object, boolean cache) {
+        PanelTool panelTool;
 
-	public void select(Object object) {
-		PanelTool panelTool;
+        panelTool = (PanelTool) mapPanels.get(object);
+        if (panelTool == null) {
+            return;
+        }
+        panelTool.setContainer(null);
+        panelTool.close();
+        if (!cache) {
+            mapPanels.remove(object);
+            panelTool.dispose();
+        }
+    }
 
-		panelTool = (PanelTool) mapPanels.get(object);
-		if (panelTool == null) {
-			return;
-		}
-		panelTool.requestFocus();
-	}
+    public void select(Object object) {
+        PanelTool panelTool;
 
-	@SuppressWarnings("rawtypes")
-	public void closeAll(Class c, boolean cache) {
-		PanelToolContainer panelToolContainer;
-		PanelTool[] panels;
-		PanelTool panelTool;
+        panelTool = (PanelTool) mapPanels.get(object);
+        if (panelTool == null) {
+            return;
+        }
+        panelTool.requestFocus();
+    }
 
-		panelToolContainer = getPanelToolContainer(c);
-		if (panelToolContainer == null) {
-			return;
-		}
-		panels = panelToolContainer.getPanels();
+    @SuppressWarnings("rawtypes")
+    public void closeAll(Class c, boolean cache) {
+        PanelToolContainer panelToolContainer;
+        PanelTool[] panels;
+        PanelTool panelTool;
 
-		// panels = (PanelTool[])mapPanels.values().toArray(new
-		// PanelTool[mapPanels.values().size()]);
-		for (int x = 0; x < panels.length; x++) {
-			panelTool = panels[x];
-			panelTool.setContainer(null);
-			panelTool.close();
-			if (!cache) {
-				panelTool.dispose();
-				mapPanels.remove(getKey(panelTool));
-			}
-		}
-	}
+        panelToolContainer = getPanelToolContainer(c);
+        if (panelToolContainer == null) {
+            return;
+        }
+        panels = panelToolContainer.getPanels();
 
-	@SuppressWarnings("rawtypes")
-	protected Object getKey(Object value) {
-		Iterator iterator;
-		Object key;
+        // panels = (PanelTool[])mapPanels.values().toArray(new
+        // PanelTool[mapPanels.values().size()]);
+        for (PanelTool panel : panels) {
+            panelTool = panel;
+            panelTool.setContainer(null);
+            panelTool.close();
+            if (!cache) {
+                panelTool.dispose();
+                mapPanels.remove(getKey(panelTool));
+            }
+        }
+    }
 
-		iterator = mapPanels.keySet().iterator();
-		while (iterator.hasNext()) {
-			key = iterator.next();
-			if (mapPanels.get(key) == value) {
-				return key;
-			}
-		}
-		return null;
-	}
+    @SuppressWarnings("rawtypes")
+    protected Object getKey(Object value) {
+        Iterator iterator;
+        Object key;
+
+        iterator = mapPanels.keySet().iterator();
+        while (iterator.hasNext()) {
+            key = iterator.next();
+            if (mapPanels.get(key) == value) {
+                return key;
+            }
+        }
+        return null;
+    }
 }

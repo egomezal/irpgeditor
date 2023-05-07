@@ -9,7 +9,8 @@ import org.slf4j.LoggerFactory;
  */
 public class FactoryMembers implements FactoryPanelTool {
 	Logger logger = LoggerFactory.getLogger(FactoryMembers.class);
-  public PanelTool construct(Object object) {
+        @Override
+    public PanelTool construct(Object object) {
     PanelTool panelTool;
     ProjectMember projectMember;
 
@@ -20,7 +21,6 @@ public class FactoryMembers implements FactoryPanelTool {
       return panelTool;
     }
     catch (Exception e) {
-      //e.printStackTrace();
     	logger.error(e.getMessage());
       return null;
     }

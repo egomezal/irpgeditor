@@ -22,7 +22,7 @@ public class FactoryHelp implements FactoryPanelTool {
 			panelHelp.setHelpRequest(request);
 			return panelHelp;
 		} catch (Exception e) {
-			// e.printStackTrace();
+			
 			logger.error(e.getMessage());
 			return null;
 		}

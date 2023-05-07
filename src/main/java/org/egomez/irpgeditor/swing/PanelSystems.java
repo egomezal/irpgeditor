@@ -18,7 +18,6 @@ package org.egomez.irpgeditor.swing;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -32,205 +31,213 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Panel for managing systems.
- * 
+ *
  * @author Derek Van Kooten.
  */
 public class PanelSystems extends PanelTool {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -1025879222924257373L;
 
-	TableModelSystems tableModelSystems = new TableModelSystems();
+    /**
+     *
+     */
+    private static final long serialVersionUID = -1025879222924257373L;
 
-	ActionSessionOpen actionSessionOpen = new ActionSessionOpen();
-	ActionAddLibraryF actionAddLibraryF = new ActionAddLibraryF();
-	ActionSystemRemove actionSystemRemove = new ActionSystemRemove();
-	ActionFocus actionFocus = new ActionFocus();
+    TableModelSystems tableModelSystems = new TableModelSystems();
 
-	BorderLayout borderLayout1 = new BorderLayout();
-	JPanel panelSystemsButtons = new JPanel();
-	JTable tableSystems = new JTable(tableModelSystems);
+    ActionSessionOpen actionSessionOpen = new ActionSessionOpen();
+    ActionAddLibraryF actionAddLibraryF = new ActionAddLibraryF();
+    ActionSystemRemove actionSystemRemove = new ActionSystemRemove();
+    ActionFocus actionFocus = new ActionFocus();
 
-	JButton buttonSystemsOpen = new JButton();
-	FlowLayout flowlayoutSystemsButtons = new FlowLayout();
-	JScrollPane scrollpaneSystems = new JScrollPane();
-	BorderLayout borderLayoutSystems = new BorderLayout();
-	JButton buttonRemove = new JButton();
-	Logger logger = LoggerFactory.getLogger(PanelSystems.class);
+    BorderLayout borderLayout1 = new BorderLayout();
+    JPanel panelSystemsButtons = new JPanel();
+    JTable tableSystems = new JTable(tableModelSystems);
 
-	public PanelSystems() {
-		setName("Systems");
-		try {
-			super.actions = new Action[] { actionSessionOpen, actionFocus, actionAddLibraryF };
-			Environment.actions.addActions(actions);
-			jbInit();
-			buttonSystemsOpen.addActionListener(actionSessionOpen);
-			buttonRemove.addActionListener(actionSystemRemove);
-			tableSystems.getColumn("ID").setPreferredWidth(0);
-			tableSystems.getColumn("ID").setMinWidth(0);
-			tableSystems.getColumn("ID").setWidth(0);
-			tableSystems.getColumn("ID").setMaxWidth(0);
+    JButton buttonSystemsOpen = new JButton();
+    FlowLayout flowlayoutSystemsButtons = new FlowLayout();
+    JScrollPane scrollpaneSystems = new JScrollPane();
+    BorderLayout borderLayoutSystems = new BorderLayout();
+    JButton buttonRemove = new JButton();
+    Logger logger = LoggerFactory.getLogger(PanelSystems.class);
 
-		} catch (Exception e) {
-			// e.printStackTrace();
-			logger.error(e.getMessage());
-		}
-	}
+    public PanelSystems() {
+        setName("Systems");
+        try {
+            super.actions = new Action[]{actionSessionOpen, actionFocus, actionAddLibraryF};
+            Environment.actions.addActions(actions);
+            jbInit();
+            buttonSystemsOpen.addActionListener(actionSessionOpen);
+            buttonRemove.addActionListener(actionSystemRemove);
+            tableSystems.getColumn("ID").setPreferredWidth(0);
+            tableSystems.getColumn("ID").setMinWidth(0);
+            tableSystems.getColumn("ID").setWidth(0);
+            tableSystems.getColumn("ID").setMaxWidth(0);
 
-	private void jbInit() throws Exception {
-		this.setLayout(borderLayout1);
-		panelSystemsButtons.setLayout(flowlayoutSystemsButtons);
-		buttonSystemsOpen.setMargin(new Insets(0, 0, 0, 0));
-		buttonSystemsOpen.setText("Open");
-		flowlayoutSystemsButtons.setAlignment(FlowLayout.LEFT);
-		flowlayoutSystemsButtons.setHgap(2);
-		flowlayoutSystemsButtons.setVgap(2);
-		buttonRemove.setMargin(new Insets(0, 0, 0, 0));
-		buttonRemove.setText("Remove");
-		add(scrollpaneSystems, BorderLayout.CENTER);
-		add(panelSystemsButtons, BorderLayout.NORTH);
-		panelSystemsButtons.add(buttonSystemsOpen, null);
-		panelSystemsButtons.add(buttonRemove, null);
-		scrollpaneSystems.getViewport().add(tableSystems, null);
-	}
+        } catch (Exception e) {
+            // e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+    }
 
-	class ActionSystemRemove extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 5318656694048713377L;
+    private void jbInit() throws Exception {
+        this.setLayout(borderLayout1);
+        panelSystemsButtons.setLayout(flowlayoutSystemsButtons);
+        buttonSystemsOpen.setMargin(new Insets(0, 0, 0, 0));
+        buttonSystemsOpen.setText("Open");
+        flowlayoutSystemsButtons.setAlignment(FlowLayout.LEFT);
+        flowlayoutSystemsButtons.setHgap(2);
+        flowlayoutSystemsButtons.setVgap(2);
+        buttonRemove.setMargin(new Insets(0, 0, 0, 0));
+        buttonRemove.setText("Remove");
+        add(scrollpaneSystems, BorderLayout.CENTER);
+        add(panelSystemsButtons, BorderLayout.NORTH);
+        panelSystemsButtons.add(buttonSystemsOpen, null);
+        panelSystemsButtons.add(buttonRemove, null);
+        scrollpaneSystems.getViewport().add(tableSystems, null);
+    }
 
-		public ActionSystemRemove() {
-			super("Remove");
-			setEnabled(true);
-			putValue("MENU", "Systems");
-		}
+    class ActionSystemRemove extends AbstractAction {
 
-		public void actionPerformed(ActionEvent evt) {
-			AS400System system;
-			int row;
+        /**
+         *
+         */
+        private static final long serialVersionUID = 5318656694048713377L;
 
-			row = tableSystems.getSelectedRow();
-			if (row == -1) {
-				return;
-			}
-			system = (AS400System) tableModelSystems.getSystem(row);
-			if (system == null) {
-				return;
-			}
-			Environment.systems.removeSystem(system);
-		}
-	}
+        public ActionSystemRemove() {
+            super("Remove");
+            setEnabled(true);
+            putValue("MENU", "Systems");
+        }
 
-	/**
-	 * opens a session to the as400.
-	 */
-	class ActionSessionOpen extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -8220067555407779059L;
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            AS400System system;
+            int row;
 
-		public ActionSessionOpen() {
-			super("Open", Icons.iconScreen);
-			setEnabled(true);
-			putValue("MENU", "Session");
-			// F6
-			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(117, 0, false));
-			// putValue(Action.MNEMONIC_KEY, new Character('S'));
-		}
+            row = tableSystems.getSelectedRow();
+            if (row == -1) {
+                return;
+            }
+            system = (AS400System) tableModelSystems.getSystem(row);
+            if (system == null) {
+                return;
+            }
+            Environment.systems.removeSystem(system);
+        }
+    }
 
-		public void actionPerformed(ActionEvent evt) {
-			final AS400System system;
-			int row;
+    /**
+     * opens a session to the as400.
+     */
+    class ActionSessionOpen extends AbstractAction {
 
-			row = tableSystems.getSelectedRow();
-			if (row == -1) {
-				JOptionPane.showMessageDialog(null, "You need to select AS400 Server into System Panel.", "Server",
-						JOptionPane.INFORMATION_MESSAGE);
-				return;
-			}
-			system = (AS400System) tableModelSystems.getSystem(row);
-			if (system == null) {
-				return;
-			}
-			new Thread() {
-				public void run() {
-					FrameTN5250J frame;
+        /**
+         *
+         */
+        private static final long serialVersionUID = -8220067555407779059L;
 
-					frame = new FrameTN5250J();
-					frame.setSystem(system.getAddress(), system.isSsl());
-					frame.determineSize();
-					frame.center();
-					frame.setVisible(true);
-					try {
-						frame.connect();
-						if (frame.isSSLFlg()){
-							frame.setVisible(false);
-							frame =  null;
-							frame = new FrameTN5250J();
-							frame.setSSLFlg(true);
-							frame.setSystem(system.getAddress(), system.isSsl());
-							frame.determineSize();
-							frame.center();
-							frame.setVisible(true);
-							frame.connect();
-						}
-					} catch (Exception e) {
-						// e.printStackTrace();
-						logger.error(e.getMessage());
-					}
+        public ActionSessionOpen() {
+            super("Open", Icons.iconScreen);
+            setEnabled(true);
+            putValue("MENU", "Session");
+            // F6
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(117, 0, false));
+            // putValue(Action.MNEMONIC_KEY, new Character('S'));
+        }
 
-				}
-			}.start();
-		}
-	}
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            final AS400System system;
+            int row;
 
-	class ActionAddLibraryF extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -8220067555407779059L;
+            row = tableSystems.getSelectedRow();
+            if (row == -1) {
+                JOptionPane.showMessageDialog(null, "You need to select AS400 Server into System Panel.", "Server",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            system = (AS400System) tableModelSystems.getSystem(row);
+            if (system == null) {
+                return;
+            }
+            new Thread() {
+                public void run() {
+                    FrameTN5250J frame;
 
-		public ActionAddLibraryF() {
-			super("Add to Library List");
-			setEnabled(true);
-			putValue("MENU", "Session");
-			// putValue(Action.MNEMONIC_KEY, new Character('S'));
-		}
+                    frame = new FrameTN5250J();
+                    frame.setSystem(system.getAddress(), system.isSsl());
+                    frame.determineSize();
+                    frame.center();
+                    frame.setVisible(true);
+                    try {
+                        frame.connect();
+                        if (frame.isSSLFlg()) {
+                            frame.setVisible(false);
+                            frame = null;
+                            frame = new FrameTN5250J();
+                            frame.setSSLFlg(true);
+                            frame.setSystem(system.getAddress(), system.isSsl());
+                            frame.determineSize();
+                            frame.center();
+                            frame.setVisible(true);
+                            frame.connect();
+                        }
+                    } catch (Exception e) {
+                        // e.printStackTrace();
+                        logger.error(e.getMessage());
+                    }
 
-		public void actionPerformed(ActionEvent evt) {
-			try {
-				DialogAddLibrary.showDialog(null);
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
-				logger.error(e.getMessage());
-			}
-		}
-	}
+                }
+            }.start();
+        }
+    }
 
+    class ActionAddLibraryF extends AbstractAction {
 
-	/**
-	 * starts a green screen and runs it in debug.
-	 */
-	class ActionFocus extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 5003297214347996160L;
+        /**
+         *
+         */
+        private static final long serialVersionUID = -8220067555407779059L;
 
-		public ActionFocus() {
-			super("Systems", Icons.iconServer);
-			setEnabled(true);
-			putValue("MENU", "Tools");
-			// F6 + CTRL
-			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(117, KeyEvent.CTRL_MASK, false));
-			// putValue(Action.MNEMONIC_KEY, new Character('S'));
-		}
+        public ActionAddLibraryF() {
+            super("Add to Library List");
+            setEnabled(true);
+            putValue("MENU", "Session");
+            // putValue(Action.MNEMONIC_KEY, new Character('S'));
+        }
 
-		public void actionPerformed(ActionEvent evt) {
-			focus();
-		}
-	}
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            try {
+                DialogAddLibrary.showDialog(null);
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
+                logger.error(e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * starts a green screen and runs it in debug.
+     */
+    class ActionFocus extends AbstractAction {
+
+        /**
+         *
+         */
+        private static final long serialVersionUID = 5003297214347996160L;
+
+        public ActionFocus() {
+            super("Systems", Icons.iconServer);
+            setEnabled(true);
+            putValue("MENU", "Tools");
+            // F6 + CTRL
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(117, KeyEvent.CTRL_MASK, false));
+            // putValue(Action.MNEMONIC_KEY, new Character('S'));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            focus();
+        }
+    }
 }

@@ -16,7 +16,7 @@ public class PanelTool extends JPanel {
 	private static final long serialVersionUID = -4567933460014597096L;
 PanelToolContainer panelToolContainer;
   @SuppressWarnings("rawtypes")
-private ArrayList listListeners = new ArrayList();
+private final ArrayList listListeners = new ArrayList();
   protected Action[] actions = new Action[0];
   int i = 0;
   

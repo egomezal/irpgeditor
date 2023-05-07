@@ -21,14 +21,17 @@ public class ComboBoxModelProjects extends AbstractListModel implements javax.sw
         Environment.projects.addListener(this);
     }
 
+    @Override
     public Object getSelectedItem() {
         return Environment.projects.getSelected();
     }
 
+    @Override
     public void setSelectedItem(Object object) {
         Environment.projects.select((Project) object);
     }
 
+    @Override
     public Object getElementAt(int index) {
         return Environment.projects.get(index);
     }

@@ -125,6 +125,7 @@ public class PanelCompilerResults extends PanelTool implements CompilerResultsOu
             // putValue(Action.MNEMONIC_KEY, new Character('S'));
         }
 
+        @Override
         public void actionPerformed(ActionEvent evt) {
             textareaCompilerResults.setText("");
         }
@@ -163,7 +164,7 @@ public class PanelCompilerResults extends PanelTool implements CompilerResultsOu
 
         @Override
         public void mouseClicked(MouseEvent evt) {
-            String text, system, library, file, membername;
+            String text;
             int rowStart, colStart, rowEnd, colEnd;
             int position, start, end;
             StyledDocument document;
@@ -217,19 +218,19 @@ public class PanelCompilerResults extends PanelTool implements CompilerResultsOu
                 if (!tokenizer.hasMoreTokens()) {
                     return;
                 }
-                system = tokenizer.nextToken();
+                tokenizer.nextToken();
                 if (!tokenizer.hasMoreTokens()) {
                     return;
                 }
-                library = tokenizer.nextToken();
+                tokenizer.nextToken();
                 if (!tokenizer.hasMoreTokens()) {
                     return;
                 }
-                file = tokenizer.nextToken();
+                tokenizer.nextToken();
                 if (!tokenizer.hasMoreTokens()) {
                     return;
                 }
-                membername = tokenizer.nextToken();
+                tokenizer.nextToken();
                 if (!tokenizer.hasMoreTokens()) {
                     return;
                 }

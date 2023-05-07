@@ -6,20 +6,20 @@ import java.io.*;
  * used for selecting project files.
  */
 public class FileFilteriRPGProjects extends javax.swing.filechooser.FileFilter {
-  public boolean accept(File f) {
-    String name;
 
-    if ( f.isDirectory() ) {
-      return true;
-    }
-    name = f.getName();
-    if ( name.endsWith(".prj") ) {
-      return true;
-    }
-    return false;
-  }
+    @Override
+    public boolean accept(File f) {
+        String name;
 
-  public String getDescription() {
-    return "iRPGEditor Project Files";
-  }
+        if (f.isDirectory()) {
+            return true;
+        }
+        name = f.getName();
+        return name.endsWith(".prj");
+    }
+
+    @Override
+    public String getDescription() {
+        return "iRPGEditor Project Files";
+    }
 }

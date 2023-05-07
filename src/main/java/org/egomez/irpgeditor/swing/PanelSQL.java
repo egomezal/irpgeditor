@@ -262,14 +262,13 @@ public final class PanelSQL extends PanelTool implements OutputSQL {
     }
 
     protected void startBuildResults(final Statement stmt, final StyledDocument document) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                ResultSet rs;
-                SQLWarning warn;
-                StringBuffer results, parms;
-                results = new StringBuffer();
-                try {
+        SwingUtilities.invokeLater(() -> {
+            ResultSet rs;
+            SQLWarning warn;
+            StringBuffer results, parms;
+            results = new StringBuffer();
+            try {
+                try (stmt) {
                     warn = stmt.getWarnings();
                     while (warn != null) {
                         results.append(warn.getErrorCode());
@@ -294,19 +293,17 @@ public final class PanelSQL extends PanelTool implements OutputSQL {
                             }
                         }
                     }
-                    stmt.close();
-                } catch (Exception e) {
-
-                    JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
-                    logger.error(e.getMessage());
                 }
-                textareaSqlResults.setSelectionStart(0);
-                textareaSqlResults.setSelectionEnd(0);
+            } catch (Exception e) {
+                
+                JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.WARNING_MESSAGE);
+                logger.error(e.getMessage());
             }
+            textareaSqlResults.setSelectionStart(0);
+            textareaSqlResults.setSelectionEnd(0);
         });
     }
 
-    
     protected StringBuffer getParmOutput(Statement stmt) throws SQLException {
         CallableStatement call;
         ParameterMetaData meta;
@@ -333,110 +330,111 @@ public final class PanelSQL extends PanelTool implements OutputSQL {
     }
 
     protected void buildResults(ResultSet rs, StyledDocument document) throws Exception {
-        ResultSetMetaData meta;
-        int needed;
-        int[] sizes;
-        int temp;
-        int row;// index;
-        String buffer;
-        Object o;
-        SimpleAttributeSet attributes;
-
-        attributes = new SimpleAttributeSet();
-        StyleConstants.setFontFamily(attributes, "DialogInput");
-        StyleConstants.setFontSize(attributes, 14);
-        StyleConstants.setForeground(attributes, new Color(0, 0, 0));
-        meta = rs.getMetaData();
-        sizes = new int[meta.getColumnCount()];
-        document.insertString(document.getLength(), "       ROW | ", attributes);
-        for (int x = 0; x < meta.getColumnCount(); x++) {
-            buffer = meta.getColumnName(x + 1);
-            document.insertString(document.getLength(), buffer, attributes);
-            sizes[x] = buffer.length();
-            if (meta.getColumnDisplaySize(x + 1) > sizes[x]) {
-                sizes[x] = meta.getColumnDisplaySize(x + 1);
-            }
-            temp = meta.getScale(x + 1);
-            if (meta.getPrecision(x + 1) > 0) {
-                temp += meta.getPrecision(x + 1);
-                // add decimal.
-                temp += 1;
-            }
-            if (temp > sizes[x]) {
-                sizes[x] = temp;
-            }
-            needed = sizes[x] - buffer.length();
-            while (needed > 0) {
-                document.insertString(document.getLength(), " ", attributes);
-                needed--;
-            }
-            document.insertString(document.getLength(), " ", attributes);
-        }
-        document.insertString(document.getLength(), "\n-----------| ", attributes);
-        needed = 0;
-        for (int x = 0; x < sizes.length; x++) {
-            needed = sizes[x];
-            while (needed > 0) {
-                document.insertString(document.getLength(), "-", attributes);
-                needed--;
-            }
-            document.insertString(document.getLength(), " ", attributes);
-        }
-        document.insertString(document.getLength(), "\n", attributes);
-        row = 1;
-        while (rs.next() && row <= 200) {
-            StyleConstants.setForeground(attributes, Color.black);
-            StyleConstants.setBackground(attributes, Color.white);
+        try (rs) {
+            ResultSetMetaData meta;
+            int needed;
+            int[] sizes;
+            int temp;
+            int row;// index;
+            String buffer;
+            Object o;
+            SimpleAttributeSet attributes;
+            
+            attributes = new SimpleAttributeSet();
+            StyleConstants.setFontFamily(attributes, "DialogInput");
+            StyleConstants.setFontSize(attributes, 14);
             StyleConstants.setForeground(attributes, new Color(0, 0, 0));
-            needed = 10 - Integer.toString(row).length();
-            while (needed > 0) {
-                document.insertString(document.getLength(), " ", attributes);
-                needed--;
-            }
-            document.insertString(document.getLength(), Integer.toString(row), attributes);
-            document.insertString(document.getLength(), " | ", attributes);
-
-            for (int x = 0; x < sizes.length; x++) {
-                if (row % 2 == 0) {
-                    if (x % 2 == 0) {
-                        StyleConstants.setBackground(attributes, new Color(215, 215, 255));
-                    } else {
-                        StyleConstants.setBackground(attributes, new Color(195, 195, 255));
-                    }
-                } else {
-                    if (x % 2 == 0) {
-                        StyleConstants.setBackground(attributes, new Color(215, 255, 215));
-                    } else {
-                        StyleConstants.setBackground(attributes, new Color(195, 255, 195));
-                    }
+            meta = rs.getMetaData();
+            sizes = new int[meta.getColumnCount()];
+            document.insertString(document.getLength(), "       ROW | ", attributes);
+            for (int x = 0; x < meta.getColumnCount(); x++) {
+                buffer = meta.getColumnName(x + 1);
+                document.insertString(document.getLength(), buffer, attributes);
+                sizes[x] = buffer.length();
+                if (meta.getColumnDisplaySize(x + 1) > sizes[x]) {
+                    sizes[x] = meta.getColumnDisplaySize(x + 1);
                 }
-                o = rs.getObject(x + 1);
-                if (o == null) {
-                    buffer = "";
-                } else {
-                    buffer = o.toString();
+                temp = meta.getScale(x + 1);
+                if (meta.getPrecision(x + 1) > 0) {
+                    temp += meta.getPrecision(x + 1);
+                    // add decimal.
+                    temp += 1;
+                }
+                if (temp > sizes[x]) {
+                    sizes[x] = temp;
                 }
                 needed = sizes[x] - buffer.length();
-                if (meta.getColumnTypeName(x + 1).startsWith("C")) {
-                    // character.
-                    while (needed > 0) {
-                        buffer = buffer + " ";
-                        needed--;
-                    }
-                } else {
-                    // decimal.
-                    while (needed > 0) {
-                        buffer = " " + buffer;
-                        needed--;
-                    }
+                while (needed > 0) {
+                    document.insertString(document.getLength(), " ", attributes);
+                    needed--;
                 }
-                document.insertString(document.getLength(), buffer, attributes);
+                document.insertString(document.getLength(), " ", attributes);
+            }
+            document.insertString(document.getLength(), "\n-----------| ", attributes);
+            needed = 0;
+            for (int x = 0; x < sizes.length; x++) {
+                needed = sizes[x];
+                while (needed > 0) {
+                    document.insertString(document.getLength(), "-", attributes);
+                    needed--;
+                }
                 document.insertString(document.getLength(), " ", attributes);
             }
             document.insertString(document.getLength(), "\n", attributes);
-            row++;
+            row = 1;
+            while (rs.next() && row <= 200) {
+                StyleConstants.setForeground(attributes, Color.black);
+                StyleConstants.setBackground(attributes, Color.white);
+                StyleConstants.setForeground(attributes, new Color(0, 0, 0));
+                needed = 10 - Integer.toString(row).length();
+                while (needed > 0) {
+                    document.insertString(document.getLength(), " ", attributes);
+                    needed--;
+                }
+                document.insertString(document.getLength(), Integer.toString(row), attributes);
+                document.insertString(document.getLength(), " | ", attributes);
+                
+                for (int x = 0; x < sizes.length; x++) {
+                    if (row % 2 == 0) {
+                        if (x % 2 == 0) {
+                            StyleConstants.setBackground(attributes, new Color(215, 215, 255));
+                        } else {
+                            StyleConstants.setBackground(attributes, new Color(195, 195, 255));
+                        }
+                    } else {
+                        if (x % 2 == 0) {
+                            StyleConstants.setBackground(attributes, new Color(215, 255, 215));
+                        } else {
+                            StyleConstants.setBackground(attributes, new Color(195, 255, 195));
+                        }
+                    }
+                    o = rs.getObject(x + 1);
+                    if (o == null) {
+                        buffer = "";
+                    } else {
+                        buffer = o.toString();
+                    }
+                    needed = sizes[x] - buffer.length();
+                    if (meta.getColumnTypeName(x + 1).startsWith("C")) {
+                        // character.
+                        while (needed > 0) {
+                            buffer = buffer + " ";
+                            needed--;
+                        }
+                    } else {
+                        // decimal.
+                        while (needed > 0) {
+                            buffer = " " + buffer;
+                            needed--;
+                        }
+                    }
+                    document.insertString(document.getLength(), buffer, attributes);
+                    document.insertString(document.getLength(), " ", attributes);
+                }
+                document.insertString(document.getLength(), "\n", attributes);
+                row++;
+            }
         }
-        rs.close();
     }
 
     /**

@@ -3,6 +3,7 @@ package org.egomez.irpgeditor.swing;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.SQLException;
 import javax.swing.*;
 
 import org.egomez.irpgeditor.*;
@@ -17,639 +18,660 @@ import org.slf4j.LoggerFactory;
  * @author Derek Van Kooten
  */
 public class PanelModuleBrowser extends JPanel {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 4808478177017523614L;
-	BorderLayout borderLayout1 = new BorderLayout();
-	JScrollPane scrollpaneSystemBrowser = new JScrollPane();
-	TreeModelNode treeModel = new TreeModelNode();
-	JTree treeSystemBrowser = new JTree();
-	TreeCellRendererNode treeCellRendererNode = new TreeCellRendererNode();
-	NodeSystems nodeSystems = new NodeSystems(treeModel);
-	Logger logger = LoggerFactory.getLogger(PanelModuleBrowser.class);
 
-	public PanelModuleBrowser() {
-		try {
-			jbInit();
-		} catch (Exception e) {
-			//e.printStackTrace();
-			logger.error(e.getMessage());
-		}
-	}
+    /**
+     *
+     */
+    private static final long serialVersionUID = 4808478177017523614L;
+    BorderLayout borderLayout1 = new BorderLayout();
+    JScrollPane scrollpaneSystemBrowser = new JScrollPane();
+    TreeModelNode treeModel = new TreeModelNode();
+    JTree treeSystemBrowser = new JTree();
+    TreeCellRendererNode treeCellRendererNode = new TreeCellRendererNode();
+    NodeSystems nodeSystems = new NodeSystems(treeModel);
+    Logger logger = LoggerFactory.getLogger(PanelModuleBrowser.class);
 
-	private void jbInit() throws Exception {
-		this.setLayout(borderLayout1);
-		this.add(scrollpaneSystemBrowser, BorderLayout.CENTER);
-		scrollpaneSystemBrowser.getViewport().add(treeSystemBrowser, null);
-		treeModel.setRoot(nodeSystems);
-		treeSystemBrowser.setCellRenderer(treeCellRendererNode);
-		treeSystemBrowser.setRootVisible(false);
-		treeSystemBrowser.setModel(treeModel);
-		treeSystemBrowser.addTreeExpansionListener(new TreeExpansionListenerNode());
-		new TreeClickHandler(treeSystemBrowser);
-		ToolTipManager.sharedInstance().registerComponent(treeSystemBrowser);
-	}
+    public PanelModuleBrowser() {
+        try {
+            jbInit();
+        } catch (Exception e) {
+            //e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+    }
 
-	class NodeSystems extends NodeDefault implements ListenerAS400Systems {
-		AS400System as400;
-		TreeModelNode treeModel;
+    private void jbInit() throws Exception {
+        this.setLayout(borderLayout1);
+        this.add(scrollpaneSystemBrowser, BorderLayout.CENTER);
+        scrollpaneSystemBrowser.getViewport().add(treeSystemBrowser, null);
+        treeModel.setRoot(nodeSystems);
+        treeSystemBrowser.setCellRenderer(treeCellRendererNode);
+        treeSystemBrowser.setRootVisible(false);
+        treeSystemBrowser.setModel(treeModel);
+        treeSystemBrowser.addTreeExpansionListener(new TreeExpansionListenerNode());
+        new TreeClickHandler(treeSystemBrowser);
+        ToolTipManager.sharedInstance().registerComponent(treeSystemBrowser);
+    }
 
-		public NodeSystems(TreeModelNode treeModel) {
-			this.treeModel = treeModel;
-			Environment.systems.addListener(this);
-			ArrayList<AS400System> list = Environment.systems.getSystems();
-			for (int x = 0; x < list.size(); x++) {
-				addedSytem(list.get(x));
-			}
-		}
+    final class NodeSystems extends NodeDefault implements ListenerAS400Systems {
 
-		public void addedSytem(AS400System system) {
-			add(new NodeAS400(system, this, treeModel));
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					treeModel.structureChanged((NodeDefault) treeModel.getRoot());
-				}
-			});
-		}
+        TreeModelNode treeModel;
 
-		public void removedSytem(AS400System system) {
-			NodeAS400 node;
+        public NodeSystems(TreeModelNode treeModel) {
+            this.treeModel = treeModel;
+            Environment.systems.addListener(this);
+            ArrayList<AS400System> list1 = Environment.systems.getSystems();
+            for (int x = 0; x < list1.size(); x++) {
+                addedSytem(list1.get(x));
+            }
+        }
 
-			for (int x = 0; x < list.size(); x++) {
-				node = (NodeAS400) list.get(x);
-				if (node.as400.equals(system)) {
-					list.remove(node);
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							treeModel.structureChanged((NodeDefault) treeModel.getRoot());
-						}
-					});
-					return;
-				}
-			}
-		}
+        @Override
+        public void addedSytem(AS400System system) {
+            add(new NodeAS400(system, this, treeModel));
+            SwingUtilities.invokeLater(() -> {
+                treeModel.structureChanged((NodeDefault) treeModel.getRoot());
+            });
+        }
 
-		public void defaultSytem(AS400System system) {
-		}
-	}
+        @Override
+        public void removedSytem(AS400System system) {
+            NodeAS400 node;
 
-	class NodeAS400 extends NodeDefault implements ListenerAS400System {
-		AS400System as400;
-		TreeModelNode treeModel;
-		NodeDefault nodeWait = new NodeDefault(this, "Retrieving libraries...");
-		boolean hasExpanded = false;
+            for (int x = 0; x < list.size(); x++) {
+                node = (NodeAS400) list.get(x);
+                if (node.as400.equals(system)) {
+                    list.remove(node);
+                    SwingUtilities.invokeLater(() -> {
+                        treeModel.structureChanged((NodeDefault) treeModel.getRoot());
+                    });
+                    return;
+                }
+            }
+        }
 
-		public NodeAS400(AS400System as400, Node parent, TreeModelNode treeModel) {
-			this.parent = parent;
-			this.as400 = as400;
-			this.treeModel = treeModel;
-			as400.addListener(this);
-			add(nodeWait);
-		}
+        @Override
+        public void defaultSytem(AS400System system) {
+        }
+    }
 
-		public String getText() {
-			if (as400.isConnected()) {
-				return as400.getName() + " (Connected)";
-			}
-			return as400.getName() + " (Disconnected)";
-		}
+    class NodeAS400 extends NodeDefault implements ListenerAS400System {
 
-		public Icon getIcon() {
-			return Icons.iconSystem;
-		}
+        AS400System as400;
+        TreeModelNode treeModel;
+        NodeDefault nodeWait = new NodeDefault(this, "Retrieving libraries...");
+        boolean hasExpanded = false;
 
-		public boolean isLeaf() {
-			if (hasExpanded == false) {
-				return false;
-			}
-			return super.isLeaf();
-		}
+        public NodeAS400(AS400System as400, Node parent, TreeModelNode treeModel) {
+            this.parent = parent;
+            this.as400 = as400;
+            this.treeModel = treeModel;
+            as400.addListener(this);
+            add(nodeWait);
+        }
 
-		public void expand() {
-			if (hasExpanded == false) {
-				startRetrieveLibraries();
-			}
-			hasExpanded = true;
-		}
+        @Override
+        public String getText() {
+            if (as400.isConnected()) {
+                return as400.getName() + " (Connected)";
+            }
+            return as400.getName() + " (Disconnected)";
+        }
 
-		protected void startRetrieveLibraries() {
-			new Thread() {
-				public void run() {
-					retrieveLibraries();
-				}
-			}.start();
-		}
+        @Override
+        public Icon getIcon() {
+            return Icons.iconSystem;
+        }
 
-		protected void retrieveLibraries() {
-			ArrayList<String> libs;
+        @Override
+        public boolean isLeaf() {
+            if (hasExpanded == false) {
+                return false;
+            }
+            return super.isLeaf();
+        }
 
-			try {
-				libs = as400.getLibraries();
-				for (int x = 0; x < libs.size(); x++) {
-					add(new NodeLibrary(this, as400, libs.get(x), treeModel));
-				}
-				list.remove(nodeWait);
-			} catch (Exception e) {
-				//e.printStackTrace();
-				logger.error(e.getMessage());
-				nodeWait.setText(e.getMessage());
-			}
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					treeModel.structureChanged(NodeAS400.this);
-				}
-			});
-		}
+        @Override
+        public void expand() {
+            if (hasExpanded == false) {
+                startRetrieveLibraries();
+            }
+            hasExpanded = true;
+        }
 
-		/**
-		 * Is called by the AS400System object when a connection is made.
-		 */
-		public void connected(AS400System system) {
-			// fire a changed event.
-		}
+        protected void startRetrieveLibraries() {
+            new Thread() {
+                @Override
+                public void run() {
+                    retrieveLibraries();
+                }
+            }.start();
+        }
 
-		/**
-		 * Is called by the AS400System object when a disconnect happens.
-		 */
-		public void disconnected(AS400System system) {
-		}
-	}
+        protected void retrieveLibraries() {
+            ArrayList<String> libs;
 
-	class NodeLibrary extends NodeDefault {
-		AS400System as400;
-		TreeModelNode treeModel;
-		boolean hasExpanded = false;
-		boolean isRetrieving = false;
-		NodeDefault nodeWait = new NodeDefault(this, "Retrieving Binding Directories...");
+            try {
+                libs = as400.getLibraries();
+                for (int x = 0; x < libs.size(); x++) {
+                    add(new NodeLibrary(this, as400, libs.get(x), treeModel));
+                }
+                list.remove(nodeWait);
+            } catch (SQLException e) {
+                //e.printStackTrace();
+                logger.error(e.getMessage());
+                nodeWait.setText(e.getMessage());
+            }
+            SwingUtilities.invokeLater(() -> {
+                treeModel.structureChanged(NodeAS400.this);
+            });
+        }
 
-		public NodeLibrary(Node parent, AS400System as400, String library, TreeModelNode treeModel) {
-			super(parent, library);
-			this.as400 = as400;
-			this.treeModel = treeModel;
-			this.icon = Icons.iconLibrary;
-			add(nodeWait);
-		}
+        /**
+         * Is called by the AS400System object when a connection is made.
+         */
+        @Override
+        public void connected(AS400System system) {
+            // fire a changed event.
+        }
 
-		public String getToolTipText() {
-			return as400.getName() + " - " + text;
-		}
+        /**
+         * Is called by the AS400System object when a disconnect happens.
+         */
+        @Override
+        public void disconnected(AS400System system) {
+        }
+    }
 
-		public void expand() {
-			if (hasExpanded == false) {
-				startRetrieveBindingDirectories();
-			}
-			hasExpanded = true;
-		}
+    class NodeLibrary extends NodeDefault {
 
-		protected void startRetrieveBindingDirectories() {
-			new Thread() {
-				public void run() {
-					retrieveBindingDirectories();
-				}
-			}.start();
-		}
+        AS400System as400;
+        TreeModelNode treeModel;
+        boolean hasExpanded = false;
+        boolean isRetrieving = false;
+        NodeDefault nodeWait = new NodeDefault(this, "Retrieving Binding Directories...");
 
-		protected void retrieveBindingDirectories() {
-			ArrayList<BindingDirectory> dirs;
+        public NodeLibrary(Node parent, AS400System as400, String library, TreeModelNode treeModel) {
+            super(parent, library);
+            this.as400 = as400;
+            this.treeModel = treeModel;
+            this.icon = Icons.iconLibrary;
+            add(nodeWait);
+        }
 
-			isRetrieving = true;
-			try {
-				dirs = as400.listBindingDirectories(text, "*BNDDIR");
-				for (int x = 0; x < dirs.size(); x++) {
-					add(new NodeBindingDirectory(this, dirs.get(x), treeModel));
-				}
-				list.remove(nodeWait);
-			} catch (Exception e) {
-				//e.printStackTrace();
-				nodeWait.setText(e.getMessage());
-			}
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					treeModel.structureChanged(NodeLibrary.this);
-				}
-			});
-			isRetrieving = false;
-		}
+        @Override
+        public String getToolTipText() {
+            return as400.getName() + " - " + text;
+        }
 
-		public void rightClick(Component invoker, int x, int y) {
-			JPopupMenu popupMenu = new JPopupMenu();
-			JMenuItem menuRefresh = new JMenuItem();
+        @Override
+        public void expand() {
+            if (hasExpanded == false) {
+                startRetrieveBindingDirectories();
+            }
+            hasExpanded = true;
+        }
 
-			menuRefresh.setText("Refresh");
-			if (this.isRetrieving || this.hasExpanded == false) {
-				menuRefresh.setEnabled(false);
-			} else {
-				menuRefresh.setEnabled(true);
-			}
-			popupMenu.add(menuRefresh);
+        protected void startRetrieveBindingDirectories() {
+            new Thread() {
+                @Override
+                public void run() {
+                    retrieveBindingDirectories();
+                }
+            }.start();
+        }
 
-			menuRefresh.addActionListener(new ActionRefresh());
+        protected void retrieveBindingDirectories() {
+            ArrayList<BindingDirectory> dirs;
 
-			popupMenu.show(invoker, x, y);
-		}
+            isRetrieving = true;
+            try {
+                dirs = as400.listBindingDirectories(text, "*BNDDIR");
+                for (int x = 0; x < dirs.size(); x++) {
+                    add(new NodeBindingDirectory(this, dirs.get(x), treeModel));
+                }
+                list.remove(nodeWait);
+            } catch (Exception e) {
+                //e.printStackTrace();
+                nodeWait.setText(e.getMessage());
+            }
+            SwingUtilities.invokeLater(() -> {
+                treeModel.structureChanged(NodeLibrary.this);
+            });
+            isRetrieving = false;
+        }
 
-		protected void disposeBindingDirectories() {
-			/*
+        @Override
+        public void rightClick(Component invoker, int x, int y) {
+            JPopupMenu popupMenu = new JPopupMenu();
+            JMenuItem menuRefresh = new JMenuItem();
+
+            menuRefresh.setText("Refresh");
+            if (this.isRetrieving || this.hasExpanded == false) {
+                menuRefresh.setEnabled(false);
+            } else {
+                menuRefresh.setEnabled(true);
+            }
+            popupMenu.add(menuRefresh);
+
+            menuRefresh.addActionListener(new ActionRefresh());
+
+            popupMenu.show(invoker, x, y);
+        }
+
+        protected void disposeBindingDirectories() {
+            /*
 			 * Object object;
 			 * 
 			 * for ( int x = 0; x < list.size(); x++ ) { object = list.get(x);
 			 * if ( object instanceof NodeFile ) {
 			 * ((NodeFile)object).disposeMembers(); } }
-			 */
-		}
+             */
+        }
 
-		/**
-		 */
-		class ActionRefresh implements ActionListener {
-			@SuppressWarnings("unchecked")
-			public void actionPerformed(ActionEvent evt) {
-				disposeBindingDirectories();
-				list.clear();
-				list.add(nodeWait);
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						treeModel.structureChanged(NodeLibrary.this);
-					}
-				});
-				hasExpanded = false;
-				expand();
-			}
-		}
-	}
+        /**
+         */
+        class ActionRefresh implements ActionListener {
 
-	class NodeBindingDirectory extends NodeDefault {
-		BindingDirectory bd;
-		TreeModelNode treeModel;
-		boolean hasExpanded = false;
-		boolean isRetrieving = false;
-		NodeDefault nodeWait = new NodeDefault(this, "Retrieving Binding Directory Entries...");
+            @SuppressWarnings("unchecked")
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                disposeBindingDirectories();
+                list.clear();
+                list.add(nodeWait);
+                SwingUtilities.invokeLater(() -> {
+                    treeModel.structureChanged(NodeLibrary.this);
+                });
+                hasExpanded = false;
+                expand();
+            }
+        }
+    }
 
-		public NodeBindingDirectory(Node parent, BindingDirectory bd, TreeModelNode treeModel) {
-			super(parent, bd.getName());
-			this.bd = bd;
-			this.treeModel = treeModel;
-			this.icon = Icons.iconBindingDirectory;
-			add(nodeWait);
-		}
+    class NodeBindingDirectory extends NodeDefault {
 
-		public String getToolTipText() {
-			return bd.getAS400().getName() + " - " + bd.getLibrary() + " - " + text;
-		}
+        BindingDirectory bd;
+        TreeModelNode treeModel;
+        boolean hasExpanded = false;
+        boolean isRetrieving = false;
+        NodeDefault nodeWait = new NodeDefault(this, "Retrieving Binding Directory Entries...");
 
-		public void expand() {
-			if (hasExpanded == false) {
-				startRetrieveServicePrograms();
-			}
-			hasExpanded = true;
-		}
+        public NodeBindingDirectory(Node parent, BindingDirectory bd, TreeModelNode treeModel) {
+            super(parent, bd.getName());
+            this.bd = bd;
+            this.treeModel = treeModel;
+            this.icon = Icons.iconBindingDirectory;
+            add(nodeWait);
+        }
 
-		protected void startRetrieveServicePrograms() {
-			new Thread() {
-				public void run() {
-					retrieveServicePrograms();
-				}
-			}.start();
-		}
+        @Override
+        public String getToolTipText() {
+            return bd.getAS400().getName() + " - " + bd.getLibrary() + " - " + text;
+        }
 
-		@SuppressWarnings("rawtypes")
-		protected void retrieveServicePrograms() {
-			ArrayList svc;
+        @Override
+        public void expand() {
+            if (hasExpanded == false) {
+                startRetrieveServicePrograms();
+            }
+            hasExpanded = true;
+        }
 
-			isRetrieving = true;
-			try {
-				svc = bd.getAS400().listEntries(bd);
-				for (int x = 0; x < svc.size(); x++) {
-					add(new NodeBindingDirectoryEntry(this, (BindingDirectoryEntry) svc.get(x), treeModel));
-				}
-				list.remove(nodeWait);
-			} catch (Exception e) {
-				//e.printStackTrace();
-				logger.error(e.getMessage());
-				nodeWait.setText(e.getMessage());
-			}
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					treeModel.structureChanged(NodeBindingDirectory.this);
-				}
-			});
-			isRetrieving = false;
-		}
+        protected void startRetrieveServicePrograms() {
+            new Thread() {
+                @Override
+                public void run() {
+                    retrieveServicePrograms();
+                }
+            }.start();
+        }
 
-		public void rightClick(Component invoker, int x, int y) {
-			JPopupMenu popupMenu = new JPopupMenu();
-			JMenuItem menuRefresh = new JMenuItem();
+        @SuppressWarnings("rawtypes")
+        protected void retrieveServicePrograms() {
+            ArrayList svc;
 
-			menuRefresh.setText("Refresh");
-			if (this.isRetrieving || this.hasExpanded == false) {
-				menuRefresh.setEnabled(false);
-			} else {
-				menuRefresh.setEnabled(true);
-			}
-			popupMenu.add(menuRefresh);
+            isRetrieving = true;
+            try {
+                svc = bd.getAS400().listEntries(bd);
+                for (int x = 0; x < svc.size(); x++) {
+                    add(new NodeBindingDirectoryEntry(this, (BindingDirectoryEntry) svc.get(x), treeModel));
+                }
+                list.remove(nodeWait);
+            } catch (Exception e) {
+                //e.printStackTrace();
+                logger.error(e.getMessage());
+                nodeWait.setText(e.getMessage());
+            }
+            SwingUtilities.invokeLater(() -> {
+                treeModel.structureChanged(NodeBindingDirectory.this);
+            });
+            isRetrieving = false;
+        }
 
-			menuRefresh.addActionListener(new ActionRefresh());
+        @Override
+        public void rightClick(Component invoker, int x, int y) {
+            JPopupMenu popupMenu = new JPopupMenu();
+            JMenuItem menuRefresh = new JMenuItem();
 
-			popupMenu.show(invoker, x, y);
-		}
+            menuRefresh.setText("Refresh");
+            if (this.isRetrieving || this.hasExpanded == false) {
+                menuRefresh.setEnabled(false);
+            } else {
+                menuRefresh.setEnabled(true);
+            }
+            popupMenu.add(menuRefresh);
 
-		protected void disposeServicePrograms() {
-			/*
+            menuRefresh.addActionListener(new ActionRefresh());
+
+            popupMenu.show(invoker, x, y);
+        }
+
+        protected void disposeServicePrograms() {
+            /*
 			 * Object object;
 			 * 
 			 * for ( int x = 0; x < list.size(); x++ ) { object = list.get(x);
 			 * if ( object instanceof NodeFile ) {
 			 * ((NodeFile)object).disposeMembers(); } }
-			 */
-		}
+             */
+        }
 
-		/**
-		 */
-		class ActionRefresh implements ActionListener {
-			@SuppressWarnings("unchecked")
-			public void actionPerformed(ActionEvent evt) {
-				disposeServicePrograms();
-				list.clear();
-				list.add(nodeWait);
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						treeModel.structureChanged(NodeBindingDirectory.this);
-					}
-				});
-				hasExpanded = false;
-				expand();
-			}
-		}
-	}
+        /**
+         */
+        class ActionRefresh implements ActionListener {
 
-	class NodeBindingDirectoryEntry extends NodeDefault {
-		BindingDirectoryEntry bde;
-		TreeModelNode treeModel;
-		boolean hasExpanded = false;
-		boolean isRetrieving = false;
-		NodeDefault nodeWait;
+            @SuppressWarnings("unchecked")
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                disposeServicePrograms();
+                list.clear();
+                list.add(nodeWait);
+                SwingUtilities.invokeLater(() -> {
+                    treeModel.structureChanged(NodeBindingDirectory.this);
+                });
+                hasExpanded = false;
+                expand();
+            }
+        }
+    }
 
-		public NodeBindingDirectoryEntry(Node parent, BindingDirectoryEntry bde, TreeModelNode treeModel) {
-			super(parent, bde.getName());
-			this.bde = bde;
-			this.treeModel = treeModel;
-			if (bde.getType().trim().equalsIgnoreCase("*SRVPGM")) {
-				nodeWait = new NodeDefault(this, "Retrieving Modules...");
-				this.icon = Icons.iconServiceProgram;
-			} else {
-				nodeWait = new NodeDefault(this, "Retrieving Exported Procedures...");
-				this.icon = Icons.iconModule;
-			}
-			// this.icon = Icons.iconFiles;
-			add(nodeWait);
-		}
+    class NodeBindingDirectoryEntry extends NodeDefault {
 
-		public String getToolTipText() {
-			return bde.getBindingDirectory().getAS400().getName() + " - " + bde.getBindingDirectory().getLibrary()
-					+ " - " + bde.getBindingDirectory().getName() + " - " + text;
-		}
+        BindingDirectoryEntry bde;
+        TreeModelNode treeModel;
+        boolean hasExpanded = false;
+        boolean isRetrieving = false;
+        NodeDefault nodeWait;
 
-		public void expand() {
-			if (hasExpanded == false) {
-				startRetrieve();
-			}
-			hasExpanded = true;
-		}
+        public NodeBindingDirectoryEntry(Node parent, BindingDirectoryEntry bde, TreeModelNode treeModel) {
+            super(parent, bde.getName());
+            this.bde = bde;
+            this.treeModel = treeModel;
+            if (bde.getType().trim().equalsIgnoreCase("*SRVPGM")) {
+                nodeWait = new NodeDefault(this, "Retrieving Modules...");
+                this.icon = Icons.iconServiceProgram;
+            } else {
+                nodeWait = new NodeDefault(this, "Retrieving Exported Procedures...");
+                this.icon = Icons.iconModule;
+            }
+            // this.icon = Icons.iconFiles;
+            add(nodeWait);
+        }
 
-		protected void startRetrieve() {
-			new Thread() {
-				public void run() {
-					retrieve();
-				}
-			}.start();
-		}
+        public String getToolTipText() {
+            return bde.getBindingDirectory().getAS400().getName() + " - " + bde.getBindingDirectory().getLibrary()
+                    + " - " + bde.getBindingDirectory().getName() + " - " + text;
+        }
 
-		@SuppressWarnings("rawtypes")
-		protected void retrieve() {
-			ArrayList temp;
+        @Override
+        public void expand() {
+            if (hasExpanded == false) {
+                startRetrieve();
+            }
+            hasExpanded = true;
+        }
 
-			isRetrieving = true;
-			try {
-				if (bde.getType().trim().equalsIgnoreCase("*SRVPGM")) {
-					temp = bde.getBindingDirectory().getAS400().listServiceProgramModules(bde.getLibrary(),
-							bde.getName());
-					for (int x = 0; x < temp.size(); x++) {
-						add(new NodeModule(this, (org.egomez.irpgeditor.Module) temp.get(x), treeModel));
-					}
-				} else {
-					temp = bde.getBindingDirectory().getAS400().listModuleProcedures(bde.getLibrary(), bde.getName());
-					for (int x = 0; x < temp.size(); x++) {
-						add(new NodeDefault(this, (String) temp.get(x), Icons.iconExportedProcedure));
-					}
-				}
-				list.remove(nodeWait);
-			} catch (Exception e) {
-				//e.printStackTrace();
-				logger.error(e.getMessage());
-				nodeWait.setText(e.getMessage());
-			}
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					treeModel.structureChanged(NodeBindingDirectoryEntry.this);
-				}
-			});
-			isRetrieving = false;
-		}
+        protected void startRetrieve() {
+            new Thread() {
+                @Override
+                public void run() {
+                    retrieve();
+                }
+            }.start();
+        }
 
-		public void rightClick(Component invoker, int x, int y) {
-			JPopupMenu popupMenu = new JPopupMenu();
-			JMenuItem menuRefresh = new JMenuItem();
+        @SuppressWarnings("rawtypes")
+        protected void retrieve() {
+            ArrayList temp;
 
-			menuRefresh.setText("Refresh");
-			if (this.isRetrieving || this.hasExpanded == false) {
-				menuRefresh.setEnabled(false);
-			} else {
-				menuRefresh.setEnabled(true);
-			}
-			popupMenu.add(menuRefresh);
+            isRetrieving = true;
+            try {
+                if (bde.getType().trim().equalsIgnoreCase("*SRVPGM")) {
+                    temp = bde.getBindingDirectory().getAS400().listServiceProgramModules(bde.getLibrary(),
+                            bde.getName());
+                    for (int x = 0; x < temp.size(); x++) {
+                        add(new NodeModule(this, (org.egomez.irpgeditor.Module) temp.get(x), treeModel));
+                    }
+                } else {
+                    temp = bde.getBindingDirectory().getAS400().listModuleProcedures(bde.getLibrary(), bde.getName());
+                    for (int x = 0; x < temp.size(); x++) {
+                        add(new NodeDefault(this, (String) temp.get(x), Icons.iconExportedProcedure));
+                    }
+                }
+                list.remove(nodeWait);
+            } catch (Exception e) {
+                //e.printStackTrace();
+                logger.error(e.getMessage());
+                nodeWait.setText(e.getMessage());
+            }
+            SwingUtilities.invokeLater(() -> {
+                treeModel.structureChanged(NodeBindingDirectoryEntry.this);
+            });
+            isRetrieving = false;
+        }
 
-			menuRefresh.addActionListener(new ActionRefresh());
+        @Override
+        public void rightClick(Component invoker, int x, int y) {
+            JPopupMenu popupMenu = new JPopupMenu();
+            JMenuItem menuRefresh = new JMenuItem();
 
-			popupMenu.show(invoker, x, y);
-		}
+            menuRefresh.setText("Refresh");
+            if (this.isRetrieving || this.hasExpanded == false) {
+                menuRefresh.setEnabled(false);
+            } else {
+                menuRefresh.setEnabled(true);
+            }
+            popupMenu.add(menuRefresh);
 
-		protected void dispose() {
-			/*
+            menuRefresh.addActionListener(new ActionRefresh());
+
+            popupMenu.show(invoker, x, y);
+        }
+
+        protected void dispose() {
+            /*
 			 * Object object;
 			 * 
 			 * for ( int x = 0; x < list.size(); x++ ) { object = list.get(x);
 			 * if ( object instanceof NodeFile ) {
 			 * ((NodeFile)object).disposeMembers(); } }
-			 */
-		}
+             */
+        }
 
-		/**
-		 */
-		class ActionRefresh implements ActionListener {
-			@SuppressWarnings("unchecked")
-			public void actionPerformed(ActionEvent evt) {
-				dispose();
-				list.clear();
-				list.add(nodeWait);
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						treeModel.structureChanged(NodeBindingDirectoryEntry.this);
-					}
-				});
-				hasExpanded = false;
-				expand();
-			}
-		}
-	}
+        /**
+         */
+        class ActionRefresh implements ActionListener {
 
-	class NodeModule extends NodeDefault {
-		org.egomez.irpgeditor.Module module;
-		TreeModelNode treeModel;
-		boolean hasExpanded = false;
-		boolean isRetrieving = false;
-		NodeDefault nodeWait;
+            @SuppressWarnings("unchecked")
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                dispose();
+                list.clear();
+                list.add(nodeWait);
+                SwingUtilities.invokeLater(() -> {
+                    treeModel.structureChanged(NodeBindingDirectoryEntry.this);
+                });
+                hasExpanded = false;
+                expand();
+            }
+        }
+    }
 
-		public NodeModule(Node parent, org.egomez.irpgeditor.Module module, TreeModelNode treeModel) {
-			super(parent, module.getName());
-			this.module = module;
-			this.treeModel = treeModel;
-			nodeWait = new NodeDefault(this, "Retrieving Exported Procedures...");
-			this.icon = Icons.iconModule;
-			add(nodeWait);
-		}
+    class NodeModule extends NodeDefault {
 
-		public String getToolTipText() {
-			return "";
-			// return bde.getBindingDirectory().getAS400().getName() + " - " +
-			// bde.getBindingDirectory().getLibrary() + " - " +
-			// bde.getBindingDirectory().getName() + " - " + text;
-		}
+        org.egomez.irpgeditor.Module module;
+        TreeModelNode treeModel;
+        boolean hasExpanded = false;
+        boolean isRetrieving = false;
+        NodeDefault nodeWait;
 
-		public void expand() {
-			if (hasExpanded == false) {
-				startRetrieve();
-			}
-			hasExpanded = true;
-		}
+        public NodeModule(Node parent, org.egomez.irpgeditor.Module module, TreeModelNode treeModel) {
+            super(parent, module.getName());
+            this.module = module;
+            this.treeModel = treeModel;
+            nodeWait = new NodeDefault(this, "Retrieving Exported Procedures...");
+            this.icon = Icons.iconModule;
+            add(nodeWait);
+        }
 
-		protected void startRetrieve() {
-			new Thread() {
-				public void run() {
-					retrieve();
-				}
-			}.start();
-		}
+        @Override
+        public String getToolTipText() {
+            return "";
+            // return bde.getBindingDirectory().getAS400().getName() + " - " +
+            // bde.getBindingDirectory().getLibrary() + " - " +
+            // bde.getBindingDirectory().getName() + " - " + text;
+        }
 
-		@SuppressWarnings("rawtypes")
-		protected void retrieve() {
-			ArrayList temp;
+        @Override
+        public void expand() {
+            if (hasExpanded == false) {
+                startRetrieve();
+            }
+            hasExpanded = true;
+        }
 
-			isRetrieving = true;
-			try {
-				temp = module.getSystem().listModuleProcedures(module.getLibrary(), module.getName());
-				for (int x = 0; x < temp.size(); x++) {
-					add(new NodeProcedure(this, (String) temp.get(x), module));
-				}
-				list.remove(nodeWait);
-			} catch (Exception e) {
-				//e.printStackTrace();
-				logger.error(e.getMessage());
-				nodeWait.setText(e.getMessage());
-			}
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					treeModel.structureChanged(NodeModule.this);
-				}
-			});
-			isRetrieving = false;
-		}
+        protected void startRetrieve() {
+            new Thread() {
+                @Override
+                public void run() {
+                    retrieve();
+                }
+            }.start();
+        }
 
-		public void click(int count) {
-			if (count < 2) {
-				return;
-			}
-			if (module.getSourceLibrary().trim().length() == 0 || module.getSourceFile().trim().length() == 0
-					|| module.getSourceMember().trim().length() == 0) {
-				JOptionPane.showMessageDialog(null, "Unable to determine location of source code.");
-				return;
-			}
-			Environment.members.open(new Member(module.getSystem(), module.getSourceLibrary(), module.getSourceFile(),
-					module.getSourceMember()));
-		}
+        @SuppressWarnings("rawtypes")
+        protected void retrieve() {
+            ArrayList temp;
 
-		public void rightClick(Component invoker, int x, int y) {
-			JPopupMenu popupMenu = new JPopupMenu();
-			JMenuItem menuRefresh = new JMenuItem();
+            isRetrieving = true;
+            try {
+                temp = module.getSystem().listModuleProcedures(module.getLibrary(), module.getName());
+                for (int x = 0; x < temp.size(); x++) {
+                    add(new NodeProcedure(this, (String) temp.get(x), module));
+                }
+                list.remove(nodeWait);
+            } catch (Exception e) {
+                //e.printStackTrace();
+                logger.error(e.getMessage());
+                nodeWait.setText(e.getMessage());
+            }
+            SwingUtilities.invokeLater(() -> {
+                treeModel.structureChanged(NodeModule.this);
+            });
+            isRetrieving = false;
+        }
 
-			menuRefresh.setText("Refresh");
-			if (this.isRetrieving || this.hasExpanded == false) {
-				menuRefresh.setEnabled(false);
-			} else {
-				menuRefresh.setEnabled(true);
-			}
-			popupMenu.add(menuRefresh);
+        @Override
+        public void click(int count) {
+            if (count < 2) {
+                return;
+            }
+            if (module.getSourceLibrary().trim().length() == 0 || module.getSourceFile().trim().length() == 0
+                    || module.getSourceMember().trim().length() == 0) {
+                JOptionPane.showMessageDialog(null, "Unable to determine location of source code.");
+                return;
+            }
+            Environment.members.open(new Member(module.getSystem(), module.getSourceLibrary(), module.getSourceFile(),
+                    module.getSourceMember()));
+        }
 
-			menuRefresh.addActionListener(new ActionRefresh());
+        @Override
+        public void rightClick(Component invoker, int x, int y) {
+            JPopupMenu popupMenu = new JPopupMenu();
+            JMenuItem menuRefresh = new JMenuItem();
 
-			popupMenu.show(invoker, x, y);
-		}
+            menuRefresh.setText("Refresh");
+            if (this.isRetrieving || this.hasExpanded == false) {
+                menuRefresh.setEnabled(false);
+            } else {
+                menuRefresh.setEnabled(true);
+            }
+            popupMenu.add(menuRefresh);
 
-		protected void dispose() {
-			/*
+            menuRefresh.addActionListener(new ActionRefresh());
+
+            popupMenu.show(invoker, x, y);
+        }
+
+        protected void dispose() {
+            /*
 			 * Object object;
 			 * 
 			 * for ( int x = 0; x < list.size(); x++ ) { object = list.get(x);
 			 * if ( object instanceof NodeFile ) {
 			 * ((NodeFile)object).disposeMembers(); } }
-			 */
-		}
+             */
+        }
 
-		/**
-		 */
-		class ActionRefresh implements ActionListener {
-			@SuppressWarnings("unchecked")
-			public void actionPerformed(ActionEvent evt) {
-				dispose();
-				list.clear();
-				list.add(nodeWait);
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						treeModel.structureChanged(NodeModule.this);
-					}
-				});
-				hasExpanded = false;
-				expand();
-			}
-		}
-	}
+        /**
+         */
+        class ActionRefresh implements ActionListener {
 
-	class NodeProcedure extends NodeDefault {
-		org.egomez.irpgeditor.Module module;
+            @SuppressWarnings("unchecked")
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                dispose();
+                list.clear();
+                list.add(nodeWait);
+                SwingUtilities.invokeLater(() -> {
+                    treeModel.structureChanged(NodeModule.this);
+                });
+                hasExpanded = false;
+                expand();
+            }
+        }
+    }
 
-		public NodeProcedure(Node parent, String name, org.egomez.irpgeditor.Module module) {
-			super(parent, name);
-			this.module = module;
-			this.icon = Icons.iconExportedProcedure;
-		}
+    class NodeProcedure extends NodeDefault {
 
-		public String getToolTipText() {
-			return "";
-			// return bde.getBindingDirectory().getAS400().getName() + " - " +
-			// bde.getBindingDirectory().getLibrary() + " - " +
-			// bde.getBindingDirectory().getName() + " - " + text;
-		}
+        org.egomez.irpgeditor.Module module;
 
-		public void click(int count) {
-			if (count < 2) {
-				return;
-			}
-			if (module.getSourceLibrary().trim().length() == 0 || module.getSourceFile().trim().length() == 0
-					|| module.getSourceMember().trim().length() == 0) {
-				JOptionPane.showMessageDialog(null, "Unable to determine location of source code.");
-				return;
-			}
-			Environment.members.open(new Member(module.getSystem(), module.getSourceLibrary(), module.getSourceFile(),
-					module.getSourceMember()));
-		}
-	}
+        public NodeProcedure(Node parent, String name, org.egomez.irpgeditor.Module module) {
+            super(parent, name);
+            this.module = module;
+            this.icon = Icons.iconExportedProcedure;
+        }
+
+        @Override
+        public String getToolTipText() {
+            return "";
+            // return bde.getBindingDirectory().getAS400().getName() + " - " +
+            // bde.getBindingDirectory().getLibrary() + " - " +
+            // bde.getBindingDirectory().getName() + " - " + text;
+        }
+
+        @Override
+        public void click(int count) {
+            if (count < 2) {
+                return;
+            }
+            if (module.getSourceLibrary().trim().length() == 0 || module.getSourceFile().trim().length() == 0
+                    || module.getSourceMember().trim().length() == 0) {
+                JOptionPane.showMessageDialog(null, "Unable to determine location of source code.");
+                return;
+            }
+            Environment.members.open(new Member(module.getSystem(), module.getSourceLibrary(), module.getSourceFile(),
+                    module.getSourceMember()));
+        }
+    }
 }

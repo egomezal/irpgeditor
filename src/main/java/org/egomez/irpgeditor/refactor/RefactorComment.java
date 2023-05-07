@@ -27,6 +27,7 @@ import org.egomez.irpgeditor.*;
  */
 public class RefactorComment extends Refactor {
 
+    @Override
     public void process(SourceLine line) {
         char c;
         StringBuffer text;

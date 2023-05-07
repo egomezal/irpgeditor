@@ -20,7 +20,6 @@ package org.egomez.irpgeditor.swing;
  */
 
 import java.awt.*;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
 import javax.swing.*;
@@ -29,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ibm.as400.access.*;
+import java.io.IOException;
 
 /**
  * 
@@ -62,6 +62,7 @@ public class PanelSpool extends PanelTool implements Runnable {
 		new Thread(this).start();
 	}
 
+        @Override
 	public void run() {
 		PrintObjectTransformedInputStream is;
 		PrintParameterList printParms;
@@ -76,7 +77,6 @@ public class PanelSpool extends PanelTool implements Runnable {
 		printParms.setParameter(PrintObject.ATTR_WORKSTATION_CUST_OBJECT, "/QSYS.LIB/QWPDEFAULT.WSCST");
 		printParms.setParameter(PrintObject.ATTR_MFGTYPE, "*WSCST");
 		printParms.setParameter(PrintObject.ATTR_CODEPAGE, 284);
-		buffer = new char[32767];
 		string = new StringBuffer();
 		cadena = new String();
 
@@ -112,14 +112,12 @@ public class PanelSpool extends PanelTool implements Runnable {
 				j = localInputStream.available();
 			}
 
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					textareaSpool.setText(cadena);
-					textareaSpool.setSelectionStart(0);
-					textareaSpool.setSelectionEnd(0);
-				}
-			});
-		} catch (Exception e) {
+			SwingUtilities.invokeLater(() -> {
+                            textareaSpool.setText(cadena);
+                            textareaSpool.setSelectionStart(0);
+                            textareaSpool.setSelectionEnd(0);
+                        });
+		} catch (AS400SecurityException | ErrorCompletingRequestException | RequestNotSupportedException | IOException | InterruptedException e) {
 			//e.printStackTrace();
 			logger.error(e.getMessage());
 			JOptionPane.showMessageDialog(null, e.getMessage());

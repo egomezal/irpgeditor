@@ -118,7 +118,7 @@ public class PanelProjects extends PanelTool implements ListenerProjects {
             // false));
             putValue(Action.ACCELERATOR_KEY,
                     KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK + ActionEvent.SHIFT_MASK, false));
-            putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_S));
+            putValue(Action.MNEMONIC_KEY, KeyEvent.VK_S);
         }
 
         @Override
@@ -158,7 +158,7 @@ public class PanelProjects extends PanelTool implements ListenerProjects {
             // F6
             // putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(117, 0,
             // false));
-            putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_J));
+            putValue(Action.MNEMONIC_KEY, KeyEvent.VK_J);
         }
 
         @Override
@@ -192,7 +192,7 @@ public class PanelProjects extends PanelTool implements ListenerProjects {
             // putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(117, 0,
             // false));
             // putValue(Action.MNEMONIC_KEY, new Character('S'));
-            putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_O));
+            putValue(Action.MNEMONIC_KEY, KeyEvent.VK_O);
         }
 
         @Override
@@ -240,9 +240,10 @@ public class PanelProjects extends PanelTool implements ListenerProjects {
             // putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(117, 0,
             // false));
             putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_N, KeyEvent.CTRL_MASK, false));
-            putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_P));
+            putValue(Action.MNEMONIC_KEY, KeyEvent.VK_P);
         }
 
+        @Override
         public void actionPerformed(ActionEvent evt) {
             String name;
             Project project;
@@ -303,7 +304,7 @@ public class PanelProjects extends PanelTool implements ListenerProjects {
             // F6
             putValue(Action.ACCELERATOR_KEY,
                     KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK + ActionEvent.ALT_MASK, false));
-            putValue(Action.MNEMONIC_KEY, new Integer(KeyEvent.VK_L));
+             putValue(Action.MNEMONIC_KEY, KeyEvent.VK_L);
         }
 
         @Override

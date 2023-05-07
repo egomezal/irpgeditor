@@ -18,7 +18,6 @@ package org.egomez.irpgeditor.swing;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -28,63 +27,65 @@ import java.awt.event.*;
  * method addTab(String, Component) To have an extra icon on each tab (e.g. like
  * in JBuilder, showing the file type) use the method addTab(String, Component,
  * Icon). Only clicking the 'X' closes the tab.
- * 
+ *
  * @author Derek Van Kooten.
  */
 public class JTabbedPaneWithCloseIcons extends JTabbedPane implements MouseListener {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 898191617010416774L;
 
-	public JTabbedPaneWithCloseIcons() {
-		super();
-		addMouseListener(this);
-	}
+    /**
+     *
+     */
+    private static final long serialVersionUID = 898191617010416774L;
 
-        @Override
-	public void addTab(String title, Component component) {
-		this.addTab(title, component, null);
-	}
+    public JTabbedPaneWithCloseIcons() {
+        super();
+        addMouseListener(this);
+    }
 
-	public void addTab(String title, Component component, Icon extraIcon) {
-		super.addTab(title, new CloseTabIcon(extraIcon), component);
-	}
+    @Override
+    public void addTab(String title, Component component) {
+        this.addTab(title, component, null);
+    }
 
-        @Override
-	public void mouseClicked(MouseEvent e) {
-		Component c;
+    public void addTab(String title, Component component, Icon extraIcon) {
+        super.addTab(title, new CloseTabIcon(extraIcon), component);
+    }
 
-		int tabNumber = getUI().tabForCoordinate(this, e.getX(), e.getY());
-		if (tabNumber < 0)
-			return;
-		Rectangle rect = ((CloseTabIcon) getIconAt(tabNumber)).getBounds();
-		if (rect.contains(e.getX(), e.getY())) {
-			// the tab is being closed
-			c = getComponentAt(tabNumber);
-			if (c instanceof ClosableTab) {
-				((ClosableTab) c).closeTab();
-			} else {
-				super.removeTabAt(tabNumber);
-			}
-		}
-	}
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        Component c;
 
-        @Override
-	public void mouseEntered(MouseEvent e) {
-	}
+        int tabNumber = getUI().tabForCoordinate(this, e.getX(), e.getY());
+        if (tabNumber < 0) {
+            return;
+        }
+        Rectangle rect = ((CloseTabIcon) getIconAt(tabNumber)).getBounds();
+        if (rect.contains(e.getX(), e.getY())) {
+            // the tab is being closed
+            c = getComponentAt(tabNumber);
+            if (c instanceof ClosableTab) {
+                ((ClosableTab) c).closeTab();
+            } else {
+                super.removeTabAt(tabNumber);
+            }
+        }
+    }
 
-        @Override
-	public void mouseExited(MouseEvent e) {
-	}
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
 
-        @Override
-	public void mousePressed(MouseEvent e) {
-	}
+    @Override
+    public void mouseExited(MouseEvent e) {
+    }
 
-        @Override
-	public void mouseReleased(MouseEvent e) {
-	}
+    @Override
+    public void mousePressed(MouseEvent e) {
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+    }
 }
 
 /**
@@ -93,51 +94,53 @@ public class JTabbedPaneWithCloseIcons extends JTabbedPane implements MouseListe
  * JBuilder. This value is null if no extra icon is required.
  */
 class CloseTabIcon implements Icon {
-	private int x_pos;
-	private int y_pos;
-	private int width;
-	private int height;
-	private Icon fileIcon;
 
-	public CloseTabIcon(Icon fileIcon) {
-		this.fileIcon = fileIcon;
-		width = 16;
-		height = 16;
-	}
+    private int x_pos;
+    private int y_pos;
+    private int width;
+    private int height;
+    private Icon fileIcon;
 
-	public void paintIcon(Component c, Graphics g, int x, int y) {
-		this.x_pos = x;
-		this.y_pos = y;
-		Color col = g.getColor();
-		g.setColor(Color.black);
-		int y_p = y + 2;
-		g.drawLine(x + 1, y_p, x + 12, y_p);
-		g.drawLine(x + 1, y_p + 13, x + 12, y_p + 13);
-		g.drawLine(x, y_p + 1, x, y_p + 12);
-		g.drawLine(x + 13, y_p + 1, x + 13, y_p + 12);
-		g.drawLine(x + 3, y_p + 3, x + 10, y_p + 10);
-		g.drawLine(x + 3, y_p + 4, x + 9, y_p + 10);
-		g.drawLine(x + 4, y_p + 3, x + 10, y_p + 9);
-		g.drawLine(x + 10, y_p + 3, x + 3, y_p + 10);
-		g.drawLine(x + 10, y_p + 4, x + 4, y_p + 10);
-		g.drawLine(x + 9, y_p + 3, x + 3, y_p + 9);
-		g.setColor(col);
-		if (fileIcon != null) {
-			fileIcon.paintIcon(c, g, x + width, y_p);
-		}
-	}
+    public CloseTabIcon(Icon fileIcon) {
+        this.fileIcon = fileIcon;
+        width = 16;
+        height = 16;
+    }
 
-        @Override
-	public int getIconWidth() {
-		return width + (fileIcon != null ? fileIcon.getIconWidth() : 0);
-	}
+    @Override
+    public void paintIcon(Component c, Graphics g, int x, int y) {
+        this.x_pos = x;
+        this.y_pos = y;
+        Color col = g.getColor();
+        g.setColor(Color.black);
+        int y_p = y + 2;
+        g.drawLine(x + 1, y_p, x + 12, y_p);
+        g.drawLine(x + 1, y_p + 13, x + 12, y_p + 13);
+        g.drawLine(x, y_p + 1, x, y_p + 12);
+        g.drawLine(x + 13, y_p + 1, x + 13, y_p + 12);
+        g.drawLine(x + 3, y_p + 3, x + 10, y_p + 10);
+        g.drawLine(x + 3, y_p + 4, x + 9, y_p + 10);
+        g.drawLine(x + 4, y_p + 3, x + 10, y_p + 9);
+        g.drawLine(x + 10, y_p + 3, x + 3, y_p + 10);
+        g.drawLine(x + 10, y_p + 4, x + 4, y_p + 10);
+        g.drawLine(x + 9, y_p + 3, x + 3, y_p + 9);
+        g.setColor(col);
+        if (fileIcon != null) {
+            fileIcon.paintIcon(c, g, x + width, y_p);
+        }
+    }
 
-        @Override
-	public int getIconHeight() {
-		return height;
-	}
+    @Override
+    public int getIconWidth() {
+        return width + (fileIcon != null ? fileIcon.getIconWidth() : 0);
+    }
 
-	public Rectangle getBounds() {
-		return new Rectangle(x_pos, y_pos, width, height);
-	}
+    @Override
+    public int getIconHeight() {
+        return height;
+    }
+
+    public Rectangle getBounds() {
+        return new Rectangle(x_pos, y_pos, width, height);
+    }
 }
