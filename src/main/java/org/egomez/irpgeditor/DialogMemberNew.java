@@ -65,7 +65,6 @@ public class DialogMemberNew extends JDialog {
     JButton buttonCancel = new JButton();
     JButton buttonOk = new JButton();
 
-
     FlowLayout flowLayout1 = new FlowLayout();
 
     JPanel jPanel12 = new JPanel();
@@ -156,7 +155,7 @@ public class DialogMemberNew extends JDialog {
         this.buttonCancel.addActionListener(this.actionCancel);
     }
 
-    void jbInit() throws Exception {
+    void jbInit() {
         setTitle("New Member");
         this.buttonCancel.setMnemonic('C');
         this.buttonCancel.setText("Cancel");
@@ -375,7 +374,7 @@ public class DialogMemberNew extends JDialog {
                 ArrayList<String> list = system
                         .getSourceFiles((String) DialogMemberNew.this.comboboxLibrary.getSelectedItem());
                 while (!list.isEmpty()) {
-                    DialogMemberNew.this.listModelFiles.addElement((String) list.remove(0));
+                    DialogMemberNew.this.listModelFiles.addElement(list.remove(0));
                 }
                 DialogMemberNew.this.comboboxFile.setSelectedIndex(-1);
                 DialogMemberNew.this.labelFile.setEnabled(true);
@@ -433,7 +432,7 @@ public class DialogMemberNew extends JDialog {
         @Override
         public void actionPerformed(ActionEvent evt) {
             DialogMemberNew.this.setVisible(false);
-            // DialogMemberNew.this.hide();
+            
         }
     }
 }

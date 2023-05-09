@@ -35,16 +35,20 @@ public interface Node {
 
   /**
    * return the child count for a given parent.
+     * @return 
    */
   public int getChildCount();
 
   /**
    * return the index of the child.
+     * @param child
+     * @return 
    */
   public int getIndexOfChild(Object child);
 
   /**
    * returns true if the object has no children.
+     * @return 
    */
   public boolean isLeaf();
   

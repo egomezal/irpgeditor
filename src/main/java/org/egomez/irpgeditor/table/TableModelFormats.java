@@ -36,7 +36,7 @@ import java.util.logging.Level;
  * @author Derek Van Kooten.
  */
 @SuppressWarnings("unused")
-public class TableModelFormats extends AbstractTableModel {
+public final class TableModelFormats extends AbstractTableModel {
 
     /**
      *
@@ -72,7 +72,7 @@ public class TableModelFormats extends AbstractTableModel {
     protected void getData() throws SQLException {
         AS400FileRecordDescription file;
         RecordFormat[] formats;
-        if(!as400.getAS400().isConnectionAlive()){
+        if (!as400.getAS400().isConnectionAlive()) {
             try {
                 as400.connect();
             } catch (Exception ex) {
@@ -84,7 +84,7 @@ public class TableModelFormats extends AbstractTableModel {
             fireTableDataChanged();
         });
         try {
-            
+
             file = new AS400FileRecordDescription(as400.getAS400(), "/QSYS.LIB/" + schema + ".LIB/" + name + ".FILE");
             formats = file.retrieveRecordFormat();
             for (RecordFormat format : formats) {
@@ -94,19 +94,9 @@ public class TableModelFormats extends AbstractTableModel {
             //e.printStackTrace();
             logger.error(e.getMessage());
         }
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                fireTableDataChanged();
-            }
+        SwingUtilities.invokeLater(() -> {
+            fireTableDataChanged();
         });
-    }
-
-    private String isNull(String value) {
-        if (value == null) {
-            return "";
-        }
-        return value;
     }
 
     public String getName() {

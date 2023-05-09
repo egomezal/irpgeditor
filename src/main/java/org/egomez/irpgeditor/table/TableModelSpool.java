@@ -28,9 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.ibm.as400.access.*;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 
 /**
  * holds spool information.
@@ -146,12 +146,13 @@ public class TableModelSpool extends DefaultTableModel implements PrintObjectLis
         SpooledFile file;
 
         file = (SpooledFile) spool.getObject(row);
-        if (col == 0) {
-            return file.getName();
-        } else if (col == 1) {
-            return file.getJobUser();
-        } else if (col == 2) {
-            try {
+        switch (col) {
+            case 0:
+                return file.getName();
+            case 1:
+                return file.getJobUser();
+            case 2:
+                try {
                 String queue = file.getStringAttribute(PrintObject.ATTR_OUTPUT_QUEUE);
                 int index = queue.indexOf("/");
                 int count = 1;
@@ -168,53 +169,55 @@ public class TableModelSpool extends DefaultTableModel implements PrintObjectLis
                     return queue;
                 }
                 return queue.substring(0, index);
-            } catch (Exception e) {
+            } catch (AS400SecurityException | ErrorCompletingRequestException | RequestNotSupportedException | IOException | InterruptedException e) {
                 return e.getMessage();
             }
-        } else if (col == 3) {
-            try {
+            case 3:
+                try {
                 return file.getStringAttribute(PrintObject.ATTR_USERDATA);
-            } catch (Exception e) {
+            } catch (AS400SecurityException | ErrorCompletingRequestException | RequestNotSupportedException | IOException | InterruptedException e) {
                 return e.getMessage();
             }
-        } else if (col == 4) {
-            try {
+            case 4:
+                try {
                 return file.getStringAttribute(SpooledFile.ATTR_SPLFSTATUS);
-            } catch (Exception e) {
+            } catch (AS400SecurityException | ErrorCompletingRequestException | RequestNotSupportedException | IOException | InterruptedException e) {
                 return e.getMessage();
             }
-        } else if (col == 5) {
-            try {
+            case 5:
+                try {
                 return file.getIntegerAttribute(PrintObject.ATTR_PAGES);
-            } catch (Exception e) {
+            } catch (AS400SecurityException | ErrorCompletingRequestException | RequestNotSupportedException | IOException | InterruptedException e) {
                 return e.getMessage();
             }
-        } else if (col == 6) {
-            try {
+            case 6:
+                try {
                 return file.getIntegerAttribute(SpooledFile.ATTR_CURPAGE);
-            } catch (Exception e) {
+            } catch (AS400SecurityException | ErrorCompletingRequestException | RequestNotSupportedException | IOException | InterruptedException e) {
                 return e.getMessage();
             }
-        } else if (col == 7) {
-            try {
+            case 7:
+                try {
                 return file.getIntegerAttribute(SpooledFile.ATTR_COPIES);
-            } catch (Exception e) {
+            } catch (AS400SecurityException | ErrorCompletingRequestException | RequestNotSupportedException | IOException | InterruptedException e) {
                 return e.getMessage();
             }
-        } else if (col == 8) {
-            try {
+            case 8:
+                try {
                 return formatDate(file.getStringAttribute(PrintObject.ATTR_DATE));
-            } catch (Exception rnse) {
+            } catch (AS400SecurityException | ErrorCompletingRequestException | RequestNotSupportedException | IOException | InterruptedException rnse) {
                 return rnse.getMessage();
             }
-        } else if (col == 9) {
-            try {
+            case 9:
+                try {
                 return formatTime(file.getStringAttribute(PrintObject.ATTR_TIME));
-            } catch (Exception rnse) {
+            } catch (AS400SecurityException | ErrorCompletingRequestException | RequestNotSupportedException | IOException | InterruptedException rnse) {
                 return rnse.getMessage();
             }
-        } else if (col == 10) {
-            return file.getJobNumber();
+            case 10:
+                return file.getJobNumber();
+            default:
+                break;
         }
         return "";
     }
@@ -237,7 +240,7 @@ public class TableModelSpool extends DefaultTableModel implements PrintObjectLis
             if (dateArray.length != 7) {
                 return dateString;
             }
-            StringBuffer db = new StringBuffer(10);
+            StringBuilder db = new StringBuilder(10);
             // this will strip out the starting century char as described above
             db.append(dateArray, 1, 6);
             // now we find out what the century byte was and insert the correct
@@ -263,7 +266,7 @@ public class TableModelSpool extends DefaultTableModel implements PrintObjectLis
      */
     protected String formatTime(String timeString) {
         if (timeString != null) {
-            StringBuffer tb = new StringBuffer(timeString);
+            StringBuilder tb = new StringBuilder(timeString);
             tb.insert(tb.length() - 2, ':');
             tb.insert(tb.length() - 5, ':');
             return tb.toString();
@@ -272,42 +275,52 @@ public class TableModelSpool extends DefaultTableModel implements PrintObjectLis
         }
     }
 
+    @Override
     public boolean isCellEditable(int row, int col) {
         return false;
     }
 
+    @Override
     public void listClosed(PrintObjectListEvent e) {
         SwingUtilities.invokeLater(new Thread() {
+            @Override
             public void run() {
                 fireTableDataChanged();
             }
         });
     }
 
+    @Override
     public void listCompleted(PrintObjectListEvent e) {
         SwingUtilities.invokeLater(new Thread() {
+            @Override
             public void run() {
                 fireTableDataChanged();
             }
         });
     }
 
+    @Override
     public void listErrorOccurred(PrintObjectListEvent e) {
         SwingUtilities.invokeLater(new Thread() {
+            @Override
             public void run() {
                 fireTableDataChanged();
             }
         });
     }
 
+    @Override
     public void listObjectAdded(PrintObjectListEvent e) {
         SwingUtilities.invokeLater(new Thread() {
+            @Override
             public void run() {
                 fireTableDataChanged();
             }
         });
     }
 
+    @Override
     public void listOpened(PrintObjectListEvent e) {
         SwingUtilities.invokeLater(new Thread() {
             @Override

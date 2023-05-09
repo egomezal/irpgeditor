@@ -18,81 +18,95 @@ package org.egomez.irpgeditor.tree;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 import java.awt.*;
 import javax.swing.*;
 
 /**
- * 
+ *
  * @author Derek Van Kooten.
  */
 abstract public class NodeAbstract implements Node {
-  
-  public NodeAbstract() {
-  }
-  
-  abstract public Node getParent();
-  
-  /**
-   * returns the child for the object specified.
-   */
-  public Object getChild(int index) {
-    return null;
-  }
 
-  /**
-   * return the child count for a given parent.
-   */
-  public int getChildCount() {
-    return 0;
-  }
+    public NodeAbstract() {
+    }
 
-  /**
-   * return the index of the child.
-   */
-  public int getIndexOfChild(Object child) {
-    return -1;
-  }
+    @Override
+    abstract public Node getParent();
 
-  /**
-   * returns true if the object has no children.
-   */
-  public boolean isLeaf() {
-    return true;
-  }
+    /**
+     * returns the child for the object specified.
+     *
+     * @param index
+     * @return
+     */
+    @Override
+    public Object getChild(int index) {
+        return null;
+    }
 
-  public Icon getIcon() {
-    return null;
-  }
+    /**
+     * return the child count for a given parent.
+     */
+    @Override
+    public int getChildCount() {
+        return 0;
+    }
 
-  public String getText() {
-    return toString();
-  }
-  
-  public String getToolTipText() {
-    return getText();
-  }
-  
-  public void expand() {
-  }
-  
-  public void collapse() {
-  }
-  
-  public void selected() {
-  }
-  
-  public void rightClick(Component invoker, int x, int y) {
-  }
-  
-  public void click(int count) {
-  }
-  
-  public boolean isSelected() {
-    return false;
-  }
-  
-  public boolean isCheckBox() {
-    return false;
-  }
+    /**
+     * return the index of the child.
+     */
+    @Override
+    public int getIndexOfChild(Object child) {
+        return -1;
+    }
+
+    /**
+     * returns true if the object has no children.
+     */
+    @Override
+    public boolean isLeaf() {
+        return true;
+    }
+
+    @Override
+    public Icon getIcon() {
+        return null;
+    }
+
+    @Override
+    public String getText() {
+        return toString();
+    }
+
+    @Override
+    public String getToolTipText() {
+        return getText();
+    }
+
+    public void expand() {
+    }
+
+    public void collapse() {
+    }
+
+    @Override
+    public void selected() {
+    }
+
+    @Override
+    public void rightClick(Component invoker, int x, int y) {
+    }
+
+    public void click(int count) {
+    }
+
+    @Override
+    public boolean isSelected() {
+        return false;
+    }
+
+    @Override
+    public boolean isCheckBox() {
+        return false;
+    }
 }

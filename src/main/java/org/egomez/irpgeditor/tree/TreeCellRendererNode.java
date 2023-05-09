@@ -18,66 +18,65 @@ package org.egomez.irpgeditor.tree;
  * the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
  * Boston, MA 02111-1307 USA
  */
-
 import java.awt.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
 /**
- * 
+ *
  * @author Derek Van Kooten.
  */
 public class TreeCellRendererNode extends DefaultTreeCellRenderer {
-  /**
-	 * 
-	 */
-	private static final long serialVersionUID = -4723707844569600842L;
-JPanel panel = new JPanel(new BorderLayout(0, 0));
-  JCheckBox checkBox = new JCheckBox();
-  JLabel label = new JLabel();
-  Color textBackground = UIManager.getColor("Tree.textBackground");
-  Color textForeground;
-  Color selectionBackground = UIManager.getColor("Tree.selectionBackground");
 
-  public TreeCellRendererNode() {
-    checkBox.setBackground(textBackground);
-    label.setBackground(textBackground);
-    textForeground = label.getForeground();
-    panel.setBackground(textBackground);
-    panel.add(checkBox, BorderLayout.WEST);
-    panel.add(label, BorderLayout.EAST);
-  }
-  
-  public Component getTreeCellRendererComponent(JTree tree, Object value, boolean isSelected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-    if ( value == null || value instanceof Node == false) {
-      return super.getTreeCellRendererComponent(tree, value, isSelected, expanded, leaf, row, hasFocus);
-    }
-    Node node = (Node)value;
-    if ( node.isCheckBox() ) {
-      panel.setEnabled(tree.isEnabled());
-      if ( isSelected ) {
-        panel.setBackground(selectionBackground);
-        label.setForeground(textBackground);
-      }
-      else {
+    /**
+     *
+     */
+    private static final long serialVersionUID = -4723707844569600842L;
+    JPanel panel = new JPanel(new BorderLayout(0, 0));
+    JCheckBox checkBox = new JCheckBox();
+    JLabel label = new JLabel();
+    Color textBackground = UIManager.getColor("Tree.textBackground");
+    Color textForeground;
+    Color selectionBackground = UIManager.getColor("Tree.selectionBackground");
+
+    public TreeCellRendererNode() {
+        checkBox.setBackground(textBackground);
+        label.setBackground(textBackground);
+        textForeground = label.getForeground();
         panel.setBackground(textBackground);
-        label.setForeground(textForeground);
-      }
-      checkBox.setSelected(node.isSelected());
-      label.setText(node.getText());
-      label.setIcon(node.getIcon());
-      return panel;
+        panel.add(checkBox, BorderLayout.WEST);
+        panel.add(label, BorderLayout.EAST);
     }
-    JLabel label2 = (JLabel)super.getTreeCellRendererComponent(tree, value, isSelected, expanded, leaf, row, hasFocus);
-    label2.setText(((Node)value).getText());
-    label2.setIcon(((Node)value).getIcon());
-    String tooltip = ((Node)value).getToolTipText();
-    if ( tooltip == null ) {
-      label2.setToolTipText("");
+
+    @Override
+    public Component getTreeCellRendererComponent(JTree tree, Object value, boolean isSelected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+        if (value == null || value instanceof Node == false) {
+            return super.getTreeCellRendererComponent(tree, value, isSelected, expanded, leaf, row, hasFocus);
+        }
+        Node node = (Node) value;
+        if (node.isCheckBox()) {
+            panel.setEnabled(tree.isEnabled());
+            if (isSelected) {
+                panel.setBackground(selectionBackground);
+                label.setForeground(textBackground);
+            } else {
+                panel.setBackground(textBackground);
+                label.setForeground(textForeground);
+            }
+            checkBox.setSelected(node.isSelected());
+            label.setText(node.getText());
+            label.setIcon(node.getIcon());
+            return panel;
+        }
+        JLabel label2 = (JLabel) super.getTreeCellRendererComponent(tree, value, isSelected, expanded, leaf, row, hasFocus);
+        label2.setText(((Node) value).getText());
+        label2.setIcon(((Node) value).getIcon());
+        String tooltip = ((Node) value).getToolTipText();
+        if (tooltip == null) {
+            label2.setToolTipText("");
+        } else {
+            label2.setToolTipText(tooltip);
+        }
+        return label2;
     }
-    else {
-      label2.setToolTipText(tooltip);
-    }
-    return label2;
-  }
 }

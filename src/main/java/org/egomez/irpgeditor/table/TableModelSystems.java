@@ -56,14 +56,17 @@ public class TableModelSystems extends DefaultTableModel implements ListenerAS40
 		}
 	}
 
+        @Override
 	public void addedSytem(AS400System system) {
 		fireTableDataChanged();
 	}
 
+        @Override
 	public void removedSytem(AS400System system) {
 		fireTableDataChanged();
 	}
 
+        @Override
 	public void defaultSytem(AS400System system) {
 		fireTableDataChanged();
 	}
@@ -76,6 +79,7 @@ public class TableModelSystems extends DefaultTableModel implements ListenerAS40
 	 */
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+        @Override
 	public Class getColumnClass(int col) {
 		if (col == 0 || col == 5) {
 			return Boolean.class;
@@ -83,15 +87,18 @@ public class TableModelSystems extends DefaultTableModel implements ListenerAS40
 		return Object.class;
 	}
 
+        @Override
 	public String getColumnName(int index) {
 		return columns[index];
 	}
 
+        @Override
 	public int getColumnCount() {
 		return 9;
 	}
 
 	@SuppressWarnings("rawtypes")
+        @Override
 	public int getRowCount() {
 		ArrayList listSystems;
 
@@ -108,6 +115,7 @@ public class TableModelSystems extends DefaultTableModel implements ListenerAS40
 	}
 
 	@SuppressWarnings("rawtypes")
+        @Override
 	public void setValueAt(Object value, int row, int col) {
 		AS400System system;
 		boolean add;
@@ -125,7 +133,7 @@ public class TableModelSystems extends DefaultTableModel implements ListenerAS40
 			add = false;
 		}
 		if (col == 0) {
-			if (((Boolean) value).booleanValue()) {
+			if (((Boolean) value)) {
 				if (system.isConnected() == false) {
 					return;
 				}
@@ -138,24 +146,32 @@ public class TableModelSystems extends DefaultTableModel implements ListenerAS40
 		if (value == null || (((String) value).trim().length() == 0 && add)) {
 			return;
 		}
-		if (col == 1) {
-			system.setName((String) value);
-		} else if (col == 2) {
-			system.setAddress((String) value);
-			system.setUser(null);
-			system.setPassword(null);
-		} else if (col == 3) {
-			system.setUser((String) value);
-			system.setPassword(null);
-		} else if (col == 9) {
-			if (system.getPassword() == null) {
-				system.setPassword((String) value);
-			}
-		} else if (col == 4) {
-			if (!value.equals("********")) {
-				system.setPassword((String) value);
-			}
-		}
+            switch (col) {
+                case 1:
+                    system.setName((String) value);
+                    break;
+                case 2:
+                    system.setAddress((String) value);
+                    system.setUser(null);
+                    system.setPassword(null);
+                    break;
+                case 3:
+                    system.setUser((String) value);
+                    system.setPassword(null);
+                    break;
+                case 9:
+                    if (system.getPassword() == null) {
+                        system.setPassword((String) value);
+                    }
+                    break;
+                case 4:
+                    if (!value.equals("********")) {
+                        system.setPassword((String) value);
+                    }
+                    break;
+                default:
+                    break;
+            }
 
 		if (add) {
 			Environment.systems.addSystem(system);
@@ -169,6 +185,7 @@ public class TableModelSystems extends DefaultTableModel implements ListenerAS40
 	}
 
 	@SuppressWarnings("rawtypes")
+        @Override
 	public Object getValueAt(int row, int col) {
 		AS400System system;
 		ArrayList listSystems;
@@ -215,11 +232,9 @@ public class TableModelSystems extends DefaultTableModel implements ListenerAS40
 		return "";
 	}
 
+        @Override
 	public boolean isCellEditable(int row, int col) {
-		if (col == 5 || col == 6) {
-			return false;
-		}
-		return true;
+		return !(col == 5 || col == 6);
 	}
 
 }

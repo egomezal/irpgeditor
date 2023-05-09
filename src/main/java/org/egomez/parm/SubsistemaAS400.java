@@ -5,22 +5,23 @@ import java.util.ArrayList;
 import com.ibm.as400.access.Job;
 
 public class SubsistemaAS400 {
-	private Job subsistema;
-	private ArrayList<Job> listaJob;
 
-	public void setListaJob(ArrayList<Job> listaJob) {
-		this.listaJob = listaJob;
-	}
+    private Job subsistema;
+    private ArrayList<Job> listaJob;
 
-	public ArrayList<Job> getListaJob() {
-		return listaJob;
-	}
+    public void setListaJob(ArrayList<Job> listaJob) {
+        this.listaJob = listaJob;
+    }
 
-	public void setSubsistema(Job subsistema) {
-		this.subsistema = subsistema;
-	}
+    public ArrayList<Job> getListaJob() {
+        return listaJob;
+    }
 
-	public Job getSubsistema() {
-		return subsistema;
-	}
+    public void setSubsistema(Job subsistema) {
+        this.subsistema = subsistema;
+    }
+
+    public Job getSubsistema() {
+        return subsistema;
+    }
 }
