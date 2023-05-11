@@ -29,7 +29,7 @@ import org.egomez.irpgeditor.icons.*;
  *
  * @author Derek Van Kooten.
  */
-@SuppressWarnings("unused")
+
 public class TableCellRendererLayout extends DefaultTableCellRenderer {
 
     /**

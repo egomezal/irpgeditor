@@ -63,13 +63,13 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
      *
      */
     private static final long serialVersionUID = 2464649540392523987L;
-    ProjectMember projectMember;
-    SourceParser sourceParser = new SourceParser();
-    NodeSourceBlocks nodeSourceBlocks;
-    RPGSourceHighlighter sourceHighlighter;
-    SourceBlock selectedBlock;
+    transient ProjectMember projectMember;
+    transient SourceParser sourceParser = new SourceParser();
+    transient NodeSourceBlocks nodeSourceBlocks;
+    transient RPGSourceHighlighter sourceHighlighter;
+    transient SourceBlock selectedBlock;
     @SuppressWarnings("rawtypes")
-    Enumeration expands;
+    transient Enumeration expands;
     // used to keep a running total of source lines loaded as lines are loaded.
     int count = 0;
     boolean closeAfterSave = false;
@@ -79,9 +79,9 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 
     TableModelKeywords tableModelKeywords = new TableModelKeywords();
 
-    NodeFiles nodeFiles;
-    NodeDuplicateCode nodeDuplicateCode;
-    TreeModelSourceStructure treeModel = new TreeModelSourceStructure();
+    transient NodeFiles nodeFiles;
+    transient NodeDuplicateCode nodeDuplicateCode;
+    transient TreeModelSourceStructure treeModel = new TreeModelSourceStructure();
     @SuppressWarnings("rawtypes")
     DefaultListModel listModelOptions = new DefaultListModel();
     @SuppressWarnings("rawtypes")
@@ -89,50 +89,50 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
     @SuppressWarnings("rawtypes")
     DefaultListModel listModelAttributes = new DefaultListModel();
 
-    HandlerMouse handlerMouse = new HandlerMouse();
-    HandlerCaret handlerCaret = new HandlerCaret();
-    HandlerMouseDspf handlerMouseDspf = new HandlerMouseDspf();
-    HandlerRightClickSource handlerRightClickSource = new HandlerRightClickSource();
+    transient HandlerMouse handlerMouse = new HandlerMouse();
+    transient HandlerCaret handlerCaret = new HandlerCaret();
+    transient HandlerMouseDspf handlerMouseDspf = new HandlerMouseDspf();
+    transient HandlerRightClickSource handlerRightClickSource = new HandlerRightClickSource();
 
     ActionCutMenu actionCutM = new ActionCutMenu();
     ActionCopyMenu actionCopyM = new ActionCopyMenu();
     ActionPasteMenu actionPasteM = new ActionPasteMenu();
 
-    ActionSelectAll actionSelectAll = new ActionSelectAll();
-    ActionCut actionCut = new ActionCut();
+    transient ActionSelectAll actionSelectAll = new ActionSelectAll();
+    transient ActionCut actionCut = new ActionCut();
 
-    ActionCopy actionCopy = new ActionCopy();
-    ActionPaste actionPaste = new ActionPaste();
-    ActionMemberRemove actionMemberRemove = new ActionMemberRemove();
-    ActionSetSourceType actionSetSourceType = new ActionSetSourceType();
-    ActionReference actionReference = new ActionReference();
-    ActionMemberCompile actionMemberCompile = new ActionMemberCompile();
-    ActionMemberSave actionMemberSave = new ActionMemberSave();
+    transient ActionCopy actionCopy = new ActionCopy();
+    transient ActionPaste actionPaste = new ActionPaste();
+    transient ActionMemberRemove actionMemberRemove = new ActionMemberRemove();
+    transient ActionSetSourceType actionSetSourceType = new ActionSetSourceType();
+    transient ActionReference actionReference = new ActionReference();
+    transient ActionMemberCompile actionMemberCompile = new ActionMemberCompile();
+    transient ActionMemberSave actionMemberSave = new ActionMemberSave();
     ActionMemberSaveLocal actionMemberSaveLocal = new ActionMemberSaveLocal();
     ActionRefactor actionRefactorUncomment = new ActionRefactor("Uncomment", new RefactorUncomment(),
-            new Integer(KeyEvent.VK_U));
+            KeyEvent.VK_U);
     ActionRefactor actionRefactorComment = new ActionRefactor("Comment", new RefactorComment(),
-            new Integer(KeyEvent.VK_M));
+            KeyEvent.VK_M);
     ActionRefactor actionRefactorFreeForm = new ActionRefactor("Free Form", new RefactorFreeForm(),
-            new Integer(KeyEvent.VK_F));
+            KeyEvent.VK_F);
     ActionRefactor actionRefactorComparisons = new ActionRefactor("Comparisons", new RefactorComparisons(),
-            new Integer(KeyEvent.VK_C));
+            KeyEvent.VK_C);
     ActionRefactor actionRefactorNewSubroutine = new ActionRefactor("New Subroutine", new RefactorNewSubroutine(),
-            new Integer(KeyEvent.VK_N));
+            KeyEvent.VK_N);
     ActionRefactor actionRefactorCallSubroutine = new ActionRefactor("Call Subroutine", new RefactorCallSubroutine(),
-            new Integer(KeyEvent.VK_S));
+            KeyEvent.VK_S);
 
     ActionPrint actionPrint = new ActionPrint();
     ActionFocus actionFocus;
     ActionMemberClose actionMemberClose = new ActionMemberClose();
-    ActionInputTypeSelected actionInputTypeSelected = new ActionInputTypeSelected();
-    ActionUpdate actionUpdate = new ActionUpdate();
-    ActionDelete actionDelete = new ActionDelete();
-    ActionItemSelected actionItemSelected = new ActionItemSelected();
-    ActionOptionRemove actionOptionRemove = new ActionOptionRemove();
-    ActionOptionAdd actionOptionAdd = new ActionOptionAdd();
-    ActionCompileType actionCompileType = new ActionCompileType();
-    ActionLibrarySelected actionLibrarySelected = new ActionLibrarySelected();
+    transient ActionInputTypeSelected actionInputTypeSelected = new ActionInputTypeSelected();
+    transient ActionUpdate actionUpdate = new ActionUpdate();
+    transient ActionDelete actionDelete = new ActionDelete();
+    transient ActionItemSelected actionItemSelected = new ActionItemSelected();
+    transient ActionOptionRemove actionOptionRemove = new ActionOptionRemove();
+    transient ActionOptionAdd actionOptionAdd = new ActionOptionAdd();
+    transient ActionCompileType actionCompileType = new ActionCompileType();
+    transient ActionLibrarySelected actionLibrarySelected = new ActionLibrarySelected();
 
     BorderLayout borderLayout1 = new BorderLayout();
     JTabbedPane jTabbedPane1 = new JTabbedPane();
@@ -175,9 +175,9 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
     BorderLayout borderLayout9 = new BorderLayout();
     JLabel jLabel6 = new JLabel();
     JPanel jPanel13 = new JPanel();
-    Border border2;
+    transient Border border2;
     TitledBorder titledBorder2;
-    Border border3;
+    transient Border border3;
     TitledBorder titledBorder3;
     JPanel jPanel11 = new JPanel();
     BorderLayout borderLayout11 = new BorderLayout();
@@ -185,20 +185,20 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
     JLabel labelPosition = new JLabel();
     JPanel jPanel14 = new JPanel();
     BorderLayout borderLayout12 = new BorderLayout();
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    JComboBox comboboxOptions = new JComboBox(new Object[]{"", "OBJTYPE(*MODULE)", "COMMIT(*NONE)",
-        "DBGVIEW(*SOURCE)", "OPTION(*SOURCE)", "ALWNULL(*YES)"});
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    JComboBox comboboxOptions = new JComboBox(new Object[] { "", "OBJTYPE(*MODULE)", "COMMIT(*NONE)",
+            "DBGVIEW(*SOURCE)", "OPTION(*SOURCE)", "ALWNULL(*YES)" });
     JLabel jLabel10 = new JLabel();
     JButton buttonAdd = new JButton();
     JPanel jPanel12 = new JPanel();
     JScrollPane jScrollPane3 = new JScrollPane();
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     JList listOptions = new JList(listModelOptions);
     JButton buttonRemove = new JButton();
     BorderLayout borderLayout13 = new BorderLayout();
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    JComboBox comboboxCompileType = new JComboBox(new Object[]{"", "CRTBNDRPG", "CRTRPGMOD", "CRTSQLRPGI", "CRTDSPF",
-        "CRTCLPGM", "CRTRPGPGM", "CRTPRTF", "CRTPF", "CRTLF"});
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    JComboBox comboboxCompileType = new JComboBox(new Object[] { "", "CRTBNDRPG", "CRTRPGMOD", "CRTSQLRPGI", "CRTDSPF",
+            "CRTCLPGM", "CRTRPGPGM", "CRTPRTF", "CRTPF", "CRTLF" });
     JLabel jLabel7 = new JLabel();
     GridLayout gridLayout1 = new GridLayout();
     JPanel jPanel10 = new JPanel();
@@ -220,7 +220,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
     JPanel jPanel18 = new JPanel();
     BorderLayout borderLayout17 = new BorderLayout();
     JScrollPane jScrollPane1 = new JScrollPane();
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     JList listboxFields = new JList(listModelFields);
     JLabel jLabel9 = new JLabel();
     JPanel jPanel19 = new JPanel();
@@ -236,7 +236,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
     JPanel panelStatus = new JPanel();
     JLabel panelLoading = new JLabel();
     BorderLayout borderLayout19 = new BorderLayout();
-    Border border4;
+    transient Border border4;
     TitledBorder titledBorder5;
     JPanel jPanel24 = new JPanel();
     VerticalFlowLayout verticalFlowLayout6 = new VerticalFlowLayout();
@@ -255,11 +255,11 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
     JPanel jPanel27 = new JPanel();
     BorderLayout borderLayout23 = new BorderLayout();
     JScrollPane jScrollPane5 = new JScrollPane();
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    JComboBox comboboxType = new JComboBox(new Object[]{"CONSTANT", "INPUT", "OUTPUT", "INPUT/OUTPUT", "HIDDEN"});
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    JComboBox comboboxType = new JComboBox(new Object[] { "CONSTANT", "INPUT", "OUTPUT", "INPUT/OUTPUT", "HIDDEN" });
     JPanel panelKeywords = new JPanel();
     JLabel labelKeywords = new JLabel();
-    Border border5;
+    transient Border border5;
     JScrollPane jScrollPane6 = new JScrollPane();
     JTable tableKeywords = new JTable(tableModelKeywords);
     @SuppressWarnings("rawtypes")
@@ -270,8 +270,8 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
     FlowLayout flowLayout1 = new FlowLayout();
     JPanel jPanel23 = new JPanel();
     JLabel labelDataType = new JLabel();
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    JComboBox comboboxDataType = new JComboBox(new Object[]{"A", "Y"});
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    JComboBox comboboxDataType = new JComboBox(new Object[] { "A", "Y" });
     JLabel labelLength = new JLabel();
     JSpinner spinnerLength = new JSpinner();
     JLabel labelDecimalPlaces = new JLabel();
@@ -295,10 +295,8 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
     JTextPane jTextPane1 = new JTextPane();
     PanelFlowChart panelFlowChart = new PanelFlowChart();
     FlowLayout flowLayout6 = new FlowLayout();
-    Logger logger = LoggerFactory.getLogger(PanelMember.class);
+    transient Logger logger = LoggerFactory.getLogger(PanelMember.class);
 
-    // private Document editorPaneDocument;
-    // protected UndoHandler undoHandler = new UndoHandler();
     protected UndoManager undoManager = new UndoManager();
     private UndoAction undoAction = new UndoAction();
     private RedoAction redoAction = new RedoAction();
@@ -335,7 +333,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
         component1 = Box.createHorizontalStrut(8);
         component2 = Box.createHorizontalStrut(8);
         this.setLayout(borderLayout1);
-        jTabbedPane1.setTabPlacement(JTabbedPane.BOTTOM);
+        jTabbedPane1.setTabPlacement(SwingConstants.BOTTOM);
         jTabbedPane1.setEnabled(false);
         panelSource.setLayout(borderLayout2);
         panelSettings.setLayout(borderLayout3);
@@ -635,7 +633,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
         jSplitPane2.setDividerLocation(530);
     }
 
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private void init() throws SQLException {
         editorPaneSource.getDocument().putProperty(DefaultEditorKit.EndOfLineStringProperty, "\n");
         // get the height of the chars in the editor.
@@ -726,11 +724,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
             project.removeMember(projectMember);
             return;
         }
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                doneLoading();
-            }
-        });
+        SwingUtilities.invokeLater(() -> doneLoading());
     }
 
     protected void doneLoading() {
@@ -768,16 +762,13 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
         jTabbedPane1.setEnabled(true);
         Environment.members.select(projectMember);
         Toolkit.getDefaultToolkit().beep();
-        // editorPaneSource.getDocument().addUndoableEditListener(undoManager);
 
-        KeyStroke undoKeystroke = KeyStroke.getKeyStroke(KeyEvent.VK_Z, Event.META_MASK);
-        KeyStroke redoKeystroke = KeyStroke.getKeyStroke(KeyEvent.VK_Y, Event.META_MASK);
+        KeyStroke undoKeystroke = KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.META_MASK);
+        KeyStroke redoKeystroke = KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.META_MASK);
 
-        // undoAction = new UndoAction();
         editorPaneSource.getInputMap().put(undoKeystroke, "undoKeystroke");
         editorPaneSource.getActionMap().put("undoKeystroke", undoAction);
 
-        // redoAction = new RedoAction();
         editorPaneSource.getInputMap().put(redoKeystroke, "redoKeystroke");
         editorPaneSource.getActionMap().put("redoKeystroke", redoAction);
         editorPaneSource.getDocument().addUndoableEditListener(new UndoableEditListener() {
@@ -788,7 +779,8 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
             @Override
             public void undoableEditHappened(UndoableEditEvent e) {
                 loc = new Locale("en", "US");
-                if (!e.getEdit().getUndoPresentationName().equals("Undo style change") && !e.getEdit().getUndoPresentationName().equals("Deshacer cambio de estilo")) {
+                if (!e.getEdit().getUndoPresentationName().equals("Undo style change")
+                        && !e.getEdit().getUndoPresentationName().equals("Deshacer cambio de estilo")) {
                     UndoableEdit edit = e.getEdit();
                     undoManager.addEdit(edit);
                     undoAction.update();
@@ -799,9 +791,11 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
 
         });
 
-        editorPaneSource.registerKeyboardAction(undoAction, KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_MASK),
+        editorPaneSource.registerKeyboardAction(undoAction,
+                KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK),
                 JComponent.WHEN_FOCUSED);
-        editorPaneSource.registerKeyboardAction(redoAction, KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_MASK),
+        editorPaneSource.registerKeyboardAction(redoAction,
+                KeyStroke.getKeyStroke(KeyEvent.VK_Y, InputEvent.CTRL_DOWN_MASK),
                 JComponent.WHEN_FOCUSED);
         synchronized (this) {
             currentlyLoading = false;
@@ -853,13 +847,14 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
                 Thread.currentThread().sleep(1000);
             }
         } catch (Exception e) {
-            // e.printStackTrace();
+
             logger.error(e.getMessage());
         }
     }
 
+    @Override
     public void dispose() {
-        // projectMember = null;
+
         sourceParser = null;
         nodeSourceBlocks = null;
         sourceHighlighter = null;
@@ -929,10 +924,10 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
         textfieldDestinationLibrary.addActionListener(actionLibrarySelected);
         checkboxReference.addItemListener(actionReference);
         actionFocus = new ActionFocus(projectMember);
-        super.actions = new Action[]{actionFocus, actionMemberSave, actionMemberSaveLocal, actionMemberClose,
-            actionMemberRemove, actionPrint, actionRefactorUncomment, actionRefactorComment, actionRefactorFreeForm,
-            actionRefactorComparisons, actionRefactorNewSubroutine, actionRefactorCallSubroutine,
-            actionMemberCompile, undoAction, redoAction, actionCutM, actionCopyM, actionPasteM};
+        super.actions = new Action[] { actionFocus, actionMemberSave, actionMemberSaveLocal, actionMemberClose,
+                actionMemberRemove, actionPrint, actionRefactorUncomment, actionRefactorComment, actionRefactorFreeForm,
+                actionRefactorComparisons, actionRefactorNewSubroutine, actionRefactorCallSubroutine,
+                actionMemberCompile, undoAction, redoAction, actionCutM, actionCopyM, actionPasteM };
         Environment.actions.addActions(actions);
         sourceParser.addListenerSelection(this);
     }
@@ -953,6 +948,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
             this.text = text;
         }
 
+        @Override
         public void run() {
             waitForLoading();
             editorPaneSource.setText(text);
@@ -962,24 +958,26 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
     /**
      * gets called when the panel is selected in the panltoolcontainer.
      */
+    @Override
     public void selected() {
         Environment.structure.setStructure(treeModel, expands, this);
     }
 
     @SuppressWarnings("rawtypes")
+    @Override
     public void saveState(Enumeration expands) {
         this.expands = expands;
     }
 
     /*
-	 * public void select(int rowStart, int colStart, int rowEnd, int colEnd) {
-	 * SourceLine lineStart, lineEnd;
-	 * 
-	 * lineStart = sourceParser.getLineForRow(rowStart); if ( lineStart == null ) {
-	 * return; } editorPaneSource.setSelectionStart(lineStart.start + colStart - 1);
-	 * lineEnd = sourceParser.getLineForRow(rowEnd);
-	 * editorPaneSource.setSelectionEnd(lineEnd.start + colEnd);
-	 * jTabbedPane1.setSelectedIndex(0); editorPaneSource.grabFocus(); }
+     * public void select(int rowStart, int colStart, int rowEnd, int colEnd) {
+     * SourceLine lineStart, lineEnd;
+     * 
+     * lineStart = sourceParser.getLineForRow(rowStart); if ( lineStart == null ) {
+     * return; } editorPaneSource.setSelectionStart(lineStart.start + colStart - 1);
+     * lineEnd = sourceParser.getLineForRow(rowEnd);
+     * editorPaneSource.setSelectionEnd(lineEnd.start + colEnd);
+     * jTabbedPane1.setSelectedIndex(0); editorPaneSource.grabFocus(); }
      */
     public void requestingFocus(SourceLine sourceLine) {
         editorPaneSource.setSelectionStart(editorPaneSource.getText().length() - 1);
@@ -1098,14 +1096,14 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
             repo = builder.readEnvironment().findGitDir(new File(workingDirectory)).build();
             git = new Git(repo);
 
-            //git.add().
+            // git.add().
             @SuppressWarnings("unused")
             RevCommit rev = git.commit().setOnly(name)
                     .setAuthor(projectMember.member.as400system.getUser(), projectMember.member.as400system.getUser())
                     .setMessage("Open "
                             + new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new java.util.Date()))
                     .call();
-            //git.close();
+            // git.close();
         } catch (IOException e1) {
             logger.error(e1.getMessage());
         } catch (Exception e1) {
@@ -1125,6 +1123,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
         // the save is a background job, dont let the user click save twice,
         // set the button to disabled.
         Thread t = new Thread() {
+            @Override
             public void run() {
                 setPriority(Thread.MIN_PRIORITY);
                 try {
@@ -1144,6 +1143,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
         // the save is a background job, dont let the user click save twice,
         // set the button to disabled.
         Thread t = new Thread() {
+            @Override
             public void run() {
                 setPriority(Thread.MIN_PRIORITY);
                 try {
@@ -1215,21 +1215,21 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
     }
 
     /*
-	 * public String getSelectedText() { return editorPaneSource.getSelectedText();
-	 * }
+     * public String getSelectedText() { return editorPaneSource.getSelectedText();
+     * }
      */
 
     /**
      * move this to projectmember class.
      */
     /*
-	 * public void compile() { projectMember.compile(editorPaneSource); }
+     * public void compile() { projectMember.compile(editorPaneSource); }
      */
     /**
      * handles when someone clicks on the breakpoint panel.
      */
     class HandlerMouse extends MouseAdapter {
-
+@Override
         public void mousePressed(MouseEvent evt) {
             Point p;
             int position;
@@ -1243,7 +1243,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
     }
 
     class HandlerRightClickSource extends MouseAdapter {
-
+@Override
         public void mouseClicked(MouseEvent evt) {
             if (evt.getButton() == MouseEvent.BUTTON3) {
                 JPopupMenu popupMenu = new JPopupMenu();
@@ -1572,7 +1572,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
             textfieldRow.setValue(new Integer(0));
             labelCol.setEnabled(false);
             textfieldCol.setEnabled(false);
-            textfieldCol.setValue(new Integer(0));
+            textfieldCol.setValue(0);
             labelWidth.setEnabled(false);
             textfieldWidth.setEnabled(false);
             textfieldWidth.setText("");
@@ -1591,7 +1591,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
             tableModelKeywords.enabled = false;
             buttonUpdate.setEnabled(false);
             buttonDelete.setEnabled(false);
-            spinnerLength.setValue(new Integer(0));
+            spinnerLength.setValue(0);
             spinnerDecimalPlaces.setValue(new Integer(0));
             comboboxDataType.setEnabled(false);
             comboboxDataType.setSelectedItem("");
@@ -1607,7 +1607,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
         textfieldName.setEnabled(true);
         if (line.inputType.equalsIgnoreCase("B")) {
             comboboxType.setSelectedIndex(3);
-            spinnerLength.setValue(new Integer(line.length));
+            spinnerLength.setValue(line.length);
             spinnerDecimalPlaces.setValue(new Integer(line.precision));
             comboboxDataType.setSelectedItem(line.dataType);
         } else if (line.inputType.equalsIgnoreCase("I")) {
@@ -1642,7 +1642,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
         textfieldRow.setValue(new Integer(line.row));
         labelCol.setEnabled(true);
         textfieldCol.setEnabled(true);
-        textfieldCol.setValue(new Integer(line.col));
+        textfieldCol.setValue(line.col);
         labelWidth.setEnabled(true);
         textfieldWidth.setEnabled(true);
         textfieldWidth.setText(Integer.toString(line.width));
@@ -2005,7 +2005,6 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
         }
     }
 
-
     /**
      * gets called when the user clicks the print button. prints the current
      * document.
@@ -2083,7 +2082,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
                 save();
                 projectMember.compile(editorPaneSource);
             } catch (SQLException e) {
-                
+
                 logger.error(e.getMessage());
             }
             Toolkit.getDefaultToolkit().beep();
@@ -2203,14 +2202,14 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
     }
 
     /*
-	 * class UndoHandler implements UndoableEditListener {
-	 * 
-	 * /** Messaged when the Document has created an edit, the edit is added to
-	 * <code>undoManager</code>, an instance of UndoManager.
-	 *
-	 * public void undoableEditHappened(UndoableEditEvent e) {
-	 * undoManager.addEdit(e.getEdit()); undoAction.update(); redoAction.update(); }
-	 * }
+     * class UndoHandler implements UndoableEditListener {
+     * 
+     * /** Messaged when the Document has created an edit, the edit is added to
+     * <code>undoManager</code>, an instance of UndoManager.
+     *
+     * public void undoableEditHappened(UndoableEditEvent e) {
+     * undoManager.addEdit(e.getEdit()); undoAction.update(); redoAction.update(); }
+     * }
      */
 
     class UndoAction extends AbstractAction {
@@ -2336,10 +2335,11 @@ class PanelDspf extends JPanel implements ListenerParser {
         this.listener = listener;
     }
 
+@Override
     public Dimension getPreferredSize() {
         return new Dimension((80 * textWidth) + descent, (24 * textHeight) + descent);
     }
-
+@Override
     public Dimension getMinimumSize() {
         return new Dimension((80 * textWidth) + descent, (24 * textHeight) + descent);
     }
@@ -2351,7 +2351,7 @@ class PanelDspf extends JPanel implements ListenerParser {
             listener.selectionChanged();
         }
     }
-
+@Override
     public void paintComponent(Graphics graphics) {
         super.paintComponent(graphics);
         graphics.setColor(new Color(85, 85, 85));
@@ -2525,7 +2525,7 @@ class PanelDspf extends JPanel implements ListenerParser {
      * handles when someone clicks on the dspf design view.
      */
     class HandlerMouse extends MouseAdapter {
-
+        @Override
         public void mouseClicked(MouseEvent evt) {
             DspfLine line;
 
@@ -2634,7 +2634,7 @@ class DspfLine {
                             && (previous.type == DspfLine.TYPE_CONSTANT || previous.type == DspfLine.TYPE_CONTINUATION)
                             && source.charAt((previous.line.start + previous.line.length) - 2) == '-'
                             && (source.charAt((line.start + line.length) - 2) == '-'
-                            || source.charAt((line.start + line.length) - 2) == '\'')) {
+                                    || source.charAt((line.start + line.length) - 2) == '\'')) {
                         type = TYPE_CONTINUATION;
                         name = buffer.substring(0, buffer.length() - 1);
                         width = name.length();
@@ -2842,7 +2842,7 @@ class DspfLine {
         }
     }
 
-    @SuppressWarnings({"static-access", "rawtypes", "unchecked"})
+    @SuppressWarnings({ "static-access", "rawtypes", "unchecked" })
     public void update() {
         StringBuffer buffer;
         DspfLine l;
@@ -2976,7 +2976,7 @@ class TableModelKeywords extends AbstractTableModel {
      *
      */
     private static final long serialVersionUID = -1068602320440994857L;
-    String[] columnNames = new String[]{"N01", "N02", "N03", "KEYWORDS", " "};
+    String[] columnNames = new String[] { "N01", "N02", "N03", "KEYWORDS", " " };
     @SuppressWarnings("rawtypes")
     ArrayList listLines = new ArrayList();
     boolean enabled = false;
@@ -2991,7 +2991,7 @@ class TableModelKeywords extends AbstractTableModel {
     public void dataChanged() {
         fireTableDataChanged();
     }
-
+@Override
     public boolean isCellEditable(int row, int col) {
         return true;
     }
@@ -2999,7 +2999,7 @@ class TableModelKeywords extends AbstractTableModel {
     public int getColumnCount() {
         return columnNames.length;
     }
-
+    @Override
     public String getColumnName(int index) {
         return columnNames[index];
     }
@@ -3038,7 +3038,7 @@ class ButtonCellRenderer extends DefaultTableCellRenderer {
     public ButtonCellRenderer() {
         super();
     }
-
+    @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
             int row, int column) {
         button.setText(value.toString());
@@ -3062,7 +3062,7 @@ class ButtonCellEditor extends AbstractCellEditor implements TableCellEditor {
         button.setText(value.toString());
         return button;
     }
-
+    @Override
     public boolean shouldSelectCell(EventObject anEvent) {
         return true;
     }

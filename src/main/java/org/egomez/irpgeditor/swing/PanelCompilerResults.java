@@ -34,17 +34,17 @@ import org.slf4j.LoggerFactory;
  *
  * @author not attributable
  */
-@SuppressWarnings("unused")
+
 public class PanelCompilerResults extends PanelTool implements CompilerResultsOutput {
 
     /**
      *
      */
     private static final long serialVersionUID = 3388618378997281411L;
-    Logger logger = LoggerFactory.getLogger(PanelCompilerResults.class);
+    transient Logger logger = LoggerFactory.getLogger(PanelCompilerResults.class);
     JTextComponent textComponent;
 
-    MouseAdapterCompilerResults mouseAdapterCompilerResults = new MouseAdapterCompilerResults();
+    transient MouseAdapterCompilerResults mouseAdapterCompilerResults = new MouseAdapterCompilerResults();
 
     ActionClear actionClear = new ActionClear();
     ActionFocus actionFocus = new ActionFocus();
@@ -66,7 +66,7 @@ public class PanelCompilerResults extends PanelTool implements CompilerResultsOu
             buttonClear.addActionListener(actionClear);
             textareaCompilerResults.addMouseListener(mouseAdapterCompilerResults);
         } catch (Exception e) {
-            // e.printStackTrace();
+            
             logger.error(e.getMessage());
         }
     }
@@ -121,8 +121,8 @@ public class PanelCompilerResults extends PanelTool implements CompilerResultsOu
             setEnabled(true);
             putValue("MENU", "Build");
             // F9 + SHIFT
-            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(120, KeyEvent.SHIFT_MASK, false));
-            // putValue(Action.MNEMONIC_KEY, new Character('S'));
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(120, InputEvent.SHIFT_DOWN_MASK, false));
+            
         }
 
         @Override
@@ -145,7 +145,7 @@ public class PanelCompilerResults extends PanelTool implements CompilerResultsOu
             setEnabled(true);
             putValue("MENU", "Tools");
             // F9 + CTRL
-            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(120, KeyEvent.CTRL_MASK, false));
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(120, InputEvent.CTRL_DOWN_MASK, false));
             // putValue(Action.MNEMONIC_KEY, new Character('S'));
         }
 
@@ -165,8 +165,13 @@ public class PanelCompilerResults extends PanelTool implements CompilerResultsOu
         @Override
         public void mouseClicked(MouseEvent evt) {
             String text;
-            int rowStart, colStart, rowEnd, colEnd;
-            int position, start, end;
+            int rowStart;
+            int colStart;
+            int rowEnd;
+            int colEnd;
+            int position;
+            int start;
+            int end;
             StyledDocument document;
             SimpleAttributeSet attributes;
             StringTokenizer tokenizer;
@@ -263,8 +268,11 @@ public class PanelCompilerResults extends PanelTool implements CompilerResultsOu
         }
 
         public void select(JTextComponent source, int rowStart, int colStart, int rowEnd, int colEnd) {
-            Container container, child;
-            int row, start, index;
+            Container container;
+            Container child;
+            int row;
+            int start;
+            int index;
             String text;
 
             child = source;

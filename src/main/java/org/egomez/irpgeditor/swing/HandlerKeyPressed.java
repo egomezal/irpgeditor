@@ -66,7 +66,7 @@ public class HandlerKeyPressed extends KeyAdapter implements Runnable {
     public void keyPressed(KeyEvent e) {
         int code;
 
-        if (e.getModifiers() == KeyEvent.CTRL_MASK) {
+        if (e.getModifiersEx() == InputEvent.CTRL_DOWN_MASK) {
             code = e.getKeyCode();
             if (code == 38) { // UP ARROW
                 direction = 1;
@@ -128,7 +128,7 @@ public class HandlerKeyPressed extends KeyAdapter implements Runnable {
                 }
             }
         } catch (InterruptedException e) {
-            //e.printStackTrace();
+            
             logger.error(e.getMessage());
         }
         thread = null;
@@ -193,7 +193,7 @@ public class HandlerKeyPressed extends KeyAdapter implements Runnable {
                     continue;
                 }
                 for (KeyStroke key : keys) {
-                    if (key.getKeyCode() == 38 && (key.getModifiers() & KeyEvent.CTRL_MASK) > 0) {
+                    if (key.getKeyCode() == 38 && (key.getModifiers() & InputEvent.CTRL_DOWN_MASK) > 0) {
                         im = component.getInputMap(c);
                         while (im != null) {
                             im.remove(key);

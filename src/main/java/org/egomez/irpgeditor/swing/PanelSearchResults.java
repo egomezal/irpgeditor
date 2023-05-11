@@ -146,7 +146,7 @@ public class PanelSearchResults extends PanelTool implements SearchResultsOutput
             putValue("MENU", "Edit");
             // F10
             putValue(Action.ACCELERATOR_KEY,
-                    javax.swing.KeyStroke.getKeyStroke('F', java.awt.event.KeyEvent.CTRL_MASK, false));
+                    javax.swing.KeyStroke.getKeyStroke('F', java.awt.event.InputEvent.CTRL_DOWN_MASK, false));
             // putValue(Action.MNEMONIC_KEY, new Character('S'));
         }
 
@@ -238,7 +238,10 @@ public class PanelSearchResults extends PanelTool implements SearchResultsOutput
         @Override
         public void mouseClicked(MouseEvent evt) {
             String text;
-            int position, start, end, index;
+            int position;
+            int start;
+            int end;
+            int index;
             StyledDocument document;
             SimpleAttributeSet attributes;
 

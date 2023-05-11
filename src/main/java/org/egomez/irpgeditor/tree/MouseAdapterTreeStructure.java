@@ -1,6 +1,5 @@
 package org.egomez.irpgeditor.tree;
 
-import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.tree.*;
@@ -17,7 +16,7 @@ public class MouseAdapterTreeStructure extends MouseAdapter {
         tree.addMouseListener(this);
     }
 
-    @SuppressWarnings("unused")
+    
     @Override
     public void mouseClicked(MouseEvent evt) {
         TreePath path;

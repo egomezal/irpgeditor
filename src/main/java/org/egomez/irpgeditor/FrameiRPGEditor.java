@@ -55,7 +55,7 @@ public class FrameiRPGEditor extends JFrame {
      */
     private static final long serialVersionUID = -4983045774526568372L;
     static WindowSplash splash;
-    private static WindowsTips dlgTips;
+    
     private boolean flgExit = true;
     // tree files.
     TreeCellRendererNode treeCellRendererNode = new TreeCellRendererNode();
@@ -133,10 +133,10 @@ public class FrameiRPGEditor extends JFrame {
     JMenu menuSession = new JMenu();
     JMenu menuSpool = new JMenu();
     org.slf4j.Logger logger = LoggerFactory.getLogger(FrameiRPGEditor.class);
-    @SuppressWarnings("unused")
-    private Git git;
+    
 
     public static void main(String[] args) throws Exception {
+        WindowsTips dlgTips;
         FrameiRPGEditor frame;
         splash = new WindowSplash(new JFrame());
 
@@ -194,6 +194,7 @@ public class FrameiRPGEditor extends JFrame {
     }
 
     private void addRepo() {
+        Git git;
         String workingDirectory = System.getProperty("user.home") + File.separator + ".iRPGEditor";
         Repository repo;
         try {
@@ -209,11 +210,9 @@ public class FrameiRPGEditor extends JFrame {
                 repo = new FileRepository(new File(workingDirectory));
                 git = new Git(repo);
                 git.close();
-            } catch (IOException e1) {
-                logger.error(e1.getMessage());
             } catch (Exception e1) {
                 logger.error(e1.getMessage());
-            }
+            } 
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
@@ -295,16 +294,12 @@ public class FrameiRPGEditor extends JFrame {
         menuRpgReference.setAccelerator(javax.swing.KeyStroke.getKeyStroke(112, 0, false));
         jMenuItem1.setMnemonic('A');
         jMenuItem1.setText("About");
-        jMenuItem1.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                new WindowAbout().setVisible(true);
-            }
-        });
+        jMenuItem1.addActionListener(e -> new WindowAbout().setVisible(true));
         panelHelp.setLayout(borderLayout11);
         menuRefactor.setText("Refactor");
         panelProjectBrowserTab.setLayout(borderLayout2);
         panelSystemBrowserTab.setLayout(borderLayout3);
-        tabbedpaneLeft.setTabPlacement(JTabbedPane.BOTTOM);
+        tabbedpaneLeft.setTabPlacement(SwingConstants.BOTTOM);
         panelProjectBrowser.setLayout(borderLayout1);
         panelModules.setLayout(borderLayout4);
         menuWindow.setMnemonic('W');
@@ -331,7 +326,7 @@ public class FrameiRPGEditor extends JFrame {
         jScrollPane8.setViewportView(editorpaneHelp);
         scrollpaneStructure.setViewportView(treeStructure);
         splitpaneMain.add(tabbedPaneTools, JSplitPane.BOTTOM);
-        tabbedPaneTools.setTabPlacement(JTabbedPane.LEFT);
+        tabbedPaneTools.setTabPlacement(SwingConstants.LEFT);
         tabbedPaneTools.add(panelSystems);
         tabbedPaneTools.add(panelSpoolFiles);
         tabbedPaneTools.add(panelQcmdexec);
@@ -502,7 +497,7 @@ public class FrameiRPGEditor extends JFrame {
                 saveSettings();
                 Project project;
 
-                project = (Project) Environment.projects.getSelected();
+                project = Environment.projects.getSelected();
                 if (project != null) {
                     try {
                         project.save();
@@ -558,7 +553,9 @@ public class FrameiRPGEditor extends JFrame {
         public void actionPerformed(ActionEvent evt) {
             Component component;
             String buffer;
-            int index, start, end;
+            int index;
+            int start;
+            int end;
 
             component = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
             if (component == null) {
