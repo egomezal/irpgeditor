@@ -61,12 +61,12 @@ public class FrameiRPGEditor extends JFrame {
     TreeCellRendererNode treeCellRendererNode = new TreeCellRendererNode();
 
     // tree structure.
-    TreeModelSourceStructure treeModelStructure = new TreeModelSourceStructure();
+    transient TreeModelSourceStructure treeModelStructure = new TreeModelSourceStructure();
 
-    HandlerStructure handlerStructure = new HandlerStructure();
+    transient HandlerStructure handlerStructure = new HandlerStructure();
 
-    ActionRpgReference actionRpgReference = new ActionRpgReference();
-    ActionLayout actionLayout = new ActionLayout();
+    transient ActionRpgReference actionRpgReference = new ActionRpgReference();
+    transient ActionLayout actionLayout = new ActionLayout();
     ActionExit actionExit = new ActionExit();
 
     JSplitPane splitpaneMain = new JSplitPane();
@@ -90,17 +90,10 @@ public class FrameiRPGEditor extends JFrame {
     PanelJobs panelJobs = new PanelJobs();
     JMenuItem menuAddFileView = new JMenuItem();
     JMenu menuEdit = new JMenu();
-    // JMenuItem jMenuItem5 = new JMenuItem();
-    // JMenuItem jMenuItem6 = new JMenuItem();
-    // JMenuItem jMenuItem8 = new JMenuItem();
-    // JMenuItem jMenuItem9 = new JMenuItem();
-    // JMenuItem jMenuItem10 = new JMenuItem();
-    // JMenuItem jMenuItem11 = new JMenuItem();
-    // JMenuItem jMenuItem12 = new JMenuItem();
-    // JMenuItem jMenuItem13 = new JMenuItem();
+
     JMenu menuBuild = new JMenu();
-    Border border1;
-    Border border2;
+    transient Border border1;
+    transient Border border2;
     PanelSearchResults panelSearchResults = new PanelSearchResults();
     JMenu menuHelp = new JMenu();
     JMenuItem menuRpgReference = new JMenuItem();
@@ -132,7 +125,7 @@ public class FrameiRPGEditor extends JFrame {
     JMenu menuTools = new JMenu();
     JMenu menuSession = new JMenu();
     JMenu menuSpool = new JMenu();
-    org.slf4j.Logger logger = LoggerFactory.getLogger(FrameiRPGEditor.class);
+    transient org.slf4j.Logger logger = LoggerFactory.getLogger(FrameiRPGEditor.class);
     
 
     public static void main(String[] args) throws Exception {
@@ -148,10 +141,10 @@ public class FrameiRPGEditor extends JFrame {
             } else {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             }
-            // LoggerFactory.getLogger(FrameiRPGEditor.class).info("test");
+             
             Environment.loadSettings();
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
-            // e.printStackTrace();
+            
             LoggerFactory.getLogger(FrameiRPGEditor.class).error(e.getMessage());
         }
 
@@ -168,10 +161,10 @@ public class FrameiRPGEditor extends JFrame {
             public void windowClosing(WindowEvent e) {
                 if (JOptionPane.showConfirmDialog(null, "Are you sure you want to exit?", "iRPGEditor",
                         JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
-                    // System.exit(0);
+                    
                     flgExit = true;
                 } else {
-                    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+                    setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
                     flgExit = false;
                 }
 
@@ -190,7 +183,7 @@ public class FrameiRPGEditor extends JFrame {
         }
         splash.setVisible(false);
         splash.dispose();
-        splash = null;
+        
     }
 
     private void addRepo() {
@@ -243,49 +236,7 @@ public class FrameiRPGEditor extends JFrame {
         menuAddFileView.setAccelerator(javax.swing.KeyStroke.getKeyStroke(116, 0, false));
         tabbedpaneLayout.setFont(new java.awt.Font("DialogInput", 0, 14));
         menuEdit.setText("Edit");
-        /*
-		 * jMenuItem5.addActionListener(new ActionListener() { public void
-		 * actionPerformed(ActionEvent e) {
-		 * 
-		 * } }); jMenuItem5.setIcon(Icons.iconUndo); jMenuItem5.setText("Undo");
-		 * jMenuItem5.setAccelerator(javax.swing.KeyStroke.getKeyStroke(90,
-		 * java.awt.event.KeyEvent.CTRL_MASK, false)); jMenuItem6.addActionListener(new
-		 * ActionListener() { public void actionPerformed(ActionEvent e) { } });
-		 * jMenuItem6.setIcon(Icons.iconRedo); jMenuItem6.setText("Redo");
-		 * jMenuItem6.setAccelerator(javax.swing.KeyStroke.getKeyStroke(89,
-		 * java.awt.event.KeyEvent.CTRL_MASK, false));
-         */
- /*
-		 * jMenuItem8.setIcon(Icons.iconCut); jMenuItem8.setText("Cut");
-		 * jMenuItem8.setAccelerator(javax.swing.KeyStroke.getKeyStroke(88,
-		 * java.awt.event.KeyEvent.CTRL_MASK, false));
-         */
- /*
-		 * jMenuItem9.setIcon(Icons.iconCopy); jMenuItem9.setText("Copy");
-		 * jMenuItem9.setAccelerator(javax.swing.KeyStroke.getKeyStroke(67,
-		 * java.awt.event.KeyEvent.CTRL_MASK, false));
-         */
- /*
-		 * jMenuItem10.setIcon(Icons.iconPaste); jMenuItem10.setText("Paste");
-		 * jMenuItem10.setAccelerator(javax.swing.KeyStroke.getKeyStroke(86,
-		 * java.awt.event.KeyEvent.CTRL_MASK, false));
-         */
- /*
-		 * jMenuItem11.setIcon(Icons.iconDelete); jMenuItem11.setText("Delete");
-		 * jMenuItem11.setAccelerator(javax.swing.KeyStroke.getKeyStroke(127, 0,
-		 * false));
-         */
- /*
-		 * jMenuItem12.setText("Select All");
-		 * jMenuItem12.setAccelerator(javax.swing.KeyStroke.getKeyStroke(65,
-		 * java.awt.event.KeyEvent.CTRL_MASK, false));
-         */
- /*
-		 * jMenuItem13.setText("Unselect");
-		 * jMenuItem13.setAccelerator(javax.swing.KeyStroke.getKeyStroke(65,
-		 * java.awt.event.KeyEvent.CTRL_MASK | java.awt.event.KeyEvent.SHIFT_MASK,
-		 * false));
-         */
+    
         menuBuild.setText("Build");
         menuHelp.setMnemonic('H');
         menuHelp.setText("Help");
@@ -350,16 +301,7 @@ public class FrameiRPGEditor extends JFrame {
         jMenuBar1.add(menuHelp);
         jMenuBar1.add(menuHelp);
         menuDatabase.add(menuAddFileView);
-        // menuEdit.add(jMenuItem5);
-        // menuEdit.add(jMenuItem6);
-        // menuEdit.addSeparator();
-        // menuEdit.add(jMenuItem8);
-        // menuEdit.add(jMenuItem9);
-        // menuEdit.add(jMenuItem10);
-        // menuEdit.add(jMenuItem11);
-        // menuEdit.addSeparator();
-        // menuEdit.add(jMenuItem12);
-        // menuEdit.add(jMenuItem13);
+    
         menuHelp.add(menuRpgReference);
         menuHelp.addSeparator();
         menuHelp.add(jMenuItem1);
@@ -485,10 +427,7 @@ public class FrameiRPGEditor extends JFrame {
             putValue("LAST", "true");
             putValue(Action.ACCELERATOR_KEY,
                     KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.CTRL_MASK + ActionEvent.ALT_MASK, false));
-            // F9 + SHIFT
-            // putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(120,
-            // KeyEvent.SHIFT_MASK, false));
-            // putValue(Action.MNEMONIC_KEY, new Character('S'));
+            
         }
 
         @Override
@@ -502,7 +441,7 @@ public class FrameiRPGEditor extends JFrame {
                     try {
                         project.save();
                     } catch (IOException e) {
-                        // e.printStackTrace();
+                        
                         logger.error(e.getMessage());
                     }
                 }

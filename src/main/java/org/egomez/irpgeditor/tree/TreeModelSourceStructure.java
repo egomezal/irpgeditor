@@ -32,7 +32,7 @@ import org.egomez.irpgeditor.event.*;
  *
  * @author Derek Van Kooten.
  */
-@SuppressWarnings("unused")
+
 public class TreeModelSourceStructure implements TreeModel, ListenerLineParser {
 
     private ProjectMember projectMember;

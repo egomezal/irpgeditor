@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Derek Van Kooten.
  */
-@SuppressWarnings("unused")
+
 public class PanelSearchResults extends PanelTool implements SearchResultsOutput {
 
     /**
@@ -50,7 +50,7 @@ public class PanelSearchResults extends PanelTool implements SearchResultsOutput
     ActionSearchFocus actionSearchFocus = new ActionSearchFocus();
     ActionSearchClear actionSearchClear = new ActionSearchClear();
 
-    MouseAdapterSearchResults mouseAdapterSearchResults = new MouseAdapterSearchResults();
+    transient MouseAdapterSearchResults mouseAdapterSearchResults = new MouseAdapterSearchResults();
 
     JScrollPane scrollpaneSearchResults = new JScrollPane();
     BorderLayout borderLayoutSearchResults = new BorderLayout();
@@ -58,7 +58,7 @@ public class PanelSearchResults extends PanelTool implements SearchResultsOutput
     JPanel jPanel1 = new JPanel();
     JButton buttonClear = new JButton();
     FlowLayout flowLayout1 = new FlowLayout();
-    Logger logger = LoggerFactory.getLogger(PanelSearchResults.class);
+    transient Logger logger = LoggerFactory.getLogger(PanelSearchResults.class);
 
     public PanelSearchResults() {
         setName("Search Results");
@@ -76,7 +76,7 @@ public class PanelSearchResults extends PanelTool implements SearchResultsOutput
             textareaSearchResults.addMouseListener(mouseAdapterSearchResults);
             buttonClear.addActionListener(actionSearchClear);
         } catch (Exception e) {
-            // e.printStackTrace();
+            
             logger.error(e.getMessage());
         }
     }
@@ -111,7 +111,7 @@ public class PanelSearchResults extends PanelTool implements SearchResultsOutput
                         num + ": " + result.toString(), null);
             }
         } catch (BadLocationException e) {
-            // e.printStackTrace();
+            
             logger.error(e.getMessage());
         }
         textareaSearchResults.select(0, 0);
@@ -147,14 +147,15 @@ public class PanelSearchResults extends PanelTool implements SearchResultsOutput
             // F10
             putValue(Action.ACCELERATOR_KEY,
                     javax.swing.KeyStroke.getKeyStroke('F', java.awt.event.InputEvent.CTRL_DOWN_MASK, false));
-            // putValue(Action.MNEMONIC_KEY, new Character('S'));
+         
         }
 
         @Override
         public void actionPerformed(ActionEvent evt) {
             Component component;
             JTextComponent text;
-            String find, upper;
+            String find;
+            String upper;
             int position;
 
             component = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
@@ -193,10 +194,7 @@ public class PanelSearchResults extends PanelTool implements SearchResultsOutput
             super("Clear Search Results");
             setEnabled(true);
             putValue("MENU", "Edit");
-            // F10 + CTRL
-            // putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(121,
-            // KeyEvent.CTRL_MASK, false));
-            // putValue(Action.MNEMONIC_KEY, new Character('S'));
+      
         }
 
         @Override
@@ -216,10 +214,7 @@ public class PanelSearchResults extends PanelTool implements SearchResultsOutput
             super("Search Results", Icons.iconSearch);
             setEnabled(true);
             putValue("MENU", "Tools");
-            // F10 + CTRL
-            // putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(121,
-            // KeyEvent.CTRL_MASK, false));
-            // putValue(Action.MNEMONIC_KEY, new Character('S'));
+           
         }
 
         @Override

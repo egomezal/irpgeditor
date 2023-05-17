@@ -44,7 +44,7 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
     private static final long serialVersionUID = -5478006094238354646L;
 
     TableModelRunConfigurations tableModelRunConfigurations = new TableModelRunConfigurations();
-    Logger logger = LoggerFactory.getLogger(PanelRunConfigurations.class);
+    transient Logger logger = LoggerFactory.getLogger(PanelRunConfigurations.class);
     ActionRun actionRun = new ActionRun();
     ActionFocus actionFocus = new ActionFocus();
     ActionDelete actionDelete = new ActionDelete();
@@ -67,7 +67,7 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
             buttonDelete.addActionListener(actionDelete);
             tableRunConfigurations.getSelectionModel().addListSelectionListener(this);
         } catch (Exception e) {
-            // e.printStackTrace();
+            
             logger.error(e.getMessage());
         }
     }
@@ -137,7 +137,7 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
             putValue("MENU", "Build");
             // F8
             putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(119, 0, false));
-            // putValue(Action.MNEMONIC_KEY, new Character('S'));
+            
         }
 
         @Override
@@ -158,7 +158,7 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
             frame.run(config);
             if (frame.isSSLFlg()) {
                 frame.setVisible(false);
-                frame = null;
+                
                 frame = new FrameTN5250J(true);
                 frame.run(config);
             }
@@ -180,8 +180,8 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
             setEnabled(true);
             putValue("MENU", "Tools");
             // F8 + CTRL
-            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(119, KeyEvent.CTRL_MASK, false));
-            // putValue(Action.MNEMONIC_KEY, new Character('S'));
+            putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(119, InputEvent.CTRL_DOWN_MASK, false));
+            
         }
 
         @Override
@@ -201,10 +201,7 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
             super("Delete Run Configuration");
             setEnabled(false);
             putValue("MENU", "Build");
-            // F8 + CTRL
-            // putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(119,
-            // KeyEvent.CTRL_MASK, false));
-            // putValue(Action.MNEMONIC_KEY, new Character('S'));
+          
         }
 
         public void actionPerformed(ActionEvent evt) {

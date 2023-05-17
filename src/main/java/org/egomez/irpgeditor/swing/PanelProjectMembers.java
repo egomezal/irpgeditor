@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Derek Van Kooten.
  */
-@SuppressWarnings("unused")
+
 public class PanelProjectMembers extends PanelTool {
 
     /**
@@ -25,20 +25,20 @@ public class PanelProjectMembers extends PanelTool {
      */
     private static final long serialVersionUID = -2554200723067021497L;
 
-    TreeModelProject treeModelFiles = new TreeModelProject();
-    Logger logger = LoggerFactory.getLogger(PanelProjectMembers.class);
+    transient TreeModelProject treeModelFiles = new TreeModelProject();
+    transient Logger logger = LoggerFactory.getLogger(PanelProjectMembers.class);
     ActionMemberOpen actionMemberOpen = new ActionMemberOpen();
 
-    ActionMemberRemove actionMemberRemove = new ActionMemberRemove();
-    ActionMemberRefactorRPG4 actionMemberRefactorRPG4 = new ActionMemberRefactorRPG4();
-    ActionMemberRefreshInfo actionMemberRefreshInfo = new ActionMemberRefreshInfo();
-    ActionMemberRename actionMemberRename = new ActionMemberRename();
-    ActionMemberDelete actionMemberDelete = new ActionMemberDelete();
-    ActionMemberCopy actionMemberCopy = new ActionMemberCopy();
+    transient ActionMemberRemove actionMemberRemove = new ActionMemberRemove();
+    transient ActionMemberRefactorRPG4 actionMemberRefactorRPG4 = new ActionMemberRefactorRPG4();
+    transient ActionMemberRefreshInfo actionMemberRefreshInfo = new ActionMemberRefreshInfo();
+    transient ActionMemberRename actionMemberRename = new ActionMemberRename();
+    transient ActionMemberDelete actionMemberDelete = new ActionMemberDelete();
+    transient ActionMemberCopy actionMemberCopy = new ActionMemberCopy();
 
-    HandlerRightClick handlerRightClick = new HandlerRightClick();
-    MouseAdapterTreeProject mouseAdapterTreeProject = new MouseAdapterTreeProject();
-    HandlerMemberSelected handlerMemberSelected = new HandlerMemberSelected();
+    transient HandlerRightClick handlerRightClick = new HandlerRightClick();
+    transient MouseAdapterTreeProject mouseAdapterTreeProject = new MouseAdapterTreeProject();
+    transient HandlerMemberSelected handlerMemberSelected = new HandlerMemberSelected();
     TreeCellRendererNode treeCellRendererNode = new TreeCellRendererNode();
 
     BorderLayout borderLayout1 = new BorderLayout();
@@ -47,7 +47,7 @@ public class PanelProjectMembers extends PanelTool {
 
     public PanelProjectMembers() {
         try {
-            super.actions = new Action[]{actionMemberOpen};
+            super.actions = new Action[] { actionMemberOpen };
             Environment.actions.addActions(actions);
             jbInit();
             treeMembers.addMouseListener(mouseAdapterTreeProject);
@@ -55,7 +55,6 @@ public class PanelProjectMembers extends PanelTool {
             treeMembers.setCellRenderer(treeCellRendererNode);
             ToolTipManager.sharedInstance().registerComponent(treeMembers);
         } catch (Exception e) {
-            //e.printStackTrace();
             logger.error(e.getMessage());
         }
     }
@@ -190,7 +189,7 @@ public class PanelProjectMembers extends PanelTool {
             Member member;
             String name;
 
-            project = (Project) Environment.projects.getSelected();
+            project = Environment.projects.getSelected();
             if (project == null) {
                 return;
             }
@@ -217,7 +216,7 @@ public class PanelProjectMembers extends PanelTool {
             try {
                 member.setName(name);
             } catch (Exception e) {
-                //e.printStackTrace();
+                
                 logger.error(e.getMessage());
             }
         }
@@ -234,7 +233,7 @@ public class PanelProjectMembers extends PanelTool {
             Project project;
             Member member;
 
-            project = (Project) Environment.projects.getSelected();
+            project = Environment.projects.getSelected();
             if (project == null) {
                 return;
             }
@@ -256,7 +255,7 @@ public class PanelProjectMembers extends PanelTool {
                     try {
                         member.delete();
                     } catch (Exception e) {
-                        //e.printStackTrace();
+                        
                         logger.error(e.getMessage());
                     }
                 }
@@ -304,10 +303,7 @@ public class PanelProjectMembers extends PanelTool {
             super("Open Member", Icons.iconMemberOpen);
             setEnabled(false);
             putValue("MENU", "File");
-            // F5 + CTRL
-            // putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(116,
-            // KeyEvent.CTRL_MASK, false));
-            // putValue(Action.MNEMONIC_KEY, new Character('S'));
+            
         }
 
         @Override
@@ -344,7 +340,7 @@ public class PanelProjectMembers extends PanelTool {
             Project project;
             Member member;
 
-            project = (Project) Environment.projects.getSelected();
+            project = Environment.projects.getSelected();
             if (project == null) {
                 return;
             }
@@ -363,7 +359,7 @@ public class PanelProjectMembers extends PanelTool {
                 try {
                     member.convertRPG4();
                 } catch (Exception e) {
-                    //e.printStackTrace();
+                    
                     logger.error(e.getMessage());
                 }
             }
