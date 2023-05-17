@@ -59,7 +59,7 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
     public PanelRunConfigurations() {
         setName("Run Configurations");
         try {
-            super.actions = new Action[]{actionRun, actionFocus, actionDelete};
+            super.actions = new Action[] { actionRun, actionFocus, actionDelete };
             Environment.actions.addActions(actions);
             jbInit();
             Environment.projects.addListener(this);
@@ -67,12 +67,12 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
             buttonDelete.addActionListener(actionDelete);
             tableRunConfigurations.getSelectionModel().addListSelectionListener(this);
         } catch (Exception e) {
-            
+
             logger.error(e.getMessage());
         }
     }
 
-    private void jbInit() throws Exception {
+    private void jbInit() {
         this.setLayout(borderLayout1);
         buttonDelete.setEnabled(false);
         buttonDelete.setMargin(new Insets(0, 0, 0, 0));
@@ -94,10 +94,12 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
 
     @Override
     public void added(Project project, int index) {
+        //
     }
 
     @Override
     public void removed(Project project, int index) {
+        //
     }
 
     public RunConfiguration getSelected() {
@@ -137,7 +139,7 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
             putValue("MENU", "Build");
             // F8
             putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(119, 0, false));
-            
+
         }
 
         @Override
@@ -158,7 +160,7 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
             frame.run(config);
             if (frame.isSSLFlg()) {
                 frame.setVisible(false);
-                
+
                 frame = new FrameTN5250J(true);
                 frame.run(config);
             }
@@ -181,7 +183,7 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
             putValue("MENU", "Tools");
             // F8 + CTRL
             putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(119, InputEvent.CTRL_DOWN_MASK, false));
-            
+
         }
 
         @Override
@@ -201,7 +203,7 @@ public class PanelRunConfigurations extends PanelTool implements ListenerProject
             super("Delete Run Configuration");
             setEnabled(false);
             putValue("MENU", "Build");
-          
+
         }
 
         public void actionPerformed(ActionEvent evt) {

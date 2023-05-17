@@ -81,7 +81,7 @@ public class PanelSearchResults extends PanelTool implements SearchResultsOutput
         }
     }
 
-    private void jbInit() throws Exception {
+    private void jbInit()  {
         setLayout(borderLayoutSearchResults);
         textareaSearchResults.setFont(new java.awt.Font("DialogInput", 0, 14));
         buttonClear.setMargin(new Insets(0, 0, 0, 0));

@@ -134,8 +134,8 @@ public class FrameiRPGEditor extends JFrame {
         splash = new WindowSplash(new JFrame());
 
         try {
-            String SO = System.getProperty("os.name");
-            if (!SO.toUpperCase().contains("WINDOWS")) {
+            String SOX = System.getProperty("os.name");
+            if (!SOX.toUpperCase().contains("WINDOWS")) {
                 PlasticXPLookAndFeel.setPlasticTheme(new ExperienceBlue());
                 UIManager.setLookAndFeel(new PlasticXPLookAndFeel());
             } else {
@@ -193,7 +193,9 @@ public class FrameiRPGEditor extends JFrame {
         try {
             repo = FileRepositoryBuilder.create(new File(workingDirectory, ".git"));
             repo.create();
-            git = new Git(repo);
+            Git git2 = new Git(repo);
+            git2.close();
+            repo.close();
         } catch (IOException e) {
             logger.error(e.getMessage());
 
@@ -203,6 +205,7 @@ public class FrameiRPGEditor extends JFrame {
                 repo = new FileRepository(new File(workingDirectory));
                 git = new Git(repo);
                 git.close();
+                repo.close();
             } catch (Exception e1) {
                 logger.error(e1.getMessage());
             } 
@@ -212,7 +215,7 @@ public class FrameiRPGEditor extends JFrame {
 
     }
 
-    private void jbInit() throws Exception {
+    private void jbInit(){
         border1 = new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(148, 145, 140));
         new TitledBorder(border1, "Run");
         border2 = new EtchedBorder(EtchedBorder.RAISED, Color.white, new Color(148, 145, 140));

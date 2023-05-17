@@ -43,6 +43,7 @@ public class TreeModelSourceStructure implements TreeModel, ListenerLineParser {
     ArrayList listParsers = new ArrayList();
 
     public TreeModelSourceStructure() {
+        //
     }
 
     public void setProjectMember(ProjectMember projectMember) {
@@ -71,6 +72,7 @@ public class TreeModelSourceStructure implements TreeModel, ListenerLineParser {
      */
     @Override
     public void added(SourceLine line) {
+    //
     }
 
     /**
@@ -80,6 +82,7 @@ public class TreeModelSourceStructure implements TreeModel, ListenerLineParser {
      */
     @Override
     public void removed(SourceLine line) {
+    //
     }
 
     /**
@@ -200,6 +203,7 @@ public class TreeModelSourceStructure implements TreeModel, ListenerLineParser {
      */
     @Override
     public void valueForPathChanged(TreePath path, Object newValue) {
+        //
     }
 
     /**
