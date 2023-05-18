@@ -846,7 +846,7 @@ public class PanelMember extends PanelTool implements SourceLoader, ListenerSave
                 }
                 Thread.currentThread().sleep(1000);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
 
             logger.error(e.getMessage());
         }

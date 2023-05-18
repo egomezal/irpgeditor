@@ -46,12 +46,13 @@ public class PanelSpool extends PanelTool implements Runnable {
 	JTextArea textareaSpool = new JTextArea();
 	String cadena;
 	Logger logger = LoggerFactory.getLogger(PanelSpool.class);
+	
 	public PanelSpool() {
 		try {
 			jbInit();
 			new HandlerKeyPressed(textareaSpool);
 		} catch (Exception e) {
-			//e.printStackTrace();
+			
 			logger.error(e.getMessage());
 		}
 	}
@@ -118,7 +119,7 @@ public class PanelSpool extends PanelTool implements Runnable {
                             textareaSpool.setSelectionEnd(0);
                         });
 		} catch (AS400SecurityException | ErrorCompletingRequestException | RequestNotSupportedException | IOException | InterruptedException e) {
-			//e.printStackTrace();
+			
 			logger.error(e.getMessage());
 			JOptionPane.showMessageDialog(null, e.getMessage());
 		}
@@ -126,12 +127,13 @@ public class PanelSpool extends PanelTool implements Runnable {
 
 	public static char byte2char(byte paramByte, String paramString) {
 		char c = ' ';
+		Logger logger1 = LoggerFactory.getLogger(PanelSpool.class);
 		try {
 			byte[] arrayOfByte = { paramByte };
 			c = new String(arrayOfByte, paramString).charAt(0);
 		} catch (UnsupportedEncodingException localUnsupportedEncodingException) {
-			System.err.println(localUnsupportedEncodingException);
-			System.err.println("Error while converting byte to char, returning blank...");
+			logger1.error(localUnsupportedEncodingException.toString());
+			logger1.error("Error while converting byte to char, returning blank...");
 		}
 		return c;
 	}

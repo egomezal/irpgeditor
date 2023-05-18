@@ -55,8 +55,8 @@ public class PanelSystems extends PanelTool {
     JButton buttonSystemsOpen = new JButton();
     FlowLayout flowlayoutSystemsButtons = new FlowLayout();
     JScrollPane scrollpaneSystems = new JScrollPane();
-    BorderLayout borderLayoutSystems = new BorderLayout();
     JButton buttonRemove = new JButton();
+    JButton buttonNew = new JButton();
     Logger logger = LoggerFactory.getLogger(PanelSystems.class);
 
     public PanelSystems() {
@@ -88,10 +88,19 @@ public class PanelSystems extends PanelTool {
         flowlayoutSystemsButtons.setVgap(2);
         buttonRemove.setMargin(new Insets(0, 0, 0, 0));
         buttonRemove.setText("Remove");
+        
+        buttonNew.setMargin(new Insets(0, 0, 0, 0));
+        buttonNew.setText("New Connection");
+        
         add(scrollpaneSystems, BorderLayout.CENTER);
         add(panelSystemsButtons, BorderLayout.NORTH);
+        panelSystemsButtons.add(buttonNew, null);
         panelSystemsButtons.add(buttonSystemsOpen, null);
         panelSystemsButtons.add(buttonRemove, null);
+        
+        
+        
+        
         scrollpaneSystems.getViewport().add(tableSystems, null);
     }
 
